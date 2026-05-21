@@ -1,0 +1,126 @@
+import { NextResponse } from "next/server";
+
+export const runtime = "nodejs";
+export const revalidate = 86400;
+
+export interface Reading {
+  title: string;
+  reference: string;
+  subtitle: string;
+  text: string;
+}
+
+export interface DailyReadingData {
+  date: string;
+  readings: Reading[];
+}
+
+function decodeEntities(str: string): string {
+  return str
+    .replace(/&nbsp;/g, " ")
+    .replace(/&#160;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&ldquo;/g, "“")
+    .replace(/&rdquo;/g, "”")
+    .replace(/&lsquo;|&#8216;/g, "‘")
+    .replace(/&rsquo;|&#8217;/g, "’")
+    .replace(/&mdash;/g, "—")
+    .replace(/&ndash;/g, "–")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+}
+
+function stripTags(html: string): string {
+  return decodeEntities(html.replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim();
+}
+
+const READING_TITLES = [
+  "first reading",
+  "second reading",
+  "responsorial psalm",
+  "gospel acclamation",
+  "alleluia",
+  "gospel",
+  "sequence",
+];
+
+export async function GET() {
+  try {
+    const res = await fetch("https://universalis.com/mass.htm", {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml",
+      },
+      next: { revalidate: 86400 },
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const html = await res.text();
+
+    // Date from <title>
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    const date = titleMatch
+      ? decodeEntities(titleMatch[1].split("|")[0].split("-")[0].trim())
+      : new Date().toLocaleDateString("en-GB", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+    const readings: Reading[] = [];
+
+    // Structure: <table class="each">...<th align="left">TITLE</th>...<th align="right">REF</th>...</table>
+    //            <h4>SUBTITLE</h4>
+    //            <div class="p">TEXT</div> <div class="pi">TEXT</div> ...
+    //
+    // Split the document on each <table class="each" — gives us one chunk per reading section
+    const chunks = html.split(/<table[^>]+class="each"[^>]*>/i);
+
+    for (let i = 1; i < chunks.length; i++) {
+      const chunk = chunks[i];
+
+      // Title — first <th align="left">
+      const titleMatch = chunk.match(/<th[^>]*align="left"[^>]*>([\s\S]*?)<\/th>/i);
+      if (!titleMatch) continue;
+      const title = stripTags(titleMatch[1]);
+
+      if (!READING_TITLES.some((r) => title.toLowerCase().includes(r))) continue;
+
+      // Reference — first <th align="right">
+      const refMatch = chunk.match(/<th[^>]*align="right"[^>]*>([\s\S]*?)<\/th>/i);
+      const reference = refMatch ? stripTags(refMatch[1]) : "";
+
+      // Everything after </table>
+      const afterTable = chunk.slice(chunk.indexOf("</table>") + 8);
+
+      // Subtitle — first <h4>
+      const h4Match = afterTable.match(/<h4[^>]*>([\s\S]*?)<\/h4>/i);
+      const subtitle = h4Match ? stripTags(h4Match[1]) : "";
+
+      // Body paragraphs — <div class="p"> and <div class="pi">
+      const paragraphs: string[] = [];
+      const divRegex = /<div[^>]+class="p[^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
+      let m: RegExpExecArray | null;
+      while ((m = divRegex.exec(afterTable)) !== null) {
+        const text = stripTags(m[1]).replace(/^\s+/, "");
+        if (text) paragraphs.push(text);
+      }
+
+      readings.push({
+        title,
+        reference,
+        subtitle,
+        text: paragraphs.join("\n\n"),
+      });
+    }
+
+    return NextResponse.json({ date, readings } satisfies DailyReadingData);
+  } catch (err) {
+    console.error("Daily reading error:", err);
+    return NextResponse.json({ error: "Failed to load" }, { status: 500 });
+  }
+}

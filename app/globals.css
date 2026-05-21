@@ -1,0 +1,56 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@custom-variant dark (.dark &);
+
+@theme {
+  --color-navy: #1a1a2e;
+  --color-gold: #c9a84c;
+}
+
+@keyframes wordIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media print {
+  /* Hide everything except chat messages */
+  body > * { display: none !important; }
+  #print-chat { display: block !important; }
+
+  #print-chat {
+    padding: 2rem;
+    font-family: Georgia, serif;
+  }
+
+  #print-chat .print-message-user {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
+  #print-chat .print-message-assistant {
+    border-left: 3px solid #f59e0b;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  #print-chat .print-header {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f59e0b;
+    color: #1e293b;
+  }
+
+  #print-chat .print-footer {
+    margin-top: 2rem;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-align: center;
+  }
+}
