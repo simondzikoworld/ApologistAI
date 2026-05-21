@@ -172,6 +172,7 @@ function AppStoreBadges({ lang }: { lang: Lang }) {
 
 export default function Home() {
   const [expanded, setExpanded] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingQuestion, setPendingQuestion] = useState<string | undefined>();
   const [chatKey, setChatKey] = useState(0);
   const [dark, setDark] = useState(false);
@@ -257,15 +258,26 @@ export default function Home() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: OUT } }}
               exit={{ opacity: 0, y: -10, transition: { duration: 0.2, ease: IN } }}
-              className="fixed top-0 left-0 right-0 z-[55] flex items-center py-2.5 px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700"
+              className="fixed top-0 left-0 right-0 z-[55] flex items-center py-2.5 px-4 sm:px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700"
             >
-              {/* Left — language selector */}
+              {/* Left — hamburger (mobile) / language selector (desktop) */}
               <div className="flex items-center gap-1">
+                {/* Hamburger — mobile only */}
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  aria-label="Open menu"
+                >
+                  <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
+                  <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
+                  <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
+                </button>
+                {/* Language selector — desktop only */}
                 {(["EN", "PL"] as const).map((l) => (
                   <button
                     key={l}
                     onClick={() => setLang(l)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
+                    className={`hidden md:inline-flex px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
                       lang === l
                         ? "bg-amber-500 text-white"
                         : "text-slate-500 dark:text-slate-400 hover:bg-amber-100 dark:hover:bg-slate-800 hover:text-amber-700"
@@ -276,26 +288,22 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Centre — nav links (hidden on small screens) */}
+              {/* Centre — nav links (desktop only) */}
               <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-1">
-                <a
-                  href="#"
-                  className="px-4 py-1.5 rounded-full text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-amber-100 dark:hover:bg-slate-800 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
-                >
-                  {t(lang, "navHome")}
-                </a>
-                <a
-                  href="#mission"
-                  className="px-4 py-1.5 rounded-full text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-amber-100 dark:hover:bg-slate-800 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
-                >
-                  {t(lang, "navMission")}
-                </a>
-                <a
-                  href="#daily-reading"
-                  className="px-4 py-1.5 rounded-full text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-amber-100 dark:hover:bg-slate-800 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
-                >
-                  {t(lang, "navDailyReading")}
-                </a>
+                {[
+                  { href: "#", label: t(lang, "navHome") },
+                  { href: "#mission", label: t(lang, "navMission") },
+                  { href: "#common-questions", label: t(lang, "navCommonQuestions") },
+                  { href: "#daily-reading", label: t(lang, "navDailyReading") },
+                ].map(({ href, label }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    className="px-3 py-1.5 rounded-full text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-amber-100 dark:hover:bg-slate-800 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+                  >
+                    {label}
+                  </a>
+                ))}
               </div>
 
               {/* Right — dark mode toggle */}
@@ -311,6 +319,89 @@ export default function Home() {
                 </motion.button>
               </div>
             </motion.nav>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile sidebar */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                key="sidebar-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm"
+                onClick={() => setSidebarOpen(false)}
+              />
+              {/* Panel */}
+              <motion.div
+                key="sidebar-panel"
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", stiffness: 320, damping: 32 }}
+                className="fixed top-0 left-0 h-full w-72 z-[80] bg-white dark:bg-slate-900 shadow-2xl flex flex-col"
+              >
+                {/* Sidebar header */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-600 text-lg">✝</span>
+                    <span className="text-sm font-bold text-slate-800 dark:text-white">Apologist AI</span>
+                  </div>
+                  <button
+                    onClick={() => setSidebarOpen(false)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-lg leading-none"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Nav links */}
+                <nav className="flex flex-col gap-1 px-3 py-4">
+                  {[
+                    { href: "#", label: t(lang, "navHome") },
+                    { href: "#mission", label: t(lang, "navMission") },
+                    { href: "#common-questions", label: t(lang, "navCommonQuestions") },
+                    { href: "#daily-reading", label: t(lang, "navDailyReading") },
+                  ].map(({ href, label }) => (
+                    <a
+                      key={href}
+                      href={href}
+                      onClick={() => setSidebarOpen(false)}
+                      className="px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+                    >
+                      {label}
+                    </a>
+                  ))}
+                </nav>
+
+                {/* Divider */}
+                <div className="mx-5 border-t border-slate-100 dark:border-slate-800" />
+
+                {/* Language selector */}
+                <div className="px-5 py-4">
+                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Language</p>
+                  <div className="flex gap-2">
+                    {(["EN", "PL"] as const).map((l) => (
+                      <button
+                        key={l}
+                        onClick={() => { setLang(l); setSidebarOpen(false); }}
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                          lang === l
+                            ? "bg-amber-500 text-white"
+                            : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-amber-100 hover:text-amber-700"
+                        }`}
+                      >
+                        {l === "EN" ? "🇬🇧 English" : "🇵🇱 Polski"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
 
@@ -387,31 +478,6 @@ export default function Home() {
                   <div key="bullets" className="mb-8">
                     <HeroBullets lang={lang} />
                   </div>
-
-                  {/* Common objections browser */}
-                  <motion.div
-                    key="objections"
-                    variants={heroBadgesVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="mb-8"
-                  >
-                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">
-                      {t(lang, "commonQuestionsLabel")}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {tArr(lang, "objections").map((q) => (
-                        <button
-                          key={q}
-                          onClick={() => openWithQuestion(q)}
-                          className="text-xs px-3 py-1.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-300 transition-colors font-medium"
-                        >
-                          {q}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
 
                   {/* App store badges */}
                   <motion.div
@@ -553,6 +619,34 @@ export default function Home() {
               <footer className="mt-2 text-sm text-amber-600 font-semibold">{t(lang, "aboutQuoteRef")}</footer>
             </blockquote>
           </div>
+      </section>
+
+      {/* ----------------------------------------------------------------
+          COMMON QUESTIONS — below Our Mission
+      ---------------------------------------------------------------- */}
+      <section id="common-questions" className="bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-16">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-amber-500 text-2xl">⚔</span>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t(lang, "commonQuestionsTitle")}</h2>
+          </div>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">{t(lang, "commonQuestionsSub")}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {tArr(lang, "objections").map((q) => (
+              <button
+                key={q}
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                  setTimeout(() => openWithQuestion(q), 300);
+                }}
+                className="group flex items-start gap-3 text-left px-5 py-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+              >
+                <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 text-[10px] font-bold group-hover:bg-amber-200 transition-colors">?</span>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-snug">{q}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ----------------------------------------------------------------
