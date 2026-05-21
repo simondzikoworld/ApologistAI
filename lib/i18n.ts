@@ -62,6 +62,10 @@ interface Dict {
   dailyReadingLoading: string;
   dailyReadingError: string;
   dailyReadingSource: string;
+  // common questions section
+  navCommonQuestions: string;
+  commonQuestionsTitle: string;
+  commonQuestionsSub: string;
   // arrays
   bullets: string[];
   objections: string[];
@@ -122,6 +126,9 @@ const EN: Dict = {
   dailyReadingLoading: "Loading today's readings…",
   dailyReadingError: "Could not load today's readings. Visit universalis.com for the full text.",
   dailyReadingSource: "Source: Universalis",
+  navCommonQuestions: "Common Questions",
+  commonQuestionsTitle: "Common Questions",
+  commonQuestionsSub: "Tap any question for an instant answer from the AI.",
   bullets: [
     "Defend Christianity with Scripture & logic",
     "Debunk alleged contradictions",
@@ -200,6 +207,9 @@ const PL: Dict = {
   dailyReadingLoading: "Ładowanie dzisiejszych czytań…",
   dailyReadingError: "Nie udało się załadować czytań. Odwiedź universalis.com.",
   dailyReadingSource: "Źródło: Universalis",
+  navCommonQuestions: "Częste pytania",
+  commonQuestionsTitle: "Częste pytania",
+  commonQuestionsSub: "Kliknij pytanie, aby uzyskać natychmiastową odpowiedź.",
   bullets: [
     "Broń chrześcijaństwa Pismem i logiką",
     "Obalaj rzekome sprzeczności biblijne",
