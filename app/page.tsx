@@ -245,8 +245,8 @@ export default function Home() {
           <img
             src="/crucifix.png"
             alt=""
-            className="select-none"
-            style={{ height: "90vh", width: "auto", opacity: 0.13, mixBlendMode: "multiply" }}
+            className="select-none w-[78vw] h-auto lg:w-auto lg:h-[90vh]"
+            style={{ opacity: 0.13, mixBlendMode: "multiply" }}
           />
         </div>
 
@@ -469,10 +469,30 @@ export default function Home() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="text-slate-500 dark:text-slate-400 text-base leading-relaxed max-w-md mb-9"
+                    className="text-slate-500 dark:text-slate-400 text-base leading-relaxed max-w-md mb-6"
                   >
                     {t(lang, "heroSub")}
                   </motion.p>
+
+                  {/* Try Now CTA */}
+                  <motion.div
+                    key="try-now-cta"
+                    variants={heroSubtextVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="mb-9"
+                  >
+                    <motion.button
+                      onClick={() => { setChatKey(k => k + 1); setExpanded(true); }}
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-lg shadow-amber-200 dark:shadow-amber-900/40 transition-colors"
+                    >
+                      <span>✝</span>
+                      {t(lang, "tryItNow")}
+                    </motion.button>
+                  </motion.div>
 
                   {/* Bullets */}
                   <div key="bullets" className="mb-8">
