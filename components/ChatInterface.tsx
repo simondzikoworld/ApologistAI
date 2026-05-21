@@ -147,9 +147,6 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
       setLoading(true);
       scrollToBottom();
 
-      const assistantMsg: Message = { role: "assistant", content: "" };
-      setMessages((prev) => [...prev, assistantMsg]);
-
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -162,6 +159,8 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
 
+        // Add the empty assistant message only now — replaces the typing indicator
+        setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
         setLoading(false);
         setIsStreaming(true);
 
@@ -183,14 +182,10 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
       } catch {
         setLoading(false);
         setIsStreaming(false);
-        setMessages((prev) => {
-          const updated = [...prev];
-          updated[updated.length - 1] = {
-            role: "assistant",
-            content: t(lang, "errorMsg"),
-          };
-          return updated;
-        });
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: t(lang, "errorMsg") },
+        ]);
       }
     },
     [messages, sources, mode, lang]

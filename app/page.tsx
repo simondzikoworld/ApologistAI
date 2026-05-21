@@ -276,8 +276,8 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Centre — nav links */}
-              <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1">
+              {/* Centre — nav links (hidden on small screens) */}
+              <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-1">
                 <a
                   href="#"
                   className="px-4 py-1.5 rounded-full text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-amber-100 dark:hover:bg-slate-800 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
@@ -333,15 +333,12 @@ export default function Home() {
         </AnimatePresence>
 
         {/* Two-column layout */}
-        <div className="relative z-10 flex min-h-screen">
+        <div className="relative z-10 flex flex-col lg:flex-row min-h-screen">
 
           {/* ----------------------------------------------------------------
-              LEFT — Hero content (55%)
+              LEFT — Hero content
           ---------------------------------------------------------------- */}
-          <div
-            className="flex flex-col justify-center px-12 xl:px-20 py-16"
-            style={{ width: "55%" }}
-          >
+          <div className="flex flex-col justify-center px-6 sm:px-10 lg:px-12 xl:px-20 pt-24 pb-10 lg:py-16 w-full lg:w-[55%]">
             <AnimatePresence>
               {!expanded && (
                 <>
@@ -352,7 +349,7 @@ export default function Home() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="flex items-center gap-2 mb-12"
+                    className="flex items-center gap-2 mb-6 lg:mb-12"
                   >
                     <span className="text-amber-600 text-lg leading-none">✝</span>
                     <span className="text-sm font-semibold text-slate-500 tracking-wide">
@@ -367,7 +364,7 @@ export default function Home() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="text-5xl font-black text-slate-900 dark:text-white leading-[1.08] tracking-tight mb-5"
+                    className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-[1.08] tracking-tight mb-5"
                   >
                     {t(lang, "heroLine1")}
                     <br />
@@ -453,12 +450,9 @@ export default function Home() {
           </div>
 
           {/* ----------------------------------------------------------------
-              RIGHT — Chat card (45%)
+              RIGHT — Chat card
           ---------------------------------------------------------------- */}
-          <div
-            className="flex flex-col items-center justify-center py-16 pr-4 xl:pr-8"
-            style={{ width: "45%" }}
-          >
+          <div className="flex flex-col items-center justify-center py-8 px-6 lg:py-16 lg:pr-4 xl:pr-8 w-full lg:w-[45%]">
             {/* "Try it now" label */}
             <AnimatePresence>
               {!expanded && (
@@ -496,7 +490,7 @@ export default function Home() {
               className={
                 expanded
                   ? "fixed inset-0 z-50 overflow-hidden bg-white dark:bg-slate-900"
-                  : "relative w-[420px] h-[580px] rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.10)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-slate-100 dark:border-slate-800"
+                  : "relative w-full max-w-[420px] h-[500px] sm:h-[540px] lg:h-[580px] rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.10)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-slate-100 dark:border-slate-800"
               }
             >
               <AnimatePresence mode="popLayout" initial={false}>
@@ -531,7 +525,7 @@ export default function Home() {
       {/* ----------------------------------------------------------------
           ABOUT — below the fold (outside the hero div so crucifix stays centered)
       ---------------------------------------------------------------- */}
-      <section id="mission" className="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-12 xl:px-20 py-20">
+      <section id="mission" className="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-20">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-3 mb-6">
               <span className="text-amber-500 text-2xl">✝</span>
@@ -543,7 +537,7 @@ export default function Home() {
             <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-8 text-base">
               {t(lang, "aboutP2")}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
               {(["1", "2", "3"] as const).map((n) => (
                 <div key={n} className="bg-amber-50 dark:bg-slate-800 border border-amber-100 dark:border-slate-700 rounded-2xl p-5">
                   <div className="text-2xl mb-3">{t(lang, `feature${n}Icon` as Parameters<typeof t>[1])}</div>
@@ -564,7 +558,7 @@ export default function Home() {
       {/* ----------------------------------------------------------------
           DAILY READING — below Our Mission
       ---------------------------------------------------------------- */}
-      <section id="daily-reading" className="bg-amber-50 dark:bg-slate-800/60 border-t border-amber-100 dark:border-slate-700 px-12 xl:px-20 py-16">
+      <section id="daily-reading" className="bg-amber-50 dark:bg-slate-800/60 border-t border-amber-100 dark:border-slate-700 px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-16">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
