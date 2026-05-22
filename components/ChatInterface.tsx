@@ -50,6 +50,7 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const userScrolledUpRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
 
@@ -138,8 +139,18 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
+  function stopStreaming() {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setLoading(false);
+    setIsStreaming(false);
+  }
+
   const sendMessage = useCallback(
     async (text: string) => {
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       const userMsg: Message = { role: "user", content: text };
       const newMessages = [...messages, userMsg];
       setMessages(newMessages);
@@ -152,6 +163,7 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: newMessages, sources, mode, lang }),
+          signal: controller.signal,
         });
 
         if (!res.ok || !res.body) throw new Error("Request failed");
@@ -159,7 +171,6 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
 
-        // Add the empty assistant message only now — replaces the typing indicator
         setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
         setLoading(false);
         setIsStreaming(true);
@@ -179,9 +190,18 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
         }
 
         setIsStreaming(false);
-      } catch {
+      } catch (err) {
         setLoading(false);
         setIsStreaming(false);
+        if ((err as Error).name === "AbortError") {
+          // Keep partial response; discard if nothing was received yet
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last?.role === "assistant" && !last.content.trim()) return prev.slice(0, -1);
+            return prev;
+          });
+          return;
+        }
         setMessages((prev) => [
           ...prev,
           { role: "assistant", content: t(lang, "errorMsg") },
@@ -387,15 +407,32 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
             </motion.button>
           )}
           <motion.button
-            onClick={() => input.trim() && !loading && sendMessage(input.trim())}
-            disabled={!input.trim() || loading}
+            onClick={() => {
+              if (loading || isStreaming) { stopStreaming(); }
+              else if (input.trim()) { sendMessage(input.trim()); }
+            }}
+            disabled={!input.trim() && !loading && !isStreaming}
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.92 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-white"
-            title="Send"
+            className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white transition-colors ${
+              loading || isStreaming
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed"
+            }`}
+            title={loading || isStreaming ? "Stop" : "Send"}
           >
-            <SendIcon />
+            <AnimatePresence mode="wait" initial={false}>
+              {loading || isStreaming ? (
+                <motion.span key="stop" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.12 }}>
+                  <StopIcon />
+                </motion.span>
+              ) : (
+                <motion.span key="send" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.12 }}>
+                  <SendIcon />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </motion.button>
         </div>
       </motion.div>
@@ -410,6 +447,14 @@ function SendIcon() {
   return (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+    </svg>
+  );
+}
+
+function StopIcon() {
+  return (
+    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <rect x="5" y="5" width="14" height="14" rx="2" />
     </svg>
   );
 }

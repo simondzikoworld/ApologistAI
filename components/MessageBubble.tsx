@@ -5,17 +5,6 @@ import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Message } from "@/lib/types";
-import type { ReactNode } from "react";
-
-function streamWrap(children: ReactNode): ReactNode {
-  const nodes = Array.isArray(children) ? children : [children];
-  return nodes.flatMap((node, i) => {
-    if (typeof node !== "string") return [node];
-    return node.split(/(\s+)/).map((t, j) => (
-      <span key={`${i}-${j}`} style={{ animation: "wordIn 0.25s ease forwards" }}>{t}</span>
-    ));
-  });
-}
 import { wrapScriptureRefs, parseBibCode } from "@/lib/scriptureUtils";
 import ScripturePill from "./ScripturePill";
 import { t, type Lang } from "@/lib/i18n";
@@ -129,16 +118,15 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
               h1: ({ children }) => <h1 className="text-base font-bold text-slate-900 mt-3 mb-1">{children}</h1>,
               h2: ({ children }) => <h2 className="text-sm font-bold text-slate-900 mt-3 mb-1">{children}</h2>,
               h3: ({ children }) => <h3 className="text-sm font-semibold text-slate-800 mt-2 mb-1">{children}</h3>,
-              p: ({ children }) => <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed mb-2 last:mb-0">{streaming ? streamWrap(children) : children}</p>,
+              p: ({ children }) => <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed mb-2 last:mb-0">{children}</p>,
               strong: ({ children }) => <strong className="font-semibold text-slate-900 dark:text-white">{children}</strong>,
               em: ({ children }) => <em className="italic text-slate-700 dark:text-slate-300">{children}</em>,
               ul: ({ children }) => <ul className="list-disc list-outside ml-4 mb-2 space-y-1">{children}</ul>,
               ol: ({ children }) => <ol className="list-decimal list-outside ml-4 mb-2 space-y-1">{children}</ol>,
-              li: ({ children }) => <li className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed">{streaming ? streamWrap(children) : children}</li>,
+              li: ({ children }) => <li className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed">{children}</li>,
               blockquote: ({ children }) => (
                 <blockquote className="border-l-2 border-amber-400 pl-3 italic text-slate-600 my-2">{children}</blockquote>
               ),
-              // Scripture pill detection — BIB: prefix set by wrapScriptureRefs()
               code: ({ children }) => {
                 const str = String(children);
                 const ref = parseBibCode(str);
@@ -150,6 +138,13 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
           >
             {processedContent}
           </ReactMarkdown>
+          {streaming && (
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
+              className="inline-block w-[2px] h-3.5 bg-amber-500 ml-0.5 rounded-full align-middle"
+            />
+          )}
         </div>
       </div>
     </motion.div>
