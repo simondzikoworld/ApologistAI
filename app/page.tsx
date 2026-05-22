@@ -7,7 +7,7 @@ import ChatPreview from "@/components/ChatPreview";
 import AnimatedThemeToggler from "@/components/AnimatedThemeToggler";
 import { t, tArr, type Lang } from "@/lib/i18n";
 
-const BMC_URL = "https://buymeacoffee.com/apologistai"; // ← update with your BMC username
+const BMC_URL = "https://buymeacoffee.com/apologistai";
 
 type EaseOut = "easeOut";
 type EaseIn = "easeIn";
