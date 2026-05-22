@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence, LayoutGroup, type Variants } from "framer-motion";
 import ChatInterface from "@/components/ChatInterface";
 import ChatPreview from "@/components/ChatPreview";
+import AnimatedThemeToggler from "@/components/AnimatedThemeToggler";
 import { t, tArr, type Lang } from "@/lib/i18n";
 
 type EaseOut = "easeOut";
@@ -175,17 +176,11 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingQuestion, setPendingQuestion] = useState<string | undefined>();
   const [chatKey, setChatKey] = useState(0);
-  const [dark, setDark] = useState(false);
   const [lang, setLang] = useState<Lang>("EN");
   const [readings, setReadings] = useState<{ date: string; readings: Array<{ title: string; reference: string; subtitle: string; text: string }> } | null>(null);
   const [readingsLoading, setReadingsLoading] = useState(true);
   const [readingsError, setReadingsError] = useState(false);
   const [expandedReading, setExpandedReading] = useState<number | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("cd-theme");
-    if (saved === "dark") setDark(true);
-  }, []);
 
   // Lock page scroll when chat is fullscreen; clear pending question when chat closes
   useEffect(() => {
@@ -193,20 +188,6 @@ export default function Home() {
     if (!expanded) setPendingQuestion(undefined);
     return () => { document.body.style.overflow = ""; };
   }, [expanded]);
-
-  function toggleDark() {
-    // Read DOM directly to avoid any stale-closure mismatch
-    const isDark = document.documentElement.classList.contains("dark");
-    if (isDark) {
-      document.documentElement.classList.remove("dark");
-      setDark(false);
-      localStorage.setItem("cd-theme", "light");
-    } else {
-      document.documentElement.classList.add("dark");
-      setDark(true);
-      localStorage.setItem("cd-theme", "dark");
-    }
-  }
 
   const dailyVerse = useMemo(
     () => DAILY_VERSES[getDayOfYear() % DAILY_VERSES.length],
@@ -308,15 +289,7 @@ export default function Home() {
 
               {/* Right — dark mode toggle */}
               <div className="ml-auto">
-                <motion.button
-                  onClick={toggleDark}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="w-9 h-9 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-slate-500 dark:text-amber-400 hover:border-amber-300 transition-colors"
-                  title={dark ? "Switch to light mode" : "Switch to dark mode"}
-                >
-                  {dark ? <SunIcon /> : <MoonIcon />}
-                </motion.button>
+                <AnimatedThemeToggler />
               </div>
             </motion.nav>
           )}
@@ -769,20 +742,3 @@ export default function Home() {
   );
 }
 
-function SunIcon() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-    </svg>
-  );
-}
