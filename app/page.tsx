@@ -402,7 +402,7 @@ export default function Home() {
           {/* ----------------------------------------------------------------
               LEFT — Hero content
           ---------------------------------------------------------------- */}
-          <div className="flex flex-col justify-center px-6 sm:px-10 lg:px-12 xl:px-20 pt-24 pb-10 lg:py-16 w-full lg:w-[55%]">
+          <div className="flex flex-col justify-center px-6 sm:px-10 lg:px-12 xl:px-20 2xl:px-32 pt-24 pb-10 lg:py-16 w-full lg:w-[55%]">
             <AnimatePresence>
               {!expanded && (
                 <>
@@ -428,7 +428,7 @@ export default function Home() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-[1.08] tracking-tight mb-5"
+                    className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-slate-900 dark:text-white leading-[1.08] tracking-tight mb-5"
                   >
                     {t(lang, "heroLine1")}
                     <br />
@@ -442,7 +442,7 @@ export default function Home() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="text-slate-500 dark:text-slate-400 text-base leading-relaxed max-w-md mb-6"
+                    className="text-slate-500 dark:text-slate-400 text-base xl:text-lg leading-relaxed max-w-md xl:max-w-xl mb-6"
                   >
                     {t(lang, "heroSub")}
                   </motion.p>
@@ -511,7 +511,7 @@ export default function Home() {
           {/* ----------------------------------------------------------------
               RIGHT — Chat card
           ---------------------------------------------------------------- */}
-          <div className="flex flex-col items-center justify-center py-8 px-6 lg:py-16 lg:pr-4 xl:pr-8 w-full lg:w-[45%]">
+          <div className="flex flex-col items-center justify-center py-8 px-6 lg:py-16 lg:pr-8 xl:pr-16 2xl:pr-24 w-full lg:w-[45%]">
             {/* "Try it now" label */}
             <AnimatePresence>
               {!expanded && (
@@ -548,8 +548,8 @@ export default function Home() {
               }}
               className={
                 expanded
-                  ? "fixed inset-0 z-50 overflow-hidden bg-white dark:bg-slate-900"
-                  : "relative w-full max-w-[420px] h-[500px] sm:h-[540px] lg:h-[580px] rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.10)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-slate-100 dark:border-slate-800"
+                  ? "fixed inset-0 z-50 overflow-hidden"
+                  : "relative w-full max-w-[420px] xl:max-w-[480px] 2xl:max-w-[520px] h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[640px] 2xl:h-[700px] rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.10)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-slate-100 dark:border-slate-800"
               }
             >
               <AnimatePresence mode="popLayout" initial={false}>
@@ -569,9 +569,11 @@ export default function Home() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1, transition: { duration: 0.35, delay: 0.15 } }}
                     exit={{ opacity: 0, transition: { duration: 0.2 } }}
-                    className="absolute inset-0"
+                    className="absolute inset-0 bg-slate-100 dark:bg-slate-950 flex justify-center"
                   >
-                    <ChatInterface key={chatKey} initialQuestion={pendingQuestion} startFresh={true} lang={lang} />
+                    <div className="w-full max-w-2xl h-full bg-white dark:bg-slate-900 shadow-2xl">
+                      <ChatInterface key={chatKey} initialQuestion={pendingQuestion} startFresh={true} lang={lang} />
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
