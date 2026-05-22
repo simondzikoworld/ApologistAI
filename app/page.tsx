@@ -7,6 +7,8 @@ import ChatPreview from "@/components/ChatPreview";
 import AnimatedThemeToggler from "@/components/AnimatedThemeToggler";
 import { t, tArr, type Lang } from "@/lib/i18n";
 
+const BMC_URL = "https://buymeacoffee.com/apologistai"; // ← update with your BMC username
+
 type EaseOut = "easeOut";
 type EaseIn = "easeIn";
 const OUT: EaseOut = "easeOut";
@@ -287,8 +289,16 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Right — dark mode toggle */}
-              <div className="ml-auto">
+              {/* Right — BMC + dark mode toggle */}
+              <div className="ml-auto flex items-center gap-2">
+                <a
+                  href={BMC_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FFDD00] hover:bg-yellow-300 text-slate-900 text-xs font-bold shadow-sm transition-colors"
+                >
+                  ☕ Buy me a coffee
+                </a>
                 <AnimatedThemeToggler />
               </div>
             </motion.nav>
@@ -372,6 +382,20 @@ export default function Home() {
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Buy Me a Coffee */}
+                <div className="mx-5 border-t border-slate-100 dark:border-slate-800" />
+                <div className="px-5 py-4">
+                  <a
+                    href={BMC_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setSidebarOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#FFDD00] hover:bg-yellow-300 text-slate-900 text-sm font-bold transition-colors"
+                  >
+                    ☕ Buy me a coffee
+                  </a>
                 </div>
               </motion.div>
             </>
@@ -595,9 +619,25 @@ export default function Home() {
             <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6 text-base">
               {t(lang, "aboutP1")}
             </p>
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-8 text-base">
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6 text-base">
               {t(lang, "aboutP2")}
             </p>
+
+            {/* Buy Me a Coffee callout */}
+            <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-amber-50 dark:bg-slate-800 border border-amber-200 dark:border-slate-700 rounded-2xl px-5 py-4">
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed flex-1">
+                {t(lang, "buyMeCoffeeText")}
+              </p>
+              <a
+                href={BMC_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FFDD00] hover:bg-yellow-300 text-slate-900 text-sm font-bold shadow-sm transition-colors"
+              >
+                ☕ {t(lang, "buyMeCoffeeBtn")}
+              </a>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
               {(["1", "2", "3"] as const).map((n) => (
                 <div key={n} className="bg-amber-50 dark:bg-slate-800 border border-amber-100 dark:border-slate-700 rounded-2xl p-5">

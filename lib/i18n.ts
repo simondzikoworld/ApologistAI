@@ -13,6 +13,8 @@ interface Dict {
   verseOfDay: string;
   commonQuestionsLabel: string;
   tryItNow: string;
+  buyMeCoffeeText: string;
+  buyMeCoffeeBtn: string;
   // preview
   previewTagline: string;
   previewReady: string;
@@ -83,6 +85,8 @@ const EN: Dict = {
   verseOfDay: "Verse of the Day",
   commonQuestionsLabel: "Common Questions",
   tryItNow: "Try it now →",
+  buyMeCoffeeText: "If you'd like this project to continue and grow, feel free to buy me a coffee — I'm a one-man squad.",
+  buyMeCoffeeBtn: "Buy me a coffee ☕",
   previewTagline: "Apologetics AI — Truth stands undefeated",
   previewReady: "Ready",
   previewHint: "Ask anything about Christianity — doctrine, objections, other religions, Biblical questions.",
@@ -164,6 +168,8 @@ const PL: Dict = {
   verseOfDay: "Werset dnia",
   commonQuestionsLabel: "Częste pytania",
   tryItNow: "Wypróbuj →",
+  buyMeCoffeeText: "Jeśli chcesz, żeby ten projekt się rozwijał, postaw mi kawę — jestem tu sam.",
+  buyMeCoffeeBtn: "Postaw mi kawę ☕",
   previewTagline: "AI Apologetyczne — Prawda jest niezwyciężona",
   previewReady: "Gotowy",
   previewHint: "Zadaj pytanie o chrześcijaństwo — doktrynę, zarzuty, inne religie, pytania biblijne.",
