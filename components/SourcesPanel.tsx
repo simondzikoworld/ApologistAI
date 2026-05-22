@@ -42,7 +42,10 @@ export default function SourcesPanel({ sources, onChange }: Props) {
       >
         <span className="flex items-center gap-2">
           <BookIcon />
-          Sources ({sources.length})
+          <span>Sources ({sources.length})</span>
+          <span className="text-[10px] font-normal text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 px-1.5 py-0.5 rounded-full leading-none">
+            750,000+ resources
+          </span>
         </span>
         <motion.div
           animate={{ rotate: open ? 180 : 0 }}
