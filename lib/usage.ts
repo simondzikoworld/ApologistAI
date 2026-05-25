@@ -4,7 +4,7 @@ import type { ResponseMode } from "./types";
 const TTL_SECONDS = 25 * 60 * 60; // 25 hours — outlives midnight
 
 export const DAILY_LIMITS = {
-  anon: { simple: 12, detailed: 0,  challenge: Infinity },
+  anon: { simple: 3,  detailed: 0,  challenge: Infinity },
   free: { simple: 12, detailed: 0,  challenge: Infinity },
   pro:  { simple: 30, detailed: 15, challenge: Infinity },
 } as const;

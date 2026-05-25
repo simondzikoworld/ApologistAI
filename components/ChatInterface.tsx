@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUser, SignUpButton, SignInButton } from "@clerk/nextjs";
 import type { Message, ResponseMode } from "@/lib/types";
 import { DEFAULT_SOURCES } from "@/data/defaultSources";
 import MessageBubble from "./MessageBubble";
@@ -23,7 +24,6 @@ const starterItemVariants = {
 };
 
 const HISTORY_KEY = "cd-chat-history";
-const FREE_DAILY_LIMIT = 12;
 const PRO_MODES: ResponseMode[] = ["detailed"];
 
 interface Props {
@@ -34,6 +34,7 @@ interface Props {
 }
 
 export default function ChatInterface({ initialQuestion, startFresh, lang = "EN", isPro = false }: Props) {
+  const { isSignedIn } = useUser();
   const [messages, setMessages] = useState<Message[]>(() => {
     if (startFresh || typeof window === "undefined") return [];
     try {
@@ -295,26 +296,47 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
                       <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-0.5">
                         {msg.content === "pro_required"
                           ? "Detailed mode requires a Pro subscription."
+                          : !isSignedIn
+                          ? "You've used your 3 free trial messages."
                           : isPro
-                          ? `You've reached your Pro daily limit for this mode.`
-                          : `You've used your ${FREE_DAILY_LIMIT} free messages for today.`}
+                          ? "You've reached your Pro daily limit for this mode."
+                          : "You've used your 12 free messages for today."}
                       </p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
                         {msg.content === "pro_required"
                           ? "Upgrade to Pro to unlock in-depth answers with deep source research."
-                          : "Upgrade to Pro for more messages, Detailed mode, and deep source research."}
+                          : !isSignedIn
+                          ? "Create a free account to get 12 messages per day, then upgrade to Pro for more."
+                          : "Upgrade to Pro for 30 messages/day, Detailed mode, and deep source research."}
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <a
-                      href="#pricing"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors"
-                    >
-                      ✦ {isPro ? "View plan" : "Upgrade to Pro"}
-                    </a>
-                    {msg.content === "daily_limit" && !isPro && (
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 self-center">or come back tomorrow for free</p>
+                    {!isSignedIn ? (
+                      <>
+                        <SignUpButton mode="modal">
+                          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors">
+                            Create free account
+                          </button>
+                        </SignUpButton>
+                        <SignInButton mode="modal">
+                          <button className="inline-flex items-center px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            Sign in
+                          </button>
+                        </SignInButton>
+                      </>
+                    ) : (
+                      <>
+                        <a
+                          href="#pricing"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors"
+                        >
+                          ✦ {isPro ? "View plan" : "Upgrade to Pro"}
+                        </a>
+                        {msg.content === "daily_limit" && !isPro && (
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 self-center">or come back tomorrow for free</p>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
