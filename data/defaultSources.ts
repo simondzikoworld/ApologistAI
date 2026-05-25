@@ -8,6 +8,7 @@ export type SourceCategory =
 
 export const CATEGORISED_SOURCES: Record<SourceCategory, string[]> = {
   apologetics: [
+    "https://www.catholic.com/",
     "https://carm.org",
     "https://www.reasonablefaith.org",
     "https://www.crossexamined.org",
