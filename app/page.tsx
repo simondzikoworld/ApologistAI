@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence, LayoutGroup, type Variants } from "framer-motion";
+import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import ChatInterface from "@/components/ChatInterface";
 import ChatPreview from "@/components/ChatPreview";
 import AnimatedThemeToggler from "@/components/AnimatedThemeToggler";
@@ -174,6 +175,10 @@ function AppStoreBadges({ lang }: { lang: Lang }) {
 // ---------------------------------------------------------------------------
 
 export default function Home() {
+  const { user, isSignedIn } = useUser();
+  const isPro = (user?.publicMetadata?.isPro as boolean) ?? false;
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
   const [expanded, setExpanded] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingQuestion, setPendingQuestion] = useState<string | undefined>();
@@ -206,6 +211,26 @@ export default function Home() {
       })
       .catch(() => setReadingsError(true))
       .finally(() => setReadingsLoading(false));
+  }, []);
+
+  async function handleProCheckout() {
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch("/api/stripe/checkout", { method: "POST" });
+      if (res.redirected) window.location.href = res.url;
+    } catch {
+      setCheckoutLoading(false);
+    }
+  }
+
+  // Handle return from Stripe checkout
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "success") {
+      window.history.replaceState({}, "", "/");
+      user?.reload();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function openWithQuestion(q: string) {
@@ -287,18 +312,39 @@ export default function Home() {
                     {label}
                   </a>
                 ))}
+                <a
+                  href="#pricing"
+                  className="px-3 py-1.5 rounded-full text-sm font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1"
+                >
+                  ✦ Pricing
+                </a>
               </div>
 
-              {/* Right — BMC + dark mode toggle */}
+              {/* Right — auth + dark mode toggle */}
               <div className="ml-auto flex items-center gap-2">
-                <a
-                  href={BMC_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FFDD00] hover:bg-yellow-300 text-slate-900 text-xs font-bold shadow-sm transition-colors"
-                >
-                  ☕ Buy me a coffee
-                </a>
+                {isSignedIn ? (
+                  <>
+                    {isPro && (
+                      <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 text-xs font-bold">
+                        ✦ Pro
+                      </span>
+                    )}
+                    <UserButton />
+                  </>
+                ) : (
+                  <>
+                    <SignInButton mode="modal">
+                      <button className="hidden sm:inline-flex px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors">
+                        Sign in
+                      </button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                      <button className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm transition-colors">
+                        ✦ Get Pro
+                      </button>
+                    </SignUpButton>
+                  </>
+                )}
                 <AnimatedThemeToggler />
               </div>
             </motion.nav>
@@ -359,6 +405,13 @@ export default function Home() {
                       {label}
                     </a>
                   ))}
+                  <a
+                    href="#pricing"
+                    onClick={() => setSidebarOpen(false)}
+                    className="px-4 py-3 rounded-xl text-sm font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2"
+                  >
+                    <span>✦</span> Pricing
+                  </a>
                 </nav>
 
                 {/* Divider */}
@@ -384,18 +437,31 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Buy Me a Coffee */}
+                {/* Auth */}
                 <div className="mx-5 border-t border-slate-100 dark:border-slate-800" />
-                <div className="px-5 py-4">
-                  <a
-                    href={BMC_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setSidebarOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#FFDD00] hover:bg-yellow-300 text-slate-900 text-sm font-bold transition-colors"
-                  >
-                    ☕ Buy me a coffee
-                  </a>
+                <div className="px-5 py-4 space-y-2">
+                  {isSignedIn ? (
+                    <div className="flex items-center gap-3 px-1">
+                      <UserButton />
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800 dark:text-white">{user?.firstName ?? "Account"}</p>
+                        {isPro && <p className="text-xs text-amber-500 font-bold">✦ Pro</p>}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <SignInButton mode="modal">
+                        <button onClick={() => setSidebarOpen(false)} className="flex items-center justify-center w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                          Sign in
+                        </button>
+                      </SignInButton>
+                      <SignUpButton mode="modal">
+                        <button onClick={() => setSidebarOpen(false)} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold transition-colors">
+                          ✦ Get Pro
+                        </button>
+                      </SignUpButton>
+                    </>
+                  )}
                 </div>
               </motion.div>
             </>
@@ -596,7 +662,7 @@ export default function Home() {
                     className="absolute inset-0 bg-slate-100 dark:bg-slate-950 flex justify-center"
                   >
                     <div className="w-full max-w-2xl h-full bg-white dark:bg-slate-900 shadow-2xl">
-                      <ChatInterface key={chatKey} initialQuestion={pendingQuestion} startFresh={true} lang={lang} />
+                      <ChatInterface key={chatKey} initialQuestion={pendingQuestion} startFresh={true} lang={lang} isPro={isPro} />
                     </div>
                   </motion.div>
                 )}
@@ -777,6 +843,103 @@ export default function Home() {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ----------------------------------------------------------------
+          PRICING — below Daily Reading
+      ---------------------------------------------------------------- */}
+      <section id="pricing" className="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-20">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-amber-500 text-2xl">✦</span>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Pricing</h2>
+          </div>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mb-10 leading-relaxed">
+            Apologist AI is free to use. Pro unlocks unlimited messages and the full Detailed research mode.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Free card */}
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-6 flex flex-col">
+              <div className="mb-4">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Free</p>
+                <p className="text-3xl font-black text-slate-900 dark:text-white">$0</p>
+                <p className="text-xs text-slate-400 mt-0.5">forever</p>
+              </div>
+              <ul className="space-y-2.5 flex-1 mb-6">
+                {[
+                  { ok: true,  text: "12 messages per day" },
+                  { ok: true,  text: "Simple mode" },
+                  { ok: true,  text: "⚔ Challenge mode" },
+                  { ok: false, text: "Detailed mode" },
+                  { ok: false, text: "Deep 6-source research" },
+                  { ok: false, text: "Unlimited daily messages" },
+                ].map(({ ok, text }) => (
+                  <li key={text} className="flex items-start gap-2.5">
+                    <span className={`mt-0.5 shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${ok ? "bg-amber-100 dark:bg-amber-900/40 text-amber-600" : "bg-slate-200 dark:bg-slate-700 text-slate-400"}`}>
+                      {ok ? "✓" : "✕"}
+                    </span>
+                    <span className={`text-sm leading-snug ${ok ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}`}>{text}</span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                Start free
+              </button>
+            </div>
+
+            {/* Pro card */}
+            <div className="rounded-2xl border-2 border-amber-400 dark:border-amber-500 bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/20 dark:to-slate-900 p-6 flex flex-col relative overflow-hidden">
+              <div className="absolute top-4 right-4">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-full">Most popular</span>
+              </div>
+              <div className="mb-4">
+                <p className="text-xs font-bold uppercase tracking-widest text-amber-500 mb-1">Pro</p>
+                <div className="flex items-end gap-1">
+                  <p className="text-3xl font-black text-slate-900 dark:text-white">$7</p>
+                  <p className="text-sm text-slate-400 mb-1">/month</p>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">cancel anytime</p>
+              </div>
+              <ul className="space-y-2.5 flex-1 mb-6">
+                {[
+                  "30 messages/day in Simple mode",
+                  "15 messages/day in Detailed mode",
+                  "⚔ Challenge mode (unlimited)",
+                  "📖 Deep 6-source research per answer",
+                  "Limits reset every 24 hours",
+                ].map((text) => (
+                  <li key={text} className="flex items-start gap-2.5">
+                    <span className="mt-0.5 shrink-0 w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-[10px] font-bold text-amber-600">✓</span>
+                    <span className="text-sm text-slate-700 dark:text-slate-300 leading-snug">{text}</span>
+                  </li>
+                ))}
+              </ul>
+              {isPro ? (
+                <div className="w-full py-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-bold text-center">
+                  ✦ You&apos;re on Pro
+                </div>
+              ) : isSignedIn ? (
+                <button
+                  onClick={handleProCheckout}
+                  disabled={checkoutLoading}
+                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold text-center shadow-sm shadow-amber-200 dark:shadow-amber-900/30 transition-colors disabled:opacity-60"
+                >
+                  {checkoutLoading ? "Redirecting to checkout…" : "Upgrade to Pro — $7/month"}
+                </button>
+              ) : (
+                <SignInButton mode="modal">
+                  <button className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold text-center shadow-sm shadow-amber-200 dark:shadow-amber-900/30 transition-colors">
+                    Sign in to upgrade → $7/month
+                  </button>
+                </SignInButton>
+              )}
+            </div>
+          </div>
         </div>
       </section>
 

@@ -1,42 +1,114 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { anthropic, buildSystemPrompt, MAX_TOKENS, MODEL_FOR_MODE } from "@/lib/claude";
+import { gemini, GEMINI_MODEL } from "@/lib/gemini";
 import { fetchAndParseSources } from "@/lib/sources";
-import type { ChatRequest } from "@/lib/types";
+import { incrementUsage, getLimit, userUsageKey, ipUsageKey, type Tier } from "@/lib/usage";
+import type { ChatRequest, ResponseMode } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-// Per-IP rate limiter: 15 requests per minute
+// Per-minute burst protection — in-memory is fine for this
 const rateLimiter = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 15;
 const RATE_WINDOW_MS = 60_000;
 
+// Source limit by mode
+const SOURCE_LIMIT: Record<ResponseMode, number> = {
+  simple: 3,
+  challenge: 0,
+  detailed: 6,
+};
+
 export async function POST(req: NextRequest) {
-  // Rate limiting
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
   const now = Date.now();
-  const entry = rateLimiter.get(ip) ?? { count: 0, resetAt: now + RATE_WINDOW_MS };
-  if (now > entry.resetAt) { entry.count = 0; entry.resetAt = now + RATE_WINDOW_MS; }
-  entry.count++;
-  rateLimiter.set(ip, entry);
-  if (entry.count > RATE_LIMIT) {
+
+  // Per-minute rate limit
+  const rateEntry = rateLimiter.get(ip) ?? { count: 0, resetAt: now + RATE_WINDOW_MS };
+  if (now > rateEntry.resetAt) { rateEntry.count = 0; rateEntry.resetAt = now + RATE_WINDOW_MS; }
+  rateEntry.count++;
+  rateLimiter.set(ip, rateEntry);
+  if (rateEntry.count > RATE_LIMIT) {
     return NextResponse.json({ error: "Too many requests. Please wait a moment." }, { status: 429 });
   }
 
+  // Auth — anonymous users still work, just at lower limits
+  const { userId, sessionClaims } = await auth();
+  const isPro = (sessionClaims?.publicMetadata as { isPro?: boolean })?.isPro === true;
+
+  let tier: Tier = "anon";
+  if (userId) tier = isPro ? "pro" : "free";
+
+  // Parse body
+  let body: ChatRequest;
   try {
-    const body: ChatRequest = await req.json();
-    const { messages, sources, mode = "simple", lang = "EN" } = body;
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
-    if (!messages?.length) {
-      return NextResponse.json({ error: "No messages provided" }, { status: 400 });
+  const { messages, sources, mode = "simple", lang = "EN" } = body;
+
+  if (!messages?.length) {
+    return NextResponse.json({ error: "No messages provided" }, { status: 400 });
+  }
+
+  // Gate Detailed mode — Pro only
+  if (mode === "detailed" && !isPro) {
+    return NextResponse.json({ error: "pro_required" }, { status: 403 });
+  }
+
+  // Daily limit check via Redis
+  const limit = getLimit(tier, mode);
+  if (limit !== Infinity) {
+    const key = userId ? userUsageKey(userId, mode) : ipUsageKey(ip);
+    const newCount = await incrementUsage(key);
+    if (newCount > limit) {
+      return NextResponse.json({ error: "daily_limit" }, { status: 429 });
     }
+  }
 
-    // Cap conversation history to last 10 messages to limit input tokens
+  try {
     const trimmedMessages = messages.slice(-10);
-
     const lastUserMessage = trimmedMessages.filter((m) => m.role === "user").at(-1)?.content ?? "";
-    const sourcesText = await fetchAndParseSources(sources ?? [], lastUserMessage);
+    const sourceLimit = SOURCE_LIMIT[mode];
+    const sourcesText = await fetchAndParseSources(sources ?? [], lastUserMessage, sourceLimit);
     const systemPrompt = buildSystemPrompt(mode, sourcesText, lang);
 
+    const encoder = new TextEncoder();
+
+    // Simple + Challenge → Gemini Flash (free tier)
+    if (mode === "simple" || mode === "challenge") {
+      const model = gemini.getGenerativeModel({ model: GEMINI_MODEL });
+      const history = trimmedMessages.slice(0, -1).map((m) => ({
+        role: m.role === "user" ? "user" as const : "model" as const,
+        parts: [{ text: m.content }],
+      }));
+      const chat = model.startChat({ history, systemInstruction: systemPrompt });
+      const lastMsg = trimmedMessages[trimmedMessages.length - 1].content;
+      const result = await chat.sendMessageStream(lastMsg);
+
+      const readable = new ReadableStream({
+        async start(controller) {
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
+            if (text) controller.enqueue(encoder.encode(text));
+          }
+          controller.close();
+        },
+      });
+
+      return new Response(readable, {
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "no-cache",
+          "X-Content-Type-Options": "nosniff",
+        },
+      });
+    }
+
+    // Detailed → Claude Sonnet
     const stream = anthropic.messages.stream({
       model: MODEL_FOR_MODE[mode],
       max_tokens: MAX_TOKENS[mode],
@@ -44,7 +116,6 @@ export async function POST(req: NextRequest) {
       messages: trimmedMessages.map((m) => ({ role: m.role, content: m.content })),
     });
 
-    const encoder = new TextEncoder();
     const readable = new ReadableStream({
       async start(controller) {
         for await (const chunk of stream) {

@@ -222,7 +222,9 @@ async function crawlSite(siteUrl: string): Promise<string> {
  * If a query is provided, only sources from matching categories are used
  * (up to MAX_SITES_PER_REQUEST). Falls back to using provided URLs directly.
  */
-export async function fetchAndParseSources(urls: string[], query?: string): Promise<string> {
+export async function fetchAndParseSources(urls: string[], query?: string, limit = MAX_SITES_PER_REQUEST): Promise<string> {
+  if (limit <= 0) return "";
+
   let targetUrls: string[];
 
   if (query?.trim()) {
@@ -233,9 +235,9 @@ export async function fetchAndParseSources(urls: string[], query?: string): Prom
     const defaultSet = new Set(Object.values(CATEGORISED_SOURCES).flat());
     const customUrls = urls.filter((u) => !defaultSet.has(u));
     // Deduplicate and cap
-    targetUrls = [...new Set([...categoryUrls, ...customUrls])].slice(0, MAX_SITES_PER_REQUEST);
+    targetUrls = [...new Set([...categoryUrls, ...customUrls])].slice(0, limit);
   } else {
-    targetUrls = urls.slice(0, MAX_SITES_PER_REQUEST);
+    targetUrls = urls.slice(0, limit);
   }
 
   if (!targetUrls.length) return "";

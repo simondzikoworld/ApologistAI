@@ -23,14 +23,17 @@ const starterItemVariants = {
 };
 
 const HISTORY_KEY = "cd-chat-history";
+const FREE_DAILY_LIMIT = 12;
+const PRO_MODES: ResponseMode[] = ["detailed"];
 
 interface Props {
   initialQuestion?: string;
   startFresh?: boolean;
   lang?: Lang;
+  isPro?: boolean;
 }
 
-export default function ChatInterface({ initialQuestion, startFresh, lang = "EN" }: Props) {
+export default function ChatInterface({ initialQuestion, startFresh, lang = "EN", isPro = false }: Props) {
   const [messages, setMessages] = useState<Message[]>(() => {
     if (startFresh || typeof window === "undefined") return [];
     try {
@@ -45,6 +48,7 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
   const [loading, setLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [mode, setMode] = useState<ResponseMode>("simple");
+  const [showProPrompt, setShowProPrompt] = useState(false);
   const [listening, setListening] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -166,7 +170,21 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
           signal: controller.signal,
         });
 
-        if (!res.ok || !res.body) throw new Error("Request failed");
+        if (!res.ok || !res.body) {
+          if (res.status === 429 || res.status === 403) {
+            const data = await res.json().catch(() => ({}));
+            if (data?.error === "daily_limit" || data?.error === "pro_required") {
+              setMessages((prev) => [
+                ...prev,
+                { role: "assistant", content: data.error },
+              ]);
+              setLoading(false);
+              if (data?.error === "pro_required") setShowProPrompt(true);
+              return;
+            }
+          }
+          throw new Error("Request failed");
+        }
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -262,14 +280,54 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
         </AnimatePresence>
 
         <AnimatePresence initial={false}>
-          {messages.map((msg, i) => (
-            <MessageBubble
-              key={i}
-              message={msg}
-              streaming={isStreaming && i === messages.length - 1}
-              lang={lang}
-            />
-          ))}
+          {messages.map((msg, i) =>
+            msg.role === "assistant" && (msg.content === "daily_limit" || msg.content === "pro_required") ? (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex justify-start"
+              >
+                <div className="max-w-[85%] rounded-2xl rounded-tl-sm px-4 py-3 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/10 border border-amber-200 dark:border-amber-700/50 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <span className="text-amber-500 text-base leading-none mt-0.5">✦</span>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-0.5">
+                        {msg.content === "pro_required"
+                          ? "Detailed mode requires a Pro subscription."
+                          : isPro
+                          ? `You've reached your Pro daily limit for this mode.`
+                          : `You've used your ${FREE_DAILY_LIMIT} free messages for today.`}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {msg.content === "pro_required"
+                          ? "Upgrade to Pro to unlock in-depth answers with deep source research."
+                          : "Upgrade to Pro for more messages, Detailed mode, and deep source research."}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <a
+                      href="#pricing"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors"
+                    >
+                      ✦ {isPro ? "View plan" : "Upgrade to Pro"}
+                    </a>
+                    {msg.content === "daily_limit" && !isPro && (
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 self-center">or come back tomorrow for free</p>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <MessageBubble
+                key={i}
+                message={msg}
+                streaming={isStreaming && i === messages.length - 1}
+                lang={lang}
+              />
+            )
+          )}
         </AnimatePresence>
 
         <AnimatePresence>
@@ -332,26 +390,36 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-slate-400 shrink-0">{t(lang, "responseMode")}</span>
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-xs font-medium">
-            {(["simple", "detailed", "challenge"] as ResponseMode[]).map((m, idx) => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                className={`relative px-3 py-1.5 transition-colors ${
-                  idx > 0 ? "border-l border-slate-200" : ""
-                } ${mode === m ? "text-white" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
-              >
-                {mode === m && (
-                  <motion.div
-                    layoutId="mode-pill"
-                    className={`absolute inset-0 ${m === "challenge" ? "bg-red-500" : "bg-amber-500"}`}
-                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                  />
-                )}
-                <span className="relative z-10">
-                  {m === "simple" ? t(lang, "modeSimple") : m === "detailed" ? t(lang, "modeDetailed") : t(lang, "modeChallenge")}
-                </span>
-              </button>
-            ))}
+            {(["simple", "detailed", "challenge"] as ResponseMode[]).map((m, idx) => {
+              const requiresPro = PRO_MODES.includes(m);
+              const isLocked = requiresPro && !isPro;
+              return (
+                <button
+                  key={m}
+                  onClick={() => {
+                    if (isLocked) { setShowProPrompt(true); return; }
+                    setShowProPrompt(false);
+                    setMode(m);
+                  }}
+                  title={isLocked ? "Pro feature — upgrade to unlock" : undefined}
+                  className={`relative px-3 py-1.5 transition-colors ${
+                    idx > 0 ? "border-l border-slate-200 dark:border-slate-700" : ""
+                  } ${mode === m && !isLocked ? "text-white" : isLocked ? "text-slate-400 dark:text-slate-500 cursor-not-allowed" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
+                >
+                  {mode === m && !isLocked && (
+                    <motion.div
+                      layoutId="mode-pill"
+                      className={`absolute inset-0 ${m === "challenge" ? "bg-red-500" : "bg-amber-500"}`}
+                      transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-1">
+                    {m === "simple" ? t(lang, "modeSimple") : m === "detailed" ? t(lang, "modeDetailed") : t(lang, "modeChallenge")}
+                    {isLocked && <span className="text-[9px] font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 px-1 py-px rounded leading-none">PRO</span>}
+                  </span>
+                </button>
+              );
+            })}
           </div>
           <AnimatePresence mode="wait">
             <motion.span
@@ -370,6 +438,33 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
             </motion.span>
           </AnimatePresence>
         </div>
+
+        {/* Pro upsell prompt — shown when user clicks Detailed */}
+        <AnimatePresence>
+          {showProPrompt && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50"
+            >
+              <p className="text-xs text-amber-800 dark:text-amber-200">
+                <span className="font-semibold">Detailed mode is Pro only.</span> Unlock unlimited messages + deep research.
+              </p>
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href="#pricing"
+                  onClick={() => setShowProPrompt(false)}
+                  className="text-xs font-semibold text-amber-600 hover:text-amber-700 underline underline-offset-2"
+                >
+                  See pricing ↓
+                </a>
+                <button onClick={() => setShowProPrompt(false)} className="text-slate-400 hover:text-slate-600 text-sm leading-none">✕</button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="flex gap-2 items-end">
           <textarea
