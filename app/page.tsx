@@ -225,15 +225,15 @@ export default function Home() {
     }
   }
 
-  // Handle return from Stripe checkout
+  // Handle return from Stripe checkout — wait for user to load before reloading session
   useEffect(() => {
+    if (!user) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("checkout") === "success") {
       window.history.replaceState({}, "", "/");
-      user?.reload();
+      user.reload().then(() => window.location.reload());
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   function openWithQuestion(q: string) {
     setChatKey(k => k + 1);
@@ -325,14 +325,14 @@ export default function Home() {
               {/* Right — auth + dark mode toggle */}
               <div className="ml-auto flex items-center gap-2">
                 {isSignedIn ? (
-                  <>
+                  <div className="relative">
+                    <UserButton />
                     {isPro && (
-                      <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 text-xs font-bold">
-                        ✦ Pro
+                      <span className="absolute -bottom-1 -right-1 text-[8px] font-black bg-amber-500 text-white px-1 py-px rounded-full leading-none pointer-events-none select-none">
+                        PRO
                       </span>
                     )}
-                    <UserButton />
-                  </>
+                  </div>
                 ) : (
                   <>
                     <SignInButton mode="modal">

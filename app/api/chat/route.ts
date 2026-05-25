@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { anthropic, buildSystemPrompt, MAX_TOKENS, MODEL_FOR_MODE } from "@/lib/claude";
 import { gemini, GEMINI_MODEL } from "@/lib/gemini";
 import { fetchAndParseSources } from "@/lib/sources";
@@ -34,11 +34,16 @@ export async function POST(req: NextRequest) {
   }
 
   // Auth — anonymous users still work, just at lower limits
-  const { userId, sessionClaims } = await auth();
-  const isPro = (sessionClaims?.publicMetadata as { isPro?: boolean })?.isPro === true;
-
+  // Read isPro from Clerk backend (not JWT sessionClaims) so it's always fresh
+  const { userId } = await auth();
+  let isPro = false;
   let tier: Tier = "anon";
-  if (userId) tier = isPro ? "pro" : "free";
+  if (userId) {
+    const clerk = await clerkClient();
+    const clerkUser = await clerk.users.getUser(userId);
+    isPro = (clerkUser.publicMetadata as { isPro?: boolean })?.isPro === true;
+    tier = isPro ? "pro" : "free";
+  }
 
   // Parse body
   let body: ChatRequest;
