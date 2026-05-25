@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { anthropic, buildSystemPrompt, MAX_TOKENS, MODEL_FOR_MODE } from "@/lib/claude";
-import { gemini, GEMINI_MODEL } from "@/lib/gemini";
 import { fetchAndParseSources } from "@/lib/sources";
 import { incrementUsage, getLimit, userUsageKey, ipUsageKey, type Tier } from "@/lib/usage";
 import type { ChatRequest, ResponseMode } from "@/lib/types";
@@ -83,40 +82,7 @@ export async function POST(req: NextRequest) {
 
     const encoder = new TextEncoder();
 
-    // Simple + Challenge → Gemini Flash (free tier) if key is set, else Claude Haiku
-    if (mode === "simple" || mode === "challenge") {
-      if (process.env.GEMINI_API_KEY?.trim()) {
-        const model = gemini.getGenerativeModel({ model: GEMINI_MODEL, systemInstruction: systemPrompt });
-        const history = trimmedMessages.slice(0, -1).map((m) => ({
-          role: m.role === "user" ? "user" as const : "model" as const,
-          parts: [{ text: m.content }],
-        }));
-        const chat = model.startChat({ history });
-        const lastMsg = trimmedMessages[trimmedMessages.length - 1].content;
-        const result = await chat.sendMessageStream(lastMsg);
-
-        const readable = new ReadableStream({
-          async start(controller) {
-            for await (const chunk of result.stream) {
-              const text = chunk.text();
-              if (text) controller.enqueue(encoder.encode(text));
-            }
-            controller.close();
-          },
-        });
-
-        return new Response(readable, {
-          headers: {
-            "Content-Type": "text/plain; charset=utf-8",
-            "Cache-Control": "no-cache",
-            "X-Content-Type-Options": "nosniff",
-          },
-        });
-      }
-      // Fall through to Claude below if no Gemini key
-    }
-
-    // Detailed → Claude Sonnet
+    // All modes → Claude (Haiku for simple/challenge, Sonnet for detailed)
     const stream = anthropic.messages.stream({
       model: MODEL_FOR_MODE[mode],
       max_tokens: MAX_TOKENS[mode],
