@@ -83,34 +83,37 @@ export async function POST(req: NextRequest) {
 
     const encoder = new TextEncoder();
 
-    // Simple + Challenge → Gemini Flash (free tier)
+    // Simple + Challenge → Gemini Flash (free tier) if key is set, else Claude Haiku
     if (mode === "simple" || mode === "challenge") {
-      const model = gemini.getGenerativeModel({ model: GEMINI_MODEL });
-      const history = trimmedMessages.slice(0, -1).map((m) => ({
-        role: m.role === "user" ? "user" as const : "model" as const,
-        parts: [{ text: m.content }],
-      }));
-      const chat = model.startChat({ history, systemInstruction: systemPrompt });
-      const lastMsg = trimmedMessages[trimmedMessages.length - 1].content;
-      const result = await chat.sendMessageStream(lastMsg);
+      if (process.env.GEMINI_API_KEY) {
+        const model = gemini.getGenerativeModel({ model: GEMINI_MODEL });
+        const history = trimmedMessages.slice(0, -1).map((m) => ({
+          role: m.role === "user" ? "user" as const : "model" as const,
+          parts: [{ text: m.content }],
+        }));
+        const chat = model.startChat({ history, systemInstruction: systemPrompt });
+        const lastMsg = trimmedMessages[trimmedMessages.length - 1].content;
+        const result = await chat.sendMessageStream(lastMsg);
 
-      const readable = new ReadableStream({
-        async start(controller) {
-          for await (const chunk of result.stream) {
-            const text = chunk.text();
-            if (text) controller.enqueue(encoder.encode(text));
-          }
-          controller.close();
-        },
-      });
+        const readable = new ReadableStream({
+          async start(controller) {
+            for await (const chunk of result.stream) {
+              const text = chunk.text();
+              if (text) controller.enqueue(encoder.encode(text));
+            }
+            controller.close();
+          },
+        });
 
-      return new Response(readable, {
-        headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          "Cache-Control": "no-cache",
-          "X-Content-Type-Options": "nosniff",
-        },
-      });
+        return new Response(readable, {
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "no-cache",
+            "X-Content-Type-Options": "nosniff",
+          },
+        });
+      }
+      // Fall through to Claude below if no Gemini key
     }
 
     // Detailed → Claude Sonnet
