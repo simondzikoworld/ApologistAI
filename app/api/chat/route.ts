@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
 
     // Simple + Challenge → Gemini Flash (free tier) if key is set, else Claude Haiku
     if (mode === "simple" || mode === "challenge") {
-      if (process.env.GEMINI_API_KEY) {
+      if (process.env.GEMINI_API_KEY?.trim()) {
         const model = gemini.getGenerativeModel({ model: GEMINI_MODEL });
         const history = trimmedMessages.slice(0, -1).map((m) => ({
           role: m.role === "user" ? "user" as const : "model" as const,
@@ -146,7 +146,8 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err) {
-    console.error("Chat API error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("Chat API error:", msg);
+    return NextResponse.json({ error: "Internal server error", detail: msg }, { status: 500 });
   }
 }
