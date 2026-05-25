@@ -86,12 +86,12 @@ export async function POST(req: NextRequest) {
     // Simple + Challenge → Gemini Flash (free tier) if key is set, else Claude Haiku
     if (mode === "simple" || mode === "challenge") {
       if (process.env.GEMINI_API_KEY?.trim()) {
-        const model = gemini.getGenerativeModel({ model: GEMINI_MODEL });
+        const model = gemini.getGenerativeModel({ model: GEMINI_MODEL, systemInstruction: systemPrompt });
         const history = trimmedMessages.slice(0, -1).map((m) => ({
           role: m.role === "user" ? "user" as const : "model" as const,
           parts: [{ text: m.content }],
         }));
-        const chat = model.startChat({ history, systemInstruction: { role: "user", parts: [{ text: systemPrompt }] } });
+        const chat = model.startChat({ history });
         const lastMsg = trimmedMessages[trimmedMessages.length - 1].content;
         const result = await chat.sendMessageStream(lastMsg);
 
