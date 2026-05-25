@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
           role: m.role === "user" ? "user" as const : "model" as const,
           parts: [{ text: m.content }],
         }));
-        const chat = model.startChat({ history, systemInstruction: systemPrompt });
+        const chat = model.startChat({ history, systemInstruction: { role: "user", parts: [{ text: systemPrompt }] } });
         const lastMsg = trimmedMessages[trimmedMessages.length - 1].content;
         const result = await chat.sendMessageStream(lastMsg);
 
