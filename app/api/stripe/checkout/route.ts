@@ -28,5 +28,5 @@ export async function POST() {
     cancel_url: `${appUrl}/#pricing`,
   });
 
-  return NextResponse.redirect(session.url!, 303);
+  return NextResponse.json({ url: session.url });
 }

@@ -217,7 +217,9 @@ export default function Home() {
     setCheckoutLoading(true);
     try {
       const res = await fetch("/api/stripe/checkout", { method: "POST" });
-      if (res.redirected) window.location.href = res.url;
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else setCheckoutLoading(false);
     } catch {
       setCheckoutLoading(false);
     }
