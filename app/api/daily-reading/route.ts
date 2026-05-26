@@ -121,9 +121,9 @@ export async function GET(req: NextRequest) {
       const h4Match = afterTable.match(/<h4[^>]*>([\s\S]*?)<\/h4>/i);
       const subtitle = h4Match ? stripTags(h4Match[1]) : "";
 
-      // Body paragraphs — <div class="p"> and <div class="pi">
+      // Body paragraphs — <div class="p/pi"> (prose) and <div class="v/vi"> (psalm verse)
       const paragraphs: string[] = [];
-      const divRegex = /<div[^>]+class="p[^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
+      const divRegex = /<div[^>]+class="[pv][^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
       let m: RegExpExecArray | null;
       while ((m = divRegex.exec(afterTable)) !== null) {
         const text = stripTags(m[1]).replace(/^\s+/, "");
