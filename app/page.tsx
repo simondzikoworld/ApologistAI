@@ -202,16 +202,19 @@ export default function Home() {
   );
 
   useEffect(() => {
-    fetch("/api/daily-reading")
+    setReadings(null);
+    setReadingsError(false);
+    setReadingsLoading(true);
+    fetch(`/api/daily-reading?lang=${lang}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.error) throw new Error(data.error);
         setReadings(data);
-        setExpandedReading(0); // auto-open first reading
+        setExpandedReading(0);
       })
       .catch(() => setReadingsError(true))
       .finally(() => setReadingsLoading(false));
-  }, []);
+  }, [lang]);
 
   async function handleProCheckout() {
     setCheckoutLoading(true);

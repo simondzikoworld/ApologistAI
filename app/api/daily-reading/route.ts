@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import Anthropic from "@anthropic-ai/sdk";
 
 export const runtime = "nodejs";
 export const revalidate = 86400;
@@ -46,7 +47,25 @@ const READING_TITLES = [
   "sequence",
 ];
 
-export async function GET() {
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+async function translateReadings(data: DailyReadingData): Promise<DailyReadingData> {
+  const payload = JSON.stringify(data);
+  const msg = await anthropic.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 4096,
+    messages: [{
+      role: "user",
+      content: `Translate the following Catholic daily Mass readings JSON from English to Polish. Translate ALL text fields (date, title, reference, subtitle, text). Keep the exact same JSON structure. Return ONLY the JSON, no explanation.\n\n${payload}`,
+    }],
+  });
+  const raw = (msg.content[0] as { type: string; text: string }).text.trim();
+  const jsonStr = raw.startsWith("```") ? raw.replace(/^```[a-z]*\n?/, "").replace(/\n?```$/, "") : raw;
+  return JSON.parse(jsonStr) as DailyReadingData;
+}
+
+export async function GET(req: NextRequest) {
+  const lang = req.nextUrl.searchParams.get("lang") ?? "EN";
   try {
     const res = await fetch("https://universalis.com/mass.htm", {
       headers: {
@@ -118,7 +137,12 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json({ date, readings } satisfies DailyReadingData);
+    const result: DailyReadingData = { date, readings };
+    if (lang === "PL" && readings.length > 0) {
+      const translated = await translateReadings(result);
+      return NextResponse.json(translated);
+    }
+    return NextResponse.json(result satisfies DailyReadingData);
   } catch (err) {
     console.error("Daily reading error:", err);
     return NextResponse.json({ error: "Failed to load" }, { status: 500 });
