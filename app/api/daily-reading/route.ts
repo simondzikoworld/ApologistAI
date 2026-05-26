@@ -37,15 +37,11 @@ function stripTags(html: string): string {
   return decodeEntities(html.replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim();
 }
 
-const READING_TITLES = [
-  "first reading",
-  "second reading",
-  "responsorial psalm",
-  "gospel acclamation",
-  "alleluia",
-  "gospel",
-  "sequence",
-];
+// Only the meaningful Mass readings — skip Gospel Acclamation (just "Alleluia") and Sequence
+const READING_TITLES = ["first reading", "second reading", "responsorial psalm", "gospel"];
+
+// Titles that mark the start of a second / optional Mass set — stop before these
+const SECOND_MASS_MARKERS = ["first reading", "second reading"];
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -92,12 +88,9 @@ export async function GET(req: NextRequest) {
 
     const readings: Reading[] = [];
 
-    // Structure: <table class="each">...<th align="left">TITLE</th>...<th align="right">REF</th>...</table>
-    //            <h4>SUBTITLE</h4>
-    //            <div class="p">TEXT</div> <div class="pi">TEXT</div> ...
-    //
-    // Split the document on each <table class="each" — gives us one chunk per reading section
+    // Split the document on each <table class="each" — gives one chunk per reading section
     const chunks = html.split(/<table[^>]+class="each"[^>]*>/i);
+    let seenGospel = false;
 
     for (let i = 1; i < chunks.length; i++) {
       const chunk = chunks[i];
@@ -106,8 +99,16 @@ export async function GET(req: NextRequest) {
       const titleMatch = chunk.match(/<th[^>]*align="left"[^>]*>([\s\S]*?)<\/th>/i);
       if (!titleMatch) continue;
       const title = stripTags(titleMatch[1]);
+      const titleLower = title.toLowerCase();
 
-      if (!READING_TITLES.some((r) => title.toLowerCase().includes(r))) continue;
+      // Skip if not a reading we want
+      if (!READING_TITLES.some((r) => titleLower.includes(r))) continue;
+
+      // Stop if we've seen the Gospel and now hit another First/Second Reading
+      // (that means a second Mass set has started — saint's feast etc.)
+      if (seenGospel && SECOND_MASS_MARKERS.some((r) => titleLower.includes(r))) break;
+
+      if (titleLower.includes("gospel")) seenGospel = true;
 
       // Reference — first <th align="right">
       const refMatch = chunk.match(/<th[^>]*align="right"[^>]*>([\s\S]*?)<\/th>/i);
@@ -129,12 +130,11 @@ export async function GET(req: NextRequest) {
         if (text) paragraphs.push(text);
       }
 
-      readings.push({
-        title,
-        reference,
-        subtitle,
-        text: paragraphs.join("\n\n"),
-      });
+      const text = paragraphs.join("\n\n");
+      // Skip readings with no body text (e.g. bare Alleluia verses)
+      if (!text) continue;
+
+      readings.push({ title, reference, subtitle, text });
     }
 
     const result: DailyReadingData = { date, readings };
