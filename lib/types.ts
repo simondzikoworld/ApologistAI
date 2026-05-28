@@ -11,6 +11,17 @@ export interface Source {
 
 export type ResponseMode = "simple" | "detailed" | "challenge";
 
+export interface Conversation {
+  id: string;
+  userId: string;
+  title: string;
+  createdAt: number;
+  updatedAt: number;
+  mode: ResponseMode;
+  lang: string;
+  messages: Message[];
+}
+
 export interface ChatRequest {
   messages: Message[];
   sources: string[];

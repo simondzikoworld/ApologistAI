@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, LayoutGroup, type Variants } from "framer-motion";
 import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import ChatInterface from "@/components/ChatInterface";
@@ -175,6 +176,7 @@ function AppStoreBadges({ lang }: { lang: Lang }) {
 // ---------------------------------------------------------------------------
 
 export default function Home() {
+  const router = useRouter();
   const { user, isSignedIn } = useUser();
   const isPro = (user?.publicMetadata?.isPro as boolean) ?? false;
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -239,6 +241,10 @@ export default function Home() {
   }, [user]);
 
   function openWithQuestion(q: string) {
+    if (isSignedIn) {
+      router.push("/chat");
+      return;
+    }
     setChatKey(k => k + 1);
     setPendingQuestion(q);
     setExpanded(true);
@@ -552,7 +558,7 @@ export default function Home() {
                     className="mb-9"
                   >
                     <motion.button
-                      onClick={() => { setChatKey(k => k + 1); setExpanded(true); }}
+                      onClick={() => { if (isSignedIn) { router.push("/chat"); } else { setChatKey(k => k + 1); setExpanded(true); } }}
                       whileHover={{ scale: 1.04 }}
                       whileTap={{ scale: 0.97 }}
                       className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-lg shadow-amber-200 dark:shadow-amber-900/40 transition-colors"

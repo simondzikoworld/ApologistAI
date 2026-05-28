@@ -26,15 +26,30 @@ const starterItemVariants = {
 const HISTORY_KEY = "cd-chat-history";
 const PRO_MODES: ResponseMode[] = ["detailed"];
 
+function deriveTitle(text: string): string {
+  return text.trim().replace(/[?!.]+$/, "").slice(0, 60) || "New conversation";
+}
+
 interface Props {
   initialQuestion?: string;
   startFresh?: boolean;
   lang?: Lang;
   isPro?: boolean;
+  conversationId?: string;
+  onConversationSaved?: (id: string) => void;
 }
 
-export default function ChatInterface({ initialQuestion, startFresh, lang = "EN", isPro = false }: Props) {
+export default function ChatInterface({
+  initialQuestion,
+  startFresh,
+  lang = "EN",
+  isPro = false,
+  conversationId: initialConvId,
+  onConversationSaved,
+}: Props) {
   const { isSignedIn } = useUser();
+  const conversationIdRef = useRef<string | null>(initialConvId ?? null);
+  const createdAtRef = useRef<number>(Date.now());
   const [messages, setMessages] = useState<Message[]>(() => {
     if (startFresh || typeof window === "undefined") return [];
     try {
@@ -209,6 +224,28 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
         }
 
         setIsStreaming(false);
+
+        // Fire-and-forget save for signed-in users
+        if (isSignedIn) {
+          setMessages((prev) => {
+            const id = conversationIdRef.current ?? crypto.randomUUID();
+            conversationIdRef.current = id;
+            const firstUserMsg = prev.find((m) => m.role === "user")?.content ?? "";
+            fetch("/api/conversations", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id,
+                title: deriveTitle(firstUserMsg),
+                messages: prev.slice(-40),
+                mode,
+                lang,
+                createdAt: createdAtRef.current,
+              }),
+            }).then(() => onConversationSaved?.(id)).catch(() => {});
+            return prev;
+          });
+        }
       } catch (err) {
         setLoading(false);
         setIsStreaming(false);
