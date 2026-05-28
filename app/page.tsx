@@ -871,6 +871,7 @@ export default function Home() {
                 <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Free</p>
                 <p className="text-3xl font-black text-slate-900 dark:text-white">$0</p>
                 <p className="text-xs text-slate-400 mt-0.5">forever</p>
+                <p className="text-xs text-slate-400 mt-1.5 italic">Best for basic use</p>
               </div>
               <ul className="space-y-2.5 flex-1 mb-6">
                 {[
@@ -909,6 +910,7 @@ export default function Home() {
                   <p className="text-sm text-slate-400 mb-1">/month</p>
                 </div>
                 <p className="text-xs text-slate-400 mt-0.5">cancel anytime</p>
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 italic font-medium">Best for students, teachers &amp; debaters</p>
               </div>
               <ul className="space-y-2.5 flex-1 mb-6">
                 {[
