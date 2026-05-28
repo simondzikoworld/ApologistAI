@@ -45,14 +45,15 @@ const SECOND_MASS_MARKERS = ["first reading", "second reading"];
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-async function translateReadings(data: DailyReadingData): Promise<DailyReadingData> {
+async function translateReadings(data: DailyReadingData, lang: string): Promise<DailyReadingData> {
+  const targetLang = lang === "PL" ? "Polish" : "Spanish";
   const payload = JSON.stringify(data);
   const msg = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 4096,
     messages: [{
       role: "user",
-      content: `Translate the following Catholic daily Mass readings JSON from English to Polish. Translate ALL text fields (date, title, reference, subtitle, text). Keep the exact same JSON structure. Return ONLY the JSON, no explanation.\n\n${payload}`,
+      content: `Translate the following Catholic daily Mass readings JSON from English to ${targetLang}. Translate ALL text fields (date, title, reference, subtitle, text). Keep the exact same JSON structure. Return ONLY the JSON, no explanation.\n\n${payload}`,
     }],
   });
   const raw = (msg.content[0] as { type: string; text: string }).text.trim();
@@ -138,8 +139,8 @@ export async function GET(req: NextRequest) {
     }
 
     const result: DailyReadingData = { date, readings };
-    if (lang === "PL" && readings.length > 0) {
-      const translated = await translateReadings(result);
+    if ((lang === "PL" || lang === "ES") && readings.length > 0) {
+      const translated = await translateReadings(result, lang);
       return NextResponse.json(translated);
     }
     return NextResponse.json(result satisfies DailyReadingData);

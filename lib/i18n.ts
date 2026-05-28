@@ -1,4 +1,4 @@
-export type Lang = "EN" | "PL" | "ES" | "DE";
+export type Lang = "EN" | "PL" | "ES";
 
 interface Dict {
   // nav
@@ -240,7 +240,90 @@ const PL: Dict = {
   ],
 };
 
-const LANGS: Partial<Record<Lang, Dict>> = { EN, PL };
+const ES: Dict = {
+  navHome: "Inicio",
+  navMission: "Nuestra misión",
+  heroLine1: "La Apologética",
+  heroLine2: "Cristiana Invicta",
+  heroSub: "Un asistente de IA entrenado en las Escrituras, la historia de la Iglesia y la religión comparada. Defiende tu fe, refuta objeciones y descubre la verdad.",
+  comingToMobile: "Próximamente en móvil",
+  comingSoon: "Próximamente",
+  verseOfDay: "Versículo del día",
+  commonQuestionsLabel: "Preguntas frecuentes",
+  tryItNow: "Pruébalo ahora →",
+  buyMeCoffeeText: "Si quieres que este proyecto continúe y crezca, invítame a un café — soy un equipo de una sola persona.",
+  buyMeCoffeeBtn: "Invítame a un café ☕",
+  previewTagline: "IA Apologética — La verdad permanece invicta",
+  previewReady: "Listo",
+  previewHint: "Pregunta sobre el cristianismo — doctrina, objeciones, otras religiones o la Biblia.",
+  previewCta: "Haz clic para iniciar una conversación",
+  previewPlaceholder: "Haz clic para comenzar...",
+  chatHint: "Pregunta sobre el cristianismo — doctrina, objeciones, otras religiones o la Biblia.",
+  chatPlaceholder: "Pregunta sobre el cristianismo, objeciones u otras religiones...",
+  responseMode: "Modo de respuesta:",
+  modeSimple: "Simple",
+  modeDetailed: "Detallado",
+  modeChallenge: "⚔ Desafío",
+  modeSimpleDesc: "Respuestas cortas y claras",
+  modeDetailedDesc: "Respuestas detalladas con fuentes y réplicas",
+  modeChallengeDesc: "Enfréntate a un escéptico — fortalece tu fe",
+  clearBtn: "Borrar",
+  printBtn: "Imprimir",
+  errorMsg: "Lo sentimos, algo salió mal. Por favor, inténtalo de nuevo.",
+  saveBtn: "Guardar",
+  copyBtn: "Copiar",
+  copiedBtn: "¡Copiado!",
+  aboutTitle: "Nuestra misión",
+  aboutP1: "Apologist AI es un ministerio gratuito creado para equipar a los creyentes con respuestas sólidas, fundamentadas en las Escrituras, a las preguntas más difíciles sobre el cristianismo. Ya sea que enfrentes dudas, escépticos o preguntas sinceras sobre la fe, esta herramienta te da acceso a siglos de apologética, historia de la Iglesia y erudición bíblica, en lenguaje sencillo, a cualquier hora.",
+  aboutP2: "Este es un proyecto nacido de la pasión — uno que siempre sentí que debía construir, porque realmente disfruto debatir y profundizar en el conocimiento de la fe. Creo que todo cristiano debe poder dar razón de la esperanza que hay en él (1 Pe 3,15). No solo pastores y estudiosos — cada creyente, cada día. Este proyecto se ofrece libremente, para la gloria de Cristo.",
+  feature1Icon: "📖",
+  feature1Title: "La Biblia primero",
+  feature1Body: "Cada respuesta está fundamentada en la Palabra de Dios, con referencias directas a versículos.",
+  feature2Icon: "🏛",
+  feature2Title: "Arraigado en la historia",
+  feature2Body: "Se nutre de los Padres de la Iglesia, la teología y dos mil años de pensamiento cristiano.",
+  feature3Icon: "⚔",
+  feature3Title: "Probado en el debate",
+  feature3Body: "Responde a los desafíos del islam, el ateísmo, las sectas y el escepticismo moderno — con firmeza y caridad.",
+  aboutQuote: "La luz brilla en las tinieblas, y las tinieblas no la vencieron.",
+  aboutQuoteRef: "— Jn 1,5",
+  printHeader: "✝ Apologist AI — Conversación",
+  printYou: "Tú",
+  printBot: "Apologist AI",
+  printFooter: "Generado por ApologistAI.com — Para la gloria de Cristo",
+  navDailyReading: "Lecturas del día",
+  dailyReadingTitle: "Lecturas de la Misa diaria",
+  dailyReadingLoading: "Cargando las lecturas de hoy…",
+  dailyReadingError: "No se pudieron cargar las lecturas. Visita universalis.com.",
+  dailyReadingSource: "Fuente: Universalis",
+  navCommonQuestions: "Preguntas frecuentes",
+  commonQuestionsTitle: "Preguntas frecuentes",
+  commonQuestionsSub: "Toca cualquier pregunta para obtener una respuesta instantánea.",
+  bullets: [
+    "Defiende el cristianismo con las Escrituras y la lógica",
+    "Refuta contradicciones bíblicas alegadas",
+    "Analiza las debilidades del islam, el ateísmo y más",
+    "Fuentes apologéticas y eclesiásticas integradas",
+  ],
+  objections: [
+    "¿Existe Dios?",
+    "¿Es confiable la Biblia?",
+    "¿Cómo se explica la Trinidad?",
+    "¿Qué hay de la evolución?",
+    "¿Cómo permite el sufrimiento un Dios bueno?",
+    "¿Qué hay de las contradicciones bíblicas?",
+    "¿Es el islam una mejor religión?",
+    "¿Resucitó realmente Jesús?",
+  ],
+  starterQuestions: [
+    "¿Es la Biblia históricamente confiable?",
+    "¿El islam refuta el cristianismo?",
+    "¿Cómo se explica la Trinidad?",
+    "¿Qué hay de las contradicciones bíblicas?",
+  ],
+};
+
+const LANGS: Partial<Record<Lang, Dict>> = { EN, PL, ES };
 
 function resolve(lang: Lang): Dict {
   return LANGS[lang] ?? EN;
