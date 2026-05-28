@@ -286,7 +286,7 @@ export default function Home() {
                   <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
                 </button>
                 {/* Language selector — desktop only */}
-                {(["EN", "PL", "ES"] as const).map((l) => (
+                {(["EN", "PL", "ES", "FR", "DE"] as const).map((l) => (
                   <button
                     key={l}
                     onClick={() => setLang(l)}
@@ -426,7 +426,7 @@ export default function Home() {
                 <div className="px-5 py-4">
                   <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Language</p>
                   <div className="flex gap-2">
-                    {(["EN", "PL", "ES"] as const).map((l) => (
+                    {(["EN", "PL", "ES", "FR", "DE"] as const).map((l) => (
                       <button
                         key={l}
                         onClick={() => { setLang(l); setSidebarOpen(false); }}
@@ -436,7 +436,7 @@ export default function Home() {
                             : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-amber-100 hover:text-amber-700"
                         }`}
                       >
-                        {l === "EN" ? "🇬🇧 English" : l === "PL" ? "🇵🇱 Polski" : "🇪🇸 Español"}
+                        {l === "EN" ? "🇬🇧 English" : l === "PL" ? "🇵🇱 Polski" : l === "ES" ? "🇪🇸 Español" : l === "FR" ? "🇫🇷 Français" : "🇩🇪 Deutsch"}
                       </button>
                     ))}
                   </div>

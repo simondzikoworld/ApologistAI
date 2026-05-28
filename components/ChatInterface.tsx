@@ -75,7 +75,7 @@ export default function ChatInterface({ initialQuestion, startFresh, lang = "EN"
     const rec = new SR();
     rec.continuous = false;
     rec.interimResults = false;
-    rec.lang = lang === "PL" ? "pl-PL" : lang === "ES" ? "es-ES" : "en-US";
+    rec.lang = lang === "PL" ? "pl-PL" : lang === "ES" ? "es-ES" : lang === "FR" ? "fr-FR" : lang === "DE" ? "de-DE" : "en-US";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rec.onresult = (e: any) => {
       const transcript: string = e.results[0]?.[0]?.transcript ?? "";

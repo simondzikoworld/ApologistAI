@@ -46,7 +46,7 @@ const SECOND_MASS_MARKERS = ["first reading", "second reading"];
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 async function translateReadings(data: DailyReadingData, lang: string): Promise<DailyReadingData> {
-  const targetLang = lang === "PL" ? "Polish" : "Spanish";
+  const targetLang = lang === "PL" ? "Polish" : lang === "ES" ? "Spanish" : lang === "FR" ? "French" : "German";
   const payload = JSON.stringify(data);
   const msg = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
@@ -139,7 +139,7 @@ export async function GET(req: NextRequest) {
     }
 
     const result: DailyReadingData = { date, readings };
-    if ((lang === "PL" || lang === "ES") && readings.length > 0) {
+    if (lang !== "EN" && readings.length > 0) {
       const translated = await translateReadings(result, lang);
       return NextResponse.json(translated);
     }

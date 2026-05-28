@@ -72,6 +72,7 @@ const LANG_INSTRUCTIONS: Record<string, string> = {
   PL: "\n\nIMPORTANT: You must respond entirely in Polish (język polski). Write every word of your response in Polish, including headings, bullet points, and Scripture references.",
   ES: "\n\nIMPORTANT: You must respond entirely in Spanish (español). Write every word of your response in Spanish.",
   DE: "\n\nIMPORTANT: You must respond entirely in German (Deutsch). Write every word of your response in German.",
+  FR: "\n\nIMPORTANT: You must respond entirely in French (français). Write every word of your response in French, including headings, bullet points, and Scripture references.",
 };
 
 export function buildSystemPrompt(mode: ResponseMode, sourcesText: string, lang = "EN"): string {
