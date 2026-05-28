@@ -662,7 +662,7 @@ export default function Home() {
                     exit={{ opacity: 0, transition: { duration: 0.18 } }}
                     className="absolute inset-0"
                   >
-                    <ChatPreview lang={lang} onExpand={() => { setChatKey(k => k + 1); setExpanded(true); }} />
+                    <ChatPreview lang={lang} onExpand={() => { if (isSignedIn) { router.push("/chat"); } else { setChatKey(k => k + 1); setExpanded(true); } }} />
                   </motion.div>
                 ) : (
                   <motion.div
