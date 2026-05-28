@@ -321,7 +321,7 @@ export default function Home() {
                   href="#pricing"
                   className="px-3 py-1.5 rounded-full text-sm font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1"
                 >
-                  ✦ Pricing
+                  {t(lang, "navPricing")}
                 </a>
               </div>
 
@@ -415,7 +415,7 @@ export default function Home() {
                     onClick={() => setSidebarOpen(false)}
                     className="px-4 py-3 rounded-xl text-sm font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2"
                   >
-                    <span>✦</span> Pricing
+                    {t(lang, "navPricing")}
                   </a>
                 </nav>
 
@@ -858,69 +858,59 @@ export default function Home() {
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-3">
             <span className="text-amber-500 text-2xl">✦</span>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Pricing</h2>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t(lang, "pricingTitle")}</h2>
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm mb-10 leading-relaxed">
-            Apologist AI is free to use. Pro unlocks unlimited messages and the full Detailed research mode.
+            {t(lang, "pricingSub")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Free card */}
             <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-6 flex flex-col">
               <div className="mb-4">
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Free</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{t(lang, "pricingFreeName")}</p>
                 <p className="text-3xl font-black text-slate-900 dark:text-white">$0</p>
-                <p className="text-xs text-slate-400 mt-0.5">forever</p>
-                <p className="text-xs text-slate-400 mt-1.5 italic">Best for basic use</p>
+                <p className="text-xs text-slate-400 mt-0.5">{t(lang, "pricingFreeForever")}</p>
+                <p className="text-xs text-slate-400 mt-1.5 italic">{t(lang, "pricingFreeTagline")}</p>
               </div>
               <ul className="space-y-2.5 flex-1 mb-6">
-                {[
-                  { ok: true,  text: "12 messages per day" },
-                  { ok: true,  text: "Simple mode" },
-                  { ok: true,  text: "⚔ Challenge mode" },
-                  { ok: false, text: "Detailed mode" },
-                  { ok: false, text: "Deep 6-source research" },
-                  { ok: false, text: "Unlimited daily messages" },
-                ].map(({ ok, text }) => (
-                  <li key={text} className="flex items-start gap-2.5">
-                    <span className={`mt-0.5 shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${ok ? "bg-amber-100 dark:bg-amber-900/40 text-amber-600" : "bg-slate-200 dark:bg-slate-700 text-slate-400"}`}>
-                      {ok ? "✓" : "✕"}
-                    </span>
-                    <span className={`text-sm leading-snug ${ok ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}`}>{text}</span>
-                  </li>
-                ))}
+                {tArr(lang, "pricingFreeFeatures").map((text, i) => {
+                  const ok = i < 3;
+                  return (
+                    <li key={i} className="flex items-start gap-2.5">
+                      <span className={`mt-0.5 shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${ok ? "bg-amber-100 dark:bg-amber-900/40 text-amber-600" : "bg-slate-200 dark:bg-slate-700 text-slate-400"}`}>
+                        {ok ? "✓" : "✕"}
+                      </span>
+                      <span className={`text-sm leading-snug ${ok ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}`}>{text}</span>
+                    </li>
+                  );
+                })}
               </ul>
               <button
                 onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); }}
                 className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
-                Start free
+                {t(lang, "pricingStartFree")}
               </button>
             </div>
 
             {/* Pro card */}
             <div className="rounded-2xl border-2 border-amber-400 dark:border-amber-500 bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/20 dark:to-slate-900 p-6 flex flex-col relative overflow-hidden">
               <div className="absolute top-4 right-4">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-full">Most popular</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-full">{t(lang, "pricingProPopular")}</span>
               </div>
               <div className="mb-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-amber-500 mb-1">Pro</p>
                 <div className="flex items-end gap-1">
                   <p className="text-3xl font-black text-slate-900 dark:text-white">$7</p>
-                  <p className="text-sm text-slate-400 mb-1">/month</p>
+                  <p className="text-sm text-slate-400 mb-1">{t(lang, "pricingProMonth")}</p>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">cancel anytime</p>
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 italic font-medium">Best for students, teachers &amp; debaters</p>
+                <p className="text-xs text-slate-400 mt-0.5">{t(lang, "pricingProCancelAnytime")}</p>
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 italic font-medium">{t(lang, "pricingProTagline")}</p>
               </div>
               <ul className="space-y-2.5 flex-1 mb-6">
-                {[
-                  "30 messages/day in Simple mode",
-                  "15 messages/day in Detailed mode",
-                  "⚔ Challenge mode (unlimited)",
-                  "📖 Deep 6-source research per answer",
-                  "Limits reset every 24 hours",
-                ].map((text) => (
-                  <li key={text} className="flex items-start gap-2.5">
+                {tArr(lang, "pricingProFeatures").map((text, i) => (
+                  <li key={i} className="flex items-start gap-2.5">
                     <span className="mt-0.5 shrink-0 w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-[10px] font-bold text-amber-600">✓</span>
                     <span className="text-sm text-slate-700 dark:text-slate-300 leading-snug">{text}</span>
                   </li>
@@ -928,7 +918,7 @@ export default function Home() {
               </ul>
               {isPro ? (
                 <div className="w-full py-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-bold text-center">
-                  ✦ You&apos;re on Pro
+                  {t(lang, "pricingCurrentPlan")}
                 </div>
               ) : isSignedIn ? (
                 <button
@@ -936,12 +926,12 @@ export default function Home() {
                   disabled={checkoutLoading}
                   className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold text-center shadow-sm shadow-amber-200 dark:shadow-amber-900/30 transition-colors disabled:opacity-60"
                 >
-                  {checkoutLoading ? "Redirecting to checkout…" : "Upgrade to Pro — $7/month"}
+                  {checkoutLoading ? t(lang, "pricingRedirecting") : t(lang, "pricingUpgradePro")}
                 </button>
               ) : (
                 <SignInButton mode="modal">
                   <button className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold text-center shadow-sm shadow-amber-200 dark:shadow-amber-900/30 transition-colors">
-                    Sign in to upgrade → $7/month
+                    {t(lang, "pricingSignIn")}
                   </button>
                 </SignInButton>
               )}

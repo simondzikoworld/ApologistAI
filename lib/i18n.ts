@@ -68,10 +68,28 @@ interface Dict {
   navCommonQuestions: string;
   commonQuestionsTitle: string;
   commonQuestionsSub: string;
+  // pricing
+  navPricing: string;
+  pricingTitle: string;
+  pricingSub: string;
+  pricingFreeName: string;
+  pricingFreeForever: string;
+  pricingFreeTagline: string;
+  pricingProPopular: string;
+  pricingProMonth: string;
+  pricingProCancelAnytime: string;
+  pricingProTagline: string;
+  pricingStartFree: string;
+  pricingUpgradePro: string;
+  pricingRedirecting: string;
+  pricingSignIn: string;
+  pricingCurrentPlan: string;
   // arrays
   bullets: string[];
   objections: string[];
   starterQuestions: string[];
+  pricingFreeFeatures: string[];
+  pricingProFeatures: string[];
 }
 
 const EN: Dict = {
@@ -154,6 +172,36 @@ const EN: Dict = {
     "Does Islam disprove Christianity?",
     "How do you explain the Trinity?",
     "What about Biblical contradictions?",
+  ],
+  navPricing: "✦ Pricing",
+  pricingTitle: "Pricing",
+  pricingSub: "Apologist AI is free to use. Pro unlocks more messages and the full Detailed research mode.",
+  pricingFreeName: "Free",
+  pricingFreeForever: "forever",
+  pricingFreeTagline: "Best for basic use",
+  pricingProPopular: "Most popular",
+  pricingProMonth: "/month",
+  pricingProCancelAnytime: "cancel anytime",
+  pricingProTagline: "Best for students, teachers & debaters",
+  pricingStartFree: "Start free",
+  pricingUpgradePro: "Upgrade to Pro — $7/month",
+  pricingRedirecting: "Redirecting to checkout…",
+  pricingSignIn: "Sign in to upgrade → $7/month",
+  pricingCurrentPlan: "✦ You're on Pro",
+  pricingFreeFeatures: [
+    "12 messages per day",
+    "Simple mode",
+    "⚔ Challenge mode",
+    "Detailed mode",
+    "Deep 6-source research",
+    "Unlimited daily messages",
+  ],
+  pricingProFeatures: [
+    "30 messages/day in Simple mode",
+    "15 messages/day in Detailed mode",
+    "⚔ Challenge mode (unlimited)",
+    "📖 Deep 6-source research per answer",
+    "Limits reset every 24 hours",
   ],
 };
 
@@ -238,6 +286,36 @@ const PL: Dict = {
     "Jak wytłumaczyć Trójcę Świętą?",
     "Co ze sprzecznościami w Biblii?",
   ],
+  navPricing: "✦ Cennik",
+  pricingTitle: "Cennik",
+  pricingSub: "Apologist AI jest bezpłatny. Plan Pro odblokowuje więcej wiadomości i pełny tryb Szczegółowy.",
+  pricingFreeName: "Bezpłatny",
+  pricingFreeForever: "na zawsze",
+  pricingFreeTagline: "Idealny do podstawowego użytku",
+  pricingProPopular: "Najpopularniejszy",
+  pricingProMonth: "/mies.",
+  pricingProCancelAnytime: "anuluj w dowolnym momencie",
+  pricingProTagline: "Dla uczniów, nauczycieli i apologetów",
+  pricingStartFree: "Zacznij za darmo",
+  pricingUpgradePro: "Przejdź na Pro — 7 $/mies.",
+  pricingRedirecting: "Przekierowanie do kasy…",
+  pricingSignIn: "Zaloguj się, aby przejść na Pro → 7 $/mies.",
+  pricingCurrentPlan: "✦ Masz plan Pro",
+  pricingFreeFeatures: [
+    "12 wiadomości dziennie",
+    "Tryb Prosty",
+    "⚔ Tryb Wyzwanie",
+    "Tryb Szczegółowy",
+    "Dogłębne badanie z 6 źródeł",
+    "Nieograniczone wiadomości dziennie",
+  ],
+  pricingProFeatures: [
+    "30 wiadomości/dzień w trybie Prostym",
+    "15 wiadomości/dzień w trybie Szczegółowym",
+    "⚔ Tryb Wyzwanie (nieograniczony)",
+    "📖 Dogłębne badanie z 6 źródeł na odpowiedź",
+    "Limity resetują się co 24 godziny",
+  ],
 };
 
 const ES: Dict = {
@@ -320,6 +398,36 @@ const ES: Dict = {
     "¿El islam refuta el cristianismo?",
     "¿Cómo se explica la Trinidad?",
     "¿Qué hay de las contradicciones bíblicas?",
+  ],
+  navPricing: "✦ Precios",
+  pricingTitle: "Precios",
+  pricingSub: "Apologist AI es gratuito. Pro desbloquea más mensajes y el modo de investigación Detallado completo.",
+  pricingFreeName: "Gratis",
+  pricingFreeForever: "para siempre",
+  pricingFreeTagline: "Ideal para uso básico",
+  pricingProPopular: "Más popular",
+  pricingProMonth: "/mes",
+  pricingProCancelAnytime: "cancela cuando quieras",
+  pricingProTagline: "Para estudiantes, profesores y debatientes",
+  pricingStartFree: "Comenzar gratis",
+  pricingUpgradePro: "Actualizar a Pro — $7/mes",
+  pricingRedirecting: "Redirigiendo al pago…",
+  pricingSignIn: "Inicia sesión para actualizar → $7/mes",
+  pricingCurrentPlan: "✦ Tienes el plan Pro",
+  pricingFreeFeatures: [
+    "12 mensajes por día",
+    "Modo Simple",
+    "⚔ Modo Desafío",
+    "Modo Detallado",
+    "Investigación profunda con 6 fuentes",
+    "Mensajes diarios ilimitados",
+  ],
+  pricingProFeatures: [
+    "30 mensajes/día en modo Simple",
+    "15 mensajes/día en modo Detallado",
+    "⚔ Modo Desafío (ilimitado)",
+    "📖 Investigación profunda con 6 fuentes por respuesta",
+    "Los límites se reinician cada 24 horas",
   ],
 };
 
@@ -404,6 +512,36 @@ const FR: Dict = {
     "Comment expliquer la Trinité ?",
     "Qu'en est-il des contradictions bibliques ?",
   ],
+  navPricing: "✦ Tarifs",
+  pricingTitle: "Tarifs",
+  pricingSub: "Apologist AI est gratuit. Pro débloque plus de messages et le mode de recherche Détaillé complet.",
+  pricingFreeName: "Gratuit",
+  pricingFreeForever: "pour toujours",
+  pricingFreeTagline: "Idéal pour une utilisation de base",
+  pricingProPopular: "Le plus populaire",
+  pricingProMonth: "/mois",
+  pricingProCancelAnytime: "annule quand tu veux",
+  pricingProTagline: "Pour les étudiants, enseignants et débatteurs",
+  pricingStartFree: "Commencer gratuitement",
+  pricingUpgradePro: "Passer à Pro — 7 $/mois",
+  pricingRedirecting: "Redirection vers le paiement…",
+  pricingSignIn: "Connecte-toi pour passer à Pro → 7 $/mois",
+  pricingCurrentPlan: "✦ Tu es abonné Pro",
+  pricingFreeFeatures: [
+    "12 messages par jour",
+    "Mode Simple",
+    "⚔ Mode Défi",
+    "Mode Détaillé",
+    "Recherche approfondie avec 6 sources",
+    "Messages quotidiens illimités",
+  ],
+  pricingProFeatures: [
+    "30 messages/jour en mode Simple",
+    "15 messages/jour en mode Détaillé",
+    "⚔ Mode Défi (illimité)",
+    "📖 Recherche approfondie avec 6 sources par réponse",
+    "Les limites se réinitialisent toutes les 24 heures",
+  ],
 };
 
 const DE: Dict = {
@@ -486,6 +624,36 @@ const DE: Dict = {
     "Widerlegt der Islam das Christentum?",
     "Wie erklärt man die Dreifaltigkeit?",
     "Was ist mit den Widersprüchen in der Bibel?",
+  ],
+  navPricing: "✦ Preise",
+  pricingTitle: "Preise",
+  pricingSub: "Apologist AI ist kostenlos. Pro schaltet mehr Nachrichten und den vollständigen Ausführlich-Recherche-Modus frei.",
+  pricingFreeName: "Kostenlos",
+  pricingFreeForever: "für immer",
+  pricingFreeTagline: "Am besten für den Grundgebrauch",
+  pricingProPopular: "Am beliebtesten",
+  pricingProMonth: "/Monat",
+  pricingProCancelAnytime: "jederzeit kündbar",
+  pricingProTagline: "Für Studenten, Lehrer und Debattierer",
+  pricingStartFree: "Kostenlos starten",
+  pricingUpgradePro: "Auf Pro upgraden — 7 $/Monat",
+  pricingRedirecting: "Weiterleitung zur Zahlung…",
+  pricingSignIn: "Anmelden, um auf Pro zu wechseln → 7 $/Monat",
+  pricingCurrentPlan: "✦ Du bist Pro-Mitglied",
+  pricingFreeFeatures: [
+    "12 Nachrichten pro Tag",
+    "Einfach-Modus",
+    "⚔ Herausforderungs-Modus",
+    "Ausführlich-Modus",
+    "Tiefenrecherche mit 6 Quellen",
+    "Unbegrenzte tägliche Nachrichten",
+  ],
+  pricingProFeatures: [
+    "30 Nachrichten/Tag im Einfach-Modus",
+    "15 Nachrichten/Tag im Ausführlich-Modus",
+    "⚔ Herausforderungs-Modus (unbegrenzt)",
+    "📖 Tiefenrecherche mit 6 Quellen pro Antwort",
+    "Limits werden alle 24 Stunden zurückgesetzt",
   ],
 };
 
