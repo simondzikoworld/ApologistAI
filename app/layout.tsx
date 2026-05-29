@@ -187,7 +187,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         name: "Is Apologist AI free to use?",
                         acceptedAnswer: {
                           "@type": "Answer",
-                          text: "Yes, Apologist AI is free with 12 messages per day. A Pro subscription at $7/month unlocks 30 messages/day and the Detailed research mode.",
+                          text: "Yes, Apologist AI is free with 12 messages per day. A Pro subscription at £7/month unlocks 30 messages/day and the Detailed research mode.",
                         },
                       },
                       {

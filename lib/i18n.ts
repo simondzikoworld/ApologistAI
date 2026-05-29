@@ -184,9 +184,9 @@ const EN: Dict = {
   pricingProCancelAnytime: "cancel anytime",
   pricingProTagline: "Best for students, teachers & debaters",
   pricingStartFree: "Start free",
-  pricingUpgradePro: "Upgrade to Pro — $7/month",
+  pricingUpgradePro: "Upgrade to Pro — £7/month",
   pricingRedirecting: "Redirecting to checkout…",
-  pricingSignIn: "Sign in to upgrade → $7/month",
+  pricingSignIn: "Sign in to upgrade → £7/month",
   pricingCurrentPlan: "✦ You're on Pro",
   pricingFreeFeatures: [
     "12 messages per day",
@@ -410,9 +410,9 @@ const ES: Dict = {
   pricingProCancelAnytime: "cancela cuando quieras",
   pricingProTagline: "Para estudiantes, profesores y debatientes",
   pricingStartFree: "Comenzar gratis",
-  pricingUpgradePro: "Actualizar a Pro — $7/mes",
+  pricingUpgradePro: "Actualizar a Pro — £7/mes",
   pricingRedirecting: "Redirigiendo al pago…",
-  pricingSignIn: "Inicia sesión para actualizar → $7/mes",
+  pricingSignIn: "Inicia sesión para actualizar → £7/mes",
   pricingCurrentPlan: "✦ Tienes el plan Pro",
   pricingFreeFeatures: [
     "12 mensajes por día",

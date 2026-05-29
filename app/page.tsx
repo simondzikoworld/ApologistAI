@@ -887,7 +887,7 @@ export default function Home() {
             <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-6 flex flex-col">
               <div className="mb-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{t(lang, "pricingFreeName")}</p>
-                <p className="text-3xl font-black text-slate-900 dark:text-white">$0</p>
+                <p className="text-3xl font-black text-slate-900 dark:text-white">£0</p>
                 <p className="text-xs text-slate-400 mt-0.5">{t(lang, "pricingFreeForever")}</p>
                 <p className="text-xs text-slate-400 mt-1.5 italic">{t(lang, "pricingFreeTagline")}</p>
               </div>
@@ -920,7 +920,7 @@ export default function Home() {
               <div className="mb-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-amber-500 mb-1">Pro</p>
                 <div className="flex items-end gap-1">
-                  <p className="text-3xl font-black text-slate-900 dark:text-white">$7</p>
+                  <p className="text-3xl font-black text-slate-900 dark:text-white">£7</p>
                   <p className="text-sm text-slate-400 mb-1">{t(lang, "pricingProMonth")}</p>
                 </div>
                 <p className="text-xs text-slate-400 mt-0.5">{t(lang, "pricingProCancelAnytime")}</p>
