@@ -183,6 +183,7 @@ export default function Home() {
 
   const [expanded, setExpanded] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [pendingQuestion, setPendingQuestion] = useState<string | undefined>();
   const [chatKey, setChatKey] = useState(0);
   const [lang, setLang] = useState<Lang>("EN");
@@ -291,7 +292,7 @@ export default function Home() {
                   <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
                   <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
                 </button>
-                {/* Language selector — desktop only */}
+                {/* Language selector — desktop pills */}
                 {(["EN", "PL", "ES", "FR", "DE"] as const).map((l) => (
                   <button
                     key={l}
@@ -305,6 +306,47 @@ export default function Home() {
                     {l}
                   </button>
                 ))}
+                {/* Language selector — mobile flag dropdown */}
+                <div className="relative md:hidden">
+                  <button
+                    onClick={() => setLangDropdownOpen((o) => !o)}
+                    className="flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <span>{lang === "EN" ? "🇬🇧" : lang === "PL" ? "🇵🇱" : lang === "ES" ? "🇪🇸" : lang === "FR" ? "🇫🇷" : "🇩🇪"}</span>
+                    <svg className={`w-3 h-3 transition-transform ${langDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <AnimatePresence>
+                    {langDropdownOpen && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setLangDropdownOpen(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -6, scale: 0.95 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute left-0 top-full mt-1 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden min-w-[140px]"
+                        >
+                          {(["EN", "PL", "ES", "FR", "DE"] as const).map((l) => (
+                            <button
+                              key={l}
+                              onClick={() => { setLang(l); setLangDropdownOpen(false); }}
+                              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
+                                lang === l
+                                  ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-semibold"
+                                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                              }`}
+                            >
+                              <span className="text-base">{l === "EN" ? "🇬🇧" : l === "PL" ? "🇵🇱" : l === "ES" ? "🇪🇸" : l === "FR" ? "🇫🇷" : "🇩🇪"}</span>
+                              <span>{l === "EN" ? "English" : l === "PL" ? "Polski" : l === "ES" ? "Español" : l === "FR" ? "Français" : "Deutsch"}</span>
+                            </button>
+                          ))}
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
 
               {/* Centre — nav links (desktop only) */}
