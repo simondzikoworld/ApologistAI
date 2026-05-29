@@ -8,6 +8,7 @@ import ChatInterface from "@/components/ChatInterface";
 import ChatPreview from "@/components/ChatPreview";
 import AnimatedThemeToggler from "@/components/AnimatedThemeToggler";
 import { t, tArr, type Lang } from "@/lib/i18n";
+import { DAILY_VERSES_BY_LANG } from "@/data/dailyVerses";
 
 const BMC_URL = "https://buymeacoffee.com/apologistai";
 
@@ -20,38 +21,6 @@ const IN: EaseIn = "easeIn";
 // Daily verse rotation
 // ---------------------------------------------------------------------------
 
-const DAILY_VERSES = [
-  { text: "But in your hearts revere Christ as Lord. Always be prepared to give an answer to everyone who asks you to give the reason for the hope that you have.", ref: "1 Peter 3:15" },
-  { text: "For the word of God is alive and active. Sharper than any double-edged sword.", ref: "Hebrews 4:12" },
-  { text: "Jesus answered, 'I am the way and the truth and the life. No one comes to the Father except through me.'", ref: "John 14:6" },
-  { text: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.", ref: "John 3:16" },
-  { text: "The fool says in his heart, 'There is no God.'", ref: "Psalm 14:1" },
-  { text: "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness.", ref: "2 Timothy 3:16" },
-  { text: "In the beginning was the Word, and the Word was with God, and the Word was God.", ref: "John 1:1" },
-  { text: "For I am not ashamed of the gospel, because it is the power of God that brings salvation to everyone who believes.", ref: "Romans 1:16" },
-  { text: "We demolish arguments and every pretension that sets itself up against the knowledge of God.", ref: "2 Corinthians 10:5" },
-  { text: "For there is one God and one mediator between God and mankind, the man Christ Jesus.", ref: "1 Timothy 2:5" },
-  { text: "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.", ref: "Romans 5:8" },
-  { text: "I have been crucified with Christ and I no longer live, but Christ lives in me.", ref: "Galatians 2:20" },
-  { text: "Jesus Christ is the same yesterday and today and forever.", ref: "Hebrews 13:8" },
-  { text: "The heavens declare the glory of God; the skies proclaim the work of his hands.", ref: "Psalm 19:1" },
-  { text: "He is not here; he has risen, just as he said.", ref: "Matthew 28:6" },
-  { text: "For the wages of sin is death, but the gift of God is eternal life in Christ Jesus our Lord.", ref: "Romans 6:23" },
-  { text: "I can do all this through him who gives me strength.", ref: "Philippians 4:13" },
-  { text: "Come now, let us reason together, says the Lord.", ref: "Isaiah 1:18" },
-  { text: "And you will know the truth, and the truth will set you free.", ref: "John 8:32" },
-  { text: "If you confess with your mouth that Jesus is Lord and believe in your heart that God raised him from the dead, you will be saved.", ref: "Romans 10:9" },
-  { text: "For the message of the cross is foolishness to those who are perishing, but to us who are being saved it is the power of God.", ref: "1 Corinthians 1:18" },
-  { text: "Do not be conformed to this world, but be transformed by the renewal of your mind.", ref: "Romans 12:2" },
-  { text: "The Lord is not slow in keeping his promise, as some understand slowness. Instead he is patient with you, not wanting anyone to perish.", ref: "2 Peter 3:9" },
-  { text: "Jesus said to her, 'I am the resurrection and the life. The one who believes in me will live, even though they die.'", ref: "John 11:25" },
-  { text: "For we live by faith, not by sight.", ref: "2 Corinthians 5:7" },
-  { text: "Now faith is confidence in what we hope for and assurance about what we do not see.", ref: "Hebrews 11:1" },
-  { text: "For it is by grace you have been saved, through faith — and this is not from yourselves, it is the gift of God.", ref: "Ephesians 2:8" },
-  { text: "The Lord your God is with you, the Mighty Warrior who saves. He will take great delight in you.", ref: "Zephaniah 3:17" },
-  { text: "Ask and it will be given to you; seek and you will find; knock and the door will be opened to you.", ref: "Matthew 7:7" },
-  { text: "For God has not given us a spirit of fear, but of power and of love and of a sound mind.", ref: "2 Timothy 1:7" },
-];
 
 function getDayOfYear(): number {
   const now = new Date();
@@ -199,10 +168,10 @@ export default function Home() {
     return () => { document.body.style.overflow = ""; };
   }, [expanded]);
 
-  const dailyVerse = useMemo(
-    () => DAILY_VERSES[getDayOfYear() % DAILY_VERSES.length],
-    []
-  );
+  const dailyVerse = useMemo(() => {
+    const verses = DAILY_VERSES_BY_LANG[lang] ?? DAILY_VERSES_BY_LANG["EN"];
+    return verses[getDayOfYear() % verses.length];
+  }, [lang]);
 
   useEffect(() => {
     setReadings(null);
@@ -473,18 +442,19 @@ export default function Home() {
                 {/* Language selector */}
                 <div className="px-5 py-4">
                   <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Language</p>
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {(["EN", "PL", "ES", "FR", "DE"] as const).map((l) => (
                       <button
                         key={l}
                         onClick={() => { setLang(l); setSidebarOpen(false); }}
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                        className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
                           lang === l
                             ? "bg-amber-500 text-white"
                             : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-amber-100 hover:text-amber-700"
                         }`}
                       >
-                        {l === "EN" ? "🇬🇧 English" : l === "PL" ? "🇵🇱 Polski" : l === "ES" ? "🇪🇸 Español" : l === "FR" ? "🇫🇷 Français" : "🇩🇪 Deutsch"}
+                        <span>{l === "EN" ? "🇬🇧" : l === "PL" ? "🇵🇱" : l === "ES" ? "🇪🇸" : l === "FR" ? "🇫🇷" : "🇩🇪"}</span>
+                        <span>{l === "EN" ? "English" : l === "PL" ? "Polski" : l === "ES" ? "Español" : l === "FR" ? "Français" : "Deutsch"}</span>
                       </button>
                     ))}
                   </div>
