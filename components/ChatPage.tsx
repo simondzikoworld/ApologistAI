@@ -26,8 +26,9 @@ export default function ChatPage({ initialConversations, activeConversation }: P
   const [lang, setLang] = useState<Lang>("EN");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatKey, setChatKey] = useState(0);
+  const [localActiveId, setLocalActiveId] = useState<string | null>(activeConversation?.id ?? null);
 
-  const activeId = activeConversation?.id ?? null;
+  const activeId = localActiveId;
 
   // One-time localStorage migration
   useEffect(() => {
@@ -66,11 +67,12 @@ export default function ChatPage({ initialConversations, activeConversation }: P
       .then((data: Conversation[]) => setConversations(data))
       .catch(() => {});
 
-    // Update URL to reflect the active conversation (without full nav)
-    if (!activeId) {
-      router.replace(`/chat/${id}`);
+    // Update URL without triggering Next.js navigation (preserves ChatInterface state)
+    if (!localActiveId) {
+      setLocalActiveId(id);
+      window.history.replaceState(null, "", `/chat/${id}`);
     }
-  }, [activeId, router]);
+  }, [localActiveId]);
 
   function handleNew() {
     setChatKey((k) => k + 1);
