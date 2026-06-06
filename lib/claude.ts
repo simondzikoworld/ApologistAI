@@ -87,6 +87,6 @@ export function buildSystemPrompt(mode: ResponseMode, sourcesText: string, lang 
 
 export const MAX_TOKENS: Record<ResponseMode, number> = {
   simple: 800,
-  detailed: 2048,
+  detailed: 4096,
   challenge: 1024,
 };
