@@ -111,29 +111,29 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
           </motion.button>
         </div>
 
-        <div className="prose prose-sm prose-slate max-w-none pr-24">
+        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none pr-24">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-              h1: ({ children }) => <h1 className="text-base font-bold text-slate-900 mt-3 mb-1">{children}</h1>,
-              h2: ({ children }) => <h2 className="text-sm font-bold text-slate-900 mt-3 mb-1">{children}</h2>,
-              h3: ({ children }) => <h3 className="text-sm font-semibold text-slate-800 mt-2 mb-1">{children}</h3>,
-              p: ({ children }) => <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed mb-2 last:mb-0">{children}</p>,
+              h1: ({ children }) => <h1 className="text-base font-bold text-slate-900 dark:text-slate-50 mt-3 mb-1">{children}</h1>,
+              h2: ({ children }) => <h2 className="text-sm font-bold text-slate-900 dark:text-slate-50 mt-3 mb-1">{children}</h2>,
+              h3: ({ children }) => <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mt-2 mb-1">{children}</h3>,
+              p: ({ children }) => <p className="text-sm text-slate-800 dark:text-slate-100 leading-relaxed mb-2 last:mb-0">{children}</p>,
               strong: ({ children }) => <strong className="font-semibold text-slate-900 dark:text-white">{children}</strong>,
               em: ({ children }) => <em className="italic text-slate-700 dark:text-slate-300">{children}</em>,
               ul: ({ children }) => <ul className="list-disc list-outside ml-4 mb-2 space-y-1">{children}</ul>,
               ol: ({ children }) => <ol className="list-decimal list-outside ml-4 mb-2 space-y-1">{children}</ol>,
-              li: ({ children }) => <li className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed">{children}</li>,
+              li: ({ children }) => <li className="text-sm text-slate-800 dark:text-slate-100 leading-relaxed">{children}</li>,
               blockquote: ({ children }) => (
-                <blockquote className="border-l-2 border-amber-400 pl-3 italic text-slate-600 my-2">{children}</blockquote>
+                <blockquote className="border-l-2 border-amber-400 pl-3 italic text-slate-600 dark:text-slate-300 my-2">{children}</blockquote>
               ),
               code: ({ children }) => {
                 const str = String(children);
                 const ref = parseBibCode(str);
                 if (ref) return <ScripturePill reference={ref} />;
-                return <code className="bg-slate-100 text-slate-800 px-1 py-0.5 rounded text-xs font-mono">{children}</code>;
+                return <code className="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 px-1 py-0.5 rounded text-xs font-mono">{children}</code>;
               },
-              hr: () => <hr className="border-amber-200 my-3" />,
+              hr: () => <hr className="border-amber-200 dark:border-amber-800 my-3" />,
             }}
           >
             {processedContent}
