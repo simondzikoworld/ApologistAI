@@ -155,11 +155,19 @@ export default function Home() {
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [pendingQuestion, setPendingQuestion] = useState<string | undefined>();
   const [chatKey, setChatKey] = useState(0);
-  const [lang, setLang] = useState<Lang>("EN");
+  const [lang, setLang] = useState<Lang>(() => {
+    if (typeof window === "undefined") return "EN";
+    return (localStorage.getItem("cd-lang") as Lang) ?? "EN";
+  });
   const [readings, setReadings] = useState<{ date: string; readings: Array<{ title: string; reference: string; subtitle: string; text: string }> } | null>(null);
   const [readingsLoading, setReadingsLoading] = useState(true);
   const [readingsError, setReadingsError] = useState(false);
   const [expandedReading, setExpandedReading] = useState<number | null>(null);
+
+  // Persist selected language
+  useEffect(() => {
+    localStorage.setItem("cd-lang", lang);
+  }, [lang]);
 
   // Lock page scroll when chat is fullscreen; clear pending question when chat closes
   useEffect(() => {

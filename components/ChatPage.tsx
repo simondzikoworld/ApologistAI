@@ -23,7 +23,10 @@ export default function ChatPage({ initialConversations, activeConversation }: P
   const { user, isSignedIn } = useUser();
   const isPro = (user?.publicMetadata?.isPro as boolean) ?? false;
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
-  const [lang, setLang] = useState<Lang>("EN");
+  const [lang, setLang] = useState<Lang>(() => {
+    if (typeof window === "undefined") return "EN";
+    return (localStorage.getItem("cd-lang") as Lang) ?? "EN";
+  });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatKey, setChatKey] = useState(0);
   const [localActiveId, setLocalActiveId] = useState<string | null>(activeConversation?.id ?? null);
@@ -128,7 +131,7 @@ export default function ChatPage({ initialConversations, activeConversation }: P
             {/* Language selector */}
             <select
               value={lang}
-              onChange={(e) => setLang(e.target.value as Lang)}
+              onChange={(e) => { const l = e.target.value as Lang; setLang(l); localStorage.setItem("cd-lang", l); }}
               className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-amber-400"
             >
               {LANGS.map((l) => (

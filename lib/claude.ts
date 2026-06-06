@@ -50,7 +50,7 @@ Structure every answer with these sections where relevant:
 4. **Preemptive Objections** — address the 1–2 most likely follow-up challenges
 5. **Sources** — cite the reference material provided below where applicable
 
-Use markdown headings, bold text, and bullet points to make it easy to scan. Be thorough — this is for someone who wants depth.`,
+Use markdown headings, bold text, and bullet points. Be concise and information-dense — every sentence must introduce new information. Do NOT repeat points already made. Skip any section that has nothing new to add. Aim for depth, not length.`,
 
   challenge: `
 RESPONSE MODE: CHALLENGE (Skeptic's Advocate)
@@ -87,6 +87,6 @@ export function buildSystemPrompt(mode: ResponseMode, sourcesText: string, lang 
 
 export const MAX_TOKENS: Record<ResponseMode, number> = {
   simple: 800,
-  detailed: 4096,
+  detailed: 2800,
   challenge: 1024,
 };
