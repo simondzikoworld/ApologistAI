@@ -735,15 +735,54 @@ export default function Home() {
               </a>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
-              {(["1", "2", "3"] as const).map((n) => (
-                <div key={n} className="bg-amber-50 dark:bg-slate-800 border border-amber-100 dark:border-slate-700 rounded-2xl p-5">
-                  <div className="text-2xl mb-3">{t(lang, `feature${n}Icon` as Parameters<typeof t>[1])}</div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1.5">{t(lang, `feature${n}Title` as Parameters<typeof t>[1])}</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{t(lang, `feature${n}Body` as Parameters<typeof t>[1])}</p>
-                </div>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-3 gap-0 sm:divide-x sm:divide-slate-200 sm:dark:divide-slate-700"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.25 }}
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.12 } },
+              }}
+            >
+              {(["1", "2", "3"] as const).map((n, i) => (
+                <motion.div
+                  key={n}
+                  variants={{
+                    hidden: { opacity: 0, y: 24 },
+                    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+                  }}
+                  className="relative group overflow-hidden px-0 sm:px-8 first:pl-0 last:pr-0 py-8 sm:py-2 border-t-2 border-amber-500 sm:border-t-0 sm:border-l-0 first:border-t-2 sm:[&:not(:first-child)]:border-t-0"
+                >
+                  {/* Large faded ordinal */}
+                  <span
+                    aria-hidden
+                    className="absolute -top-3 right-1 sm:right-3 text-[72px] font-black leading-none select-none pointer-events-none
+                               text-amber-100 dark:text-slate-800 group-hover:text-amber-200 dark:group-hover:text-slate-700 transition-colors duration-500"
+                  >
+                    0{i + 1}
+                  </span>
+
+                  {/* Amber top rule (desktop) */}
+                  <div className="hidden sm:block w-8 h-0.5 bg-amber-500 mb-5" />
+
+                  {/* Icon */}
+                  <span className="block text-xl mb-3 sm:mb-4">
+                    {t(lang, `feature${n}Icon` as Parameters<typeof t>[1])}
+                  </span>
+
+                  {/* Title */}
+                  <h3 className="text-base font-black text-slate-900 dark:text-white mb-2 leading-tight tracking-tight">
+                    {t(lang, `feature${n}Title` as Parameters<typeof t>[1])}
+                  </h3>
+
+                  {/* Body */}
+                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                    {t(lang, `feature${n}Body` as Parameters<typeof t>[1])}
+                  </p>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
             <blockquote className="mt-12 border-l-4 border-amber-400 pl-6">
               <p className="text-lg italic text-slate-500 dark:text-slate-400 leading-relaxed">
                 &ldquo;{t(lang, "aboutQuote")}&rdquo;
