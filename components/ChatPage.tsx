@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useUser, UserButton } from "@clerk/nextjs";
+import { motion } from "framer-motion";
 import AnimatedThemeToggler from "./AnimatedThemeToggler";
 import ConversationSidebar from "./ConversationSidebar";
 import ChatInterface from "./ChatInterface";
@@ -28,6 +29,7 @@ export default function ChatPage({ initialConversations, activeConversation }: P
     return (localStorage.getItem("cd-lang") as Lang) ?? "EN";
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [chatKey, setChatKey] = useState(0);
   const [localActiveId, setLocalActiveId] = useState<string | null>(activeConversation?.id ?? null);
 
@@ -64,13 +66,11 @@ export default function ChatPage({ initialConversations, activeConversation }: P
   }, [isSignedIn]);
 
   const handleConversationSaved = useCallback((id: string) => {
-    // Refresh conversation list from server so sidebar updates
     fetch("/api/conversations")
       .then((r) => r.json())
       .then((data: Conversation[]) => setConversations(data))
       .catch(() => {});
 
-    // Update URL without triggering Next.js navigation (preserves ChatInterface state)
     if (!localActiveId) {
       setLocalActiveId(id);
       window.history.replaceState(null, "", `/chat/${id}`);
@@ -79,18 +79,23 @@ export default function ChatPage({ initialConversations, activeConversation }: P
 
   function handleNew() {
     setChatKey((k) => k + 1);
+    setLocalActiveId(null);
     router.push("/chat");
     setSidebarOpen(false);
   }
 
   function handleDelete(id: string) {
     setConversations((prev) => prev.filter((c) => c.id !== id));
-    if (activeId === id) router.push("/chat");
+    if (activeId === id) {
+      setLocalActiveId(null);
+      router.push("/chat");
+    }
   }
 
   return (
     <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-900">
-      {/* Mobile sidebar overlay */}
+
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-20 bg-black/40 lg:hidden"
@@ -98,14 +103,38 @@ export default function ChatPage({ initialConversations, activeConversation }: P
         />
       )}
 
-      {/* Sidebar — always visible on desktop, slide-in on mobile */}
-      <div className={`fixed inset-y-0 left-0 z-30 lg:static lg:z-auto transition-transform duration-200 ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+      {/* Desktop sidebar — animated width */}
+      <motion.div
+        animate={{ width: sidebarCollapsed ? 56 : 256 }}
+        initial={{ width: 256 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
+        className="hidden lg:block h-full shrink-0 overflow-hidden"
+      >
         <ConversationSidebar
           conversations={conversations}
           activeId={activeId}
           onNew={handleNew}
           onDelete={handleDelete}
           isPro={isPro}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
+        />
+      </motion.div>
+
+      {/* Mobile sidebar — fixed overlay */}
+      <div
+        className={`fixed inset-y-0 left-0 z-30 w-64 lg:hidden transition-transform duration-200 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <ConversationSidebar
+          conversations={conversations}
+          activeId={activeId}
+          onNew={handleNew}
+          onDelete={handleDelete}
+          isPro={isPro}
+          collapsed={false}
+          onToggleCollapse={() => {}}
         />
       </div>
 
@@ -128,7 +157,6 @@ export default function ChatPage({ initialConversations, activeConversation }: P
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Language selector */}
             <select
               value={lang}
               onChange={(e) => { const l = e.target.value as Lang; setLang(l); localStorage.setItem("cd-lang", l); }}
@@ -138,9 +166,7 @@ export default function ChatPage({ initialConversations, activeConversation }: P
                 <option key={l} value={l}>{l}</option>
               ))}
             </select>
-
             <AnimatedThemeToggler />
-
             <div className="relative">
               <UserButton />
               {isPro && (
