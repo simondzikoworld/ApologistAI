@@ -360,7 +360,7 @@ export default function ChatInterface({
                   placeholder={t(lang, "chatPlaceholder")}
                   rows={3}
                   disabled={loading}
-                  className="w-full resize-none bg-transparent px-5 pt-4 pb-2 text-sm sm:text-base text-slate-900 dark:text-slate-100 focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full resize-none bg-transparent px-5 pt-4 pb-2 text-base sm:text-sm text-slate-900 dark:text-slate-100 focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
                 <div className="flex items-center justify-between px-3 pb-3 pt-2 border-t border-slate-100 dark:border-slate-700/60 gap-2">
                   <ModeBar layoutPrefix="hero" />
@@ -605,7 +605,7 @@ export default function ChatInterface({
                   onKeyDown={handleKeyDown}
                   placeholder={t(lang, "chatPlaceholder")}
                   rows={2}
-                  className="flex-1 resize-none border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-shadow"
+                  className="flex-1 resize-none border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-base sm:text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-shadow"
                 />
                 {speechSupported && (
                   <motion.button

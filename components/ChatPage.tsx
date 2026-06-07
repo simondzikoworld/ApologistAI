@@ -160,7 +160,7 @@ export default function ChatPage({ initialConversations, activeConversation }: P
             <select
               value={lang}
               onChange={(e) => { const l = e.target.value as Lang; setLang(l); localStorage.setItem("cd-lang", l); }}
-              className="text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-amber-400"
+              className="text-base sm:text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-amber-400"
             >
               {LANGS.map((l) => (
                 <option key={l} value={l}>{l}</option>
