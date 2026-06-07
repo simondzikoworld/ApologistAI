@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, LayoutGroup, type Variants } from "framer-motion";
 import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
@@ -406,9 +407,14 @@ export default function Home() {
               >
                 {/* Sidebar header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-600 text-lg">✝</span>
-                    <span className="text-sm font-bold text-slate-800 dark:text-white">Apologist AI</span>
+                  <div className="flex items-center">
+                    <Image
+                      src="/apologist.png"
+                      alt="Apologist AI"
+                      width={140}
+                      height={50}
+                      className="h-8 w-auto dark:brightness-0 dark:invert"
+                    />
                   </div>
                   <button
                     onClick={() => setSidebarOpen(false)}
@@ -527,19 +533,23 @@ export default function Home() {
             <AnimatePresence>
               {!expanded && (
                 <>
-                  {/* Wordmark */}
+                  {/* Logo */}
                   <motion.div
                     key="wordmark"
                     variants={heroWordmarkVariants}
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="flex items-center gap-2 mb-6 lg:mb-12"
+                    className="mb-6 lg:mb-12"
                   >
-                    <span className="text-amber-600 text-lg leading-none">✝</span>
-                    <span className="text-sm font-semibold text-slate-500 tracking-wide">
-                      Apologist AI
-                    </span>
+                    <Image
+                      src="/apologist.png"
+                      alt="Apologist AI"
+                      width={220}
+                      height={80}
+                      priority
+                      className="h-14 w-auto dark:brightness-0 dark:invert"
+                    />
                   </motion.div>
 
                   {/* Headline */}
