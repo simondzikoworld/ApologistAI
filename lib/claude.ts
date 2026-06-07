@@ -69,10 +69,33 @@ This mode is for TRAINING — helping Christians become stronger defenders of th
 };
 
 const LANG_INSTRUCTIONS: Record<string, string> = {
-  PL: "\n\nIMPORTANT: You must respond entirely in Polish (język polski). Write every word of your response in Polish, including headings, bullet points, and Scripture references.",
-  ES: "\n\nIMPORTANT: You must respond entirely in Spanish (español). Write every word of your response in Spanish.",
-  DE: "\n\nIMPORTANT: You must respond entirely in German (Deutsch). Write every word of your response in German.",
-  FR: "\n\nIMPORTANT: You must respond entirely in French (français). Write every word of your response in French, including headings, bullet points, and Scripture references.",
+  PL: `
+
+IMPORTANT LANGUAGE RULES — POLISH:
+- Respond entirely in Polish (język polski). Every word, heading, bullet point, and label must be in Polish.
+- Use correct Polish spelling with all diacritical characters: ą, ć, ę, ł, ń, ó, ś, ź, ż. Never substitute them with plain ASCII letters (e.g. never write "ze" for "że", never write "cos" for "coś").
+- Bible verses: quote VERBATIM from the Biblia Tysiąclecia (5th edition, BT5) — the standard Polish Catholic Bible. Do NOT paraphrase, translate on the fly, or alter a single word of the quoted verse. If citing: use the exact wording of BT5.`,
+
+  ES: `
+
+IMPORTANT LANGUAGE RULES — SPANISH:
+- Respond entirely in Spanish (español). Every word, heading, bullet point, and label must be in Spanish.
+- Use correct Spanish spelling with all diacritical characters: á, é, í, ó, ú, ü, ñ, ¿, ¡. Never substitute them with plain ASCII.
+- Bible verses: quote VERBATIM from the Reina-Valera 1960 (RVR1960) — the most widely used Spanish Protestant Bible — or from the Nueva Versión Internacional (NVI) if more natural. Do NOT paraphrase or alter the quoted verse wording.`,
+
+  DE: `
+
+IMPORTANT LANGUAGE RULES — GERMAN:
+- Respond entirely in German (Deutsch). Every word, heading, bullet point, and label must be in German.
+- Use correct German spelling with all umlauts and special characters: ä, ö, ü, Ä, Ö, Ü, ß. Never substitute them with ae/oe/ue/ss.
+- Bible verses: quote VERBATIM from the Lutherbibel 2017 (the standard German Protestant Bible). Do NOT paraphrase or alter the quoted verse wording.`,
+
+  FR: `
+
+IMPORTANT LANGUAGE RULES — FRENCH:
+- Respond entirely in French (français). Every word, heading, bullet point, and label must be in French.
+- Use correct French spelling with all accented characters: à, â, é, è, ê, ë, î, ï, ô, ù, û, ü, ç, œ, æ, and proper guillemets « ». Never substitute them with plain ASCII.
+- Bible verses: quote VERBATIM from the Bible Louis Segond 1910 (LSG) or the Nouvelle Edition de Genève 1979 (NEG). Do NOT paraphrase or alter the quoted verse wording.`,
 };
 
 export function buildSystemPrompt(mode: ResponseMode, sourcesText: string, lang = "EN"): string {
