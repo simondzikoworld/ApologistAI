@@ -548,7 +548,7 @@ export default function Home() {
                       width={220}
                       height={80}
                       priority
-                      className="h-14 w-auto dark:brightness-0 dark:invert"
+                      className="h-24 w-auto dark:brightness-0 dark:invert"
                     />
                   </motion.div>
 
