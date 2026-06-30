@@ -274,10 +274,11 @@ export default function Home() {
                 <div className="relative">
                   <button
                     onClick={() => setLangDropdownOpen((o) => !o)}
-                    className="flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-amber-300 dark:hover:border-amber-600 hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
                   >
                     <span>{lang === "EN" ? "🇬🇧" : lang === "PL" ? "🇵🇱" : lang === "ES" ? "🇪🇸" : lang === "FR" ? "🇫🇷" : lang === "DE" ? "🇩🇪" : "🇧🇷"}</span>
-                    <svg className={`w-3 h-3 transition-transform ${langDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span>{lang}</span>
+                    <svg className={`w-3 h-3 transition-transform text-slate-400 ${langDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
