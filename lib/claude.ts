@@ -110,7 +110,7 @@ export function buildSystemPrompt(mode: ResponseMode, sourcesText: string, lang 
 }
 
 export const MAX_TOKENS: Record<ResponseMode, number> = {
-  simple: 350,
+  simple: 500,
   detailed: 2800,
   challenge: 1024,
 };
