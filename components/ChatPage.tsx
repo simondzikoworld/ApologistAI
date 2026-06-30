@@ -10,7 +10,7 @@ import ChatInterface from "./ChatInterface";
 import { t, type Lang } from "@/lib/i18n";
 import type { Conversation, Message } from "@/lib/types";
 
-const LANGS: Lang[] = ["EN", "PL", "ES", "FR", "DE"];
+const LANGS: Lang[] = ["EN", "PL", "ES", "FR", "DE", "PT"];
 const LOCAL_HISTORY_KEY = "cd-chat-history";
 const MIGRATED_KEY = "cd-history-migrated";
 

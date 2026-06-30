@@ -91,6 +91,13 @@ IMPORTANT LANGUAGE RULES — GERMAN:
 - Use correct German spelling with all umlauts and special characters: ä, ö, ü, Ä, Ö, Ü, ß. Never substitute them with ae/oe/ue/ss.
 - Bible verses: quote VERBATIM from the Lutherbibel 2017 (the standard German Protestant Bible). Do NOT paraphrase or alter the quoted verse wording.`,
 
+  PT: `
+
+IMPORTANT LANGUAGE RULES — PORTUGUESE:
+- Respond entirely in Portuguese (português). Every word, heading, bullet point, and label must be in Portuguese.
+- Use correct Portuguese spelling with all diacritical characters: á, â, ã, à, é, ê, í, ó, ô, õ, ú, ü, ç. Never substitute them with plain ASCII.
+- Bible verses: quote VERBATIM from the Almeida Revista e Corrigida 2009 (ARC) or the Nova Versão Internacional (NVI-PT). Do NOT paraphrase or alter the quoted verse wording.`,
+
   FR: `
 
 IMPORTANT LANGUAGE RULES — FRENCH:

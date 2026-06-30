@@ -271,7 +271,7 @@ export default function Home() {
                   <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
                 </button>
                 {/* Language selector — desktop pills */}
-                {(["EN", "PL", "ES", "FR", "DE"] as const).map((l) => (
+                {(["EN", "PL", "ES", "FR", "DE", "PT"] as const).map((l) => (
                   <button
                     key={l}
                     onClick={() => setLang(l)}
@@ -290,7 +290,7 @@ export default function Home() {
                     onClick={() => setLangDropdownOpen((o) => !o)}
                     className="flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
-                    <span>{lang === "EN" ? "🇬🇧" : lang === "PL" ? "🇵🇱" : lang === "ES" ? "🇪🇸" : lang === "FR" ? "🇫🇷" : "🇩🇪"}</span>
+                    <span>{lang === "EN" ? "🇬🇧" : lang === "PL" ? "🇵🇱" : lang === "ES" ? "🇪🇸" : lang === "FR" ? "🇫🇷" : lang === "DE" ? "🇩🇪" : "🇧🇷"}</span>
                     <svg className={`w-3 h-3 transition-transform ${langDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -306,7 +306,7 @@ export default function Home() {
                           transition={{ duration: 0.15 }}
                           className="absolute left-0 top-full mt-1 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden min-w-[140px]"
                         >
-                          {(["EN", "PL", "ES", "FR", "DE"] as const).map((l) => (
+                          {(["EN", "PL", "ES", "FR", "DE", "PT"] as const).map((l) => (
                             <button
                               key={l}
                               onClick={() => { setLang(l); setLangDropdownOpen(false); }}
@@ -316,7 +316,7 @@ export default function Home() {
                                   : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                               }`}
                             >
-                              <span className="text-base">{l === "EN" ? "🇬🇧" : l === "PL" ? "🇵🇱" : l === "ES" ? "🇪🇸" : l === "FR" ? "🇫🇷" : "🇩🇪"}</span>
+                              <span className="text-base">{l === "EN" ? "🇬🇧" : l === "PL" ? "🇵🇱" : l === "ES" ? "🇪🇸" : l === "FR" ? "🇫🇷" : l === "DE" ? "🇩🇪" : "🇧🇷"}</span>
                               <span>{l === "EN" ? "English" : l === "PL" ? "Polski" : l === "ES" ? "Español" : l === "FR" ? "Français" : "Deutsch"}</span>
                             </button>
                           ))}
@@ -457,7 +457,7 @@ export default function Home() {
                 <div className="px-5 py-4">
                   <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">Language</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {(["EN", "PL", "ES", "FR", "DE"] as const).map((l) => (
+                    {(["EN", "PL", "ES", "FR", "DE", "PT"] as const).map((l) => (
                       <button
                         key={l}
                         onClick={() => { setLang(l); setSidebarOpen(false); }}
@@ -467,7 +467,7 @@ export default function Home() {
                             : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-amber-100 hover:text-amber-700"
                         }`}
                       >
-                        <span>{l === "EN" ? "🇬🇧" : l === "PL" ? "🇵🇱" : l === "ES" ? "🇪🇸" : l === "FR" ? "🇫🇷" : "🇩🇪"}</span>
+                        <span>{l === "EN" ? "🇬🇧" : l === "PL" ? "🇵🇱" : l === "ES" ? "🇪🇸" : l === "FR" ? "🇫🇷" : l === "DE" ? "🇩🇪" : "🇧🇷"}</span>
                         <span>{l === "EN" ? "English" : l === "PL" ? "Polski" : l === "ES" ? "Español" : l === "FR" ? "Français" : "Deutsch"}</span>
                       </button>
                     ))}
