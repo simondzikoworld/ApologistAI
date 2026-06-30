@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, LayoutGroup, type Variants } from "framer-motion";
@@ -154,6 +154,17 @@ export default function Home() {
   const [expanded, setExpanded] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const langDropdownRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!langDropdownOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
+        setLangDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [langDropdownOpen]);
   const [pendingQuestion, setPendingQuestion] = useState<string | undefined>();
   const [chatKey, setChatKey] = useState(0);
   const [lang, setLang] = useState<Lang>(() => {
@@ -271,7 +282,7 @@ export default function Home() {
                   <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
                 </button>
                 {/* Language selector — dropdown (all screen sizes) */}
-                <div className="relative">
+                <div className="relative" ref={langDropdownRef}>
                   <button
                     onClick={() => setLangDropdownOpen((o) => !o)}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-amber-300 dark:hover:border-amber-600 hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
@@ -285,7 +296,6 @@ export default function Home() {
                   <AnimatePresence>
                     {langDropdownOpen && (
                       <>
-                        <div className="fixed inset-0 z-40" onClick={() => setLangDropdownOpen(false)} />
                         <motion.div
                           initial={{ opacity: 0, y: -6, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
