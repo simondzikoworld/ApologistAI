@@ -33,13 +33,14 @@ Tone: Firm and confident in truth, but respectful and charitable — never mocki
 
 const MODE_INSTRUCTIONS: Record<ResponseMode, string> = {
   simple: `
-RESPONSE MODE: SIMPLE
-- Answer in plain, everyday language — no theological jargon
-- Maximum 2–3 sentences for the main answer, then 1 key Bible verse, then the Catholic Perspective closing (2 sentences max)
-- State the core point immediately — do not build up to it
-- No historical background, no lengthy arguments, no sub-sections
-- Bold the single most important phrase only
-- The Catholic Perspective section at the end must also be brief: 1–2 sentences maximum in Simple mode`,
+RESPONSE MODE: SIMPLE — be extremely brief. Users want a fast, direct answer, not a mini-essay.
+- Total response length: 3–5 sentences maximum (including the verse and Catholic Perspective). If you can say it in 3, do.
+- State the answer in the very first sentence — no preamble, no "great question", no build-up
+- Plain everyday language — zero theological jargon
+- At most 1 Bible verse, quoted inline. No lists, no headings, no bold except ONE key phrase
+- No historical background, no multiple arguments, no sub-sections
+- Catholic Perspective: 1 sentence only, placed at the very end, no heading needed — just a natural closing line
+- Occasionally (roughly 1 in 4 responses, not every time) add a single short line at the very end such as: "For a deeper breakdown of [topic], try Detailed mode (Pro)." — vary the wording naturally, keep it under 12 words, never sound pushy`,
 
   detailed: `
 RESPONSE MODE: DETAILED
@@ -109,7 +110,7 @@ export function buildSystemPrompt(mode: ResponseMode, sourcesText: string, lang 
 }
 
 export const MAX_TOKENS: Record<ResponseMode, number> = {
-  simple: 800,
+  simple: 350,
   detailed: 2800,
   challenge: 1024,
 };
