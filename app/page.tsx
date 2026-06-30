@@ -270,22 +270,8 @@ export default function Home() {
                   <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
                   <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
                 </button>
-                {/* Language selector — desktop pills */}
-                {(["EN", "PL", "ES", "FR", "DE", "PT"] as const).map((l) => (
-                  <button
-                    key={l}
-                    onClick={() => setLang(l)}
-                    className={`hidden md:inline-flex px-2.5 py-1 rounded-full text-xs font-semibold transition-colors ${
-                      lang === l
-                        ? "bg-amber-500 text-white"
-                        : "text-slate-500 dark:text-slate-400 hover:bg-amber-100 dark:hover:bg-slate-800 hover:text-amber-700"
-                    }`}
-                  >
-                    {l}
-                  </button>
-                ))}
-                {/* Language selector — mobile flag dropdown */}
-                <div className="relative md:hidden">
+                {/* Language selector — dropdown (all screen sizes) */}
+                <div className="relative">
                   <button
                     onClick={() => setLangDropdownOpen((o) => !o)}
                     className="flex items-center gap-1 px-2 py-1 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -317,7 +303,7 @@ export default function Home() {
                               }`}
                             >
                               <span className="text-base">{l === "EN" ? "🇬🇧" : l === "PL" ? "🇵🇱" : l === "ES" ? "🇪🇸" : l === "FR" ? "🇫🇷" : l === "DE" ? "🇩🇪" : "🇧🇷"}</span>
-                              <span>{l === "EN" ? "English" : l === "PL" ? "Polski" : l === "ES" ? "Español" : l === "FR" ? "Français" : "Deutsch"}</span>
+                              <span>{l === "EN" ? "English" : l === "PL" ? "Polski" : l === "ES" ? "Español" : l === "FR" ? "Français" : l === "DE" ? "Deutsch" : "Português"}</span>
                             </button>
                           ))}
                         </motion.div>
