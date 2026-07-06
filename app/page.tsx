@@ -743,6 +743,46 @@ export default function Home() {
               {t(lang, "aboutP2")}
             </p>
 
+            {/* Feature cards */}
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.13 } } }}
+            >
+              {([
+                { n: "1" as const, glow: "bg-amber-400/20 dark:bg-[#cbb994]/10", iconBg: "bg-amber-100 dark:bg-[#2b2519]", iconColor: "text-amber-600 dark:text-[#cbb994]", border: "hover:border-amber-300/60 dark:hover:border-[#cbb994]/30" },
+                { n: "2" as const, glow: "bg-sky-400/15 dark:bg-sky-900/20",      iconBg: "bg-sky-50   dark:bg-sky-950/60",  iconColor: "text-sky-600   dark:text-sky-400",    border: "hover:border-sky-300/50   dark:hover:border-sky-700/50" },
+                { n: "3" as const, glow: "bg-rose-400/15 dark:bg-rose-900/20",    iconBg: "bg-rose-50  dark:bg-rose-950/60", iconColor: "text-rose-600  dark:text-rose-400",   border: "hover:border-rose-300/50  dark:hover:border-rose-700/50" },
+              ]).map(({ n, glow, iconBg, iconColor, border }, i) => (
+                <motion.div
+                  key={n}
+                  variants={{ hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } } }}
+                  whileHover={{ y: -4, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+                  className={`relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-white/[0.07] bg-white/70 dark:bg-white/[0.03] backdrop-blur-sm p-6 cursor-default transition-colors duration-200 ${border}`}
+                >
+                  {/* Ambient glow */}
+                  <div className={`absolute -top-6 -right-6 w-28 h-28 rounded-full ${glow} blur-2xl pointer-events-none`} />
+
+                  {/* Icon badge */}
+                  <div className={`relative w-11 h-11 rounded-xl ${iconBg} flex items-center justify-center text-xl mb-5 shadow-sm`}>
+                    <span className={iconColor}>{t(lang, `feature${n}Icon` as Parameters<typeof t>[1])}</span>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="relative text-[15px] font-bold text-slate-900 dark:text-[#f5efe3] mb-2 leading-snug">
+                    {t(lang, `feature${n}Title` as Parameters<typeof t>[1])}
+                  </h3>
+
+                  {/* Body */}
+                  <p className="relative text-sm text-slate-500 dark:text-[#9d9484] leading-relaxed">
+                    {t(lang, `feature${n}Body` as Parameters<typeof t>[1])}
+                  </p>
+                </motion.div>
+              ))}
+            </motion.div>
+
             {/* Buy Me a Coffee callout */}
             <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-amber-50 dark:bg-[#1e1a16] border border-amber-200 dark:border-[#2c2722] rounded-2xl px-5 py-4">
               <p className="text-sm text-slate-600 dark:text-[#d8cfc0] leading-relaxed flex-1">
@@ -758,54 +798,6 @@ export default function Home() {
               </a>
             </div>
 
-            <motion.div
-              className="grid grid-cols-1 sm:grid-cols-3 gap-0 sm:divide-x sm:divide-slate-200 sm:dark:divide-[#2c2722]"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.25 }}
-              variants={{
-                hidden: {},
-                visible: { transition: { staggerChildren: 0.12 } },
-              }}
-            >
-              {(["1", "2", "3"] as const).map((n, i) => (
-                <motion.div
-                  key={n}
-                  variants={{
-                    hidden: { opacity: 0, y: 24 },
-                    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-                  }}
-                  className="relative group overflow-hidden px-0 sm:px-8 first:pl-0 last:pr-0 py-8 sm:py-2 border-t-2 border-amber-500 sm:border-t-0 sm:border-l-0 first:border-t-2 sm:[&:not(:first-child)]:border-t-0"
-                >
-                  {/* Large faded ordinal */}
-                  <span
-                    aria-hidden
-                    className="absolute -top-3 right-1 sm:right-3 text-[72px] font-black leading-none select-none pointer-events-none
-                               text-amber-100 dark:text-[#2c2722] group-hover:text-amber-200 dark:group-hover:text-[#1e1a16] transition-colors duration-500"
-                  >
-                    0{i + 1}
-                  </span>
-
-                  {/* Amber top rule (desktop) */}
-                  <div className="hidden sm:block w-8 h-0.5 bg-amber-500 mb-5" />
-
-                  {/* Icon */}
-                  <span className="block text-xl mb-3 sm:mb-4">
-                    {t(lang, `feature${n}Icon` as Parameters<typeof t>[1])}
-                  </span>
-
-                  {/* Title */}
-                  <h3 className="text-base font-black text-slate-900 dark:text-[#f5efe3] mb-2 leading-tight tracking-tight">
-                    {t(lang, `feature${n}Title` as Parameters<typeof t>[1])}
-                  </h3>
-
-                  {/* Body */}
-                  <p className="text-sm text-slate-500 dark:text-[#9d9484] leading-relaxed">
-                    {t(lang, `feature${n}Body` as Parameters<typeof t>[1])}
-                  </p>
-                </motion.div>
-              ))}
-            </motion.div>
             <blockquote className="mt-12 border-l-4 border-amber-400 pl-6">
               <p className="text-lg italic text-slate-500 dark:text-[#9d9484] leading-relaxed">
                 &ldquo;{t(lang, "aboutQuote")}&rdquo;
