@@ -267,7 +267,7 @@ export default function Home() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: OUT } }}
               exit={{ opacity: 0, y: -10, transition: { duration: 0.2, ease: IN } }}
-              className="fixed top-0 left-0 right-0 z-[55] flex items-center py-2.5 px-4 sm:px-6 glass border-b-0 border-x-0 rounded-none" style={{ borderBottom: '1px solid var(--glass-border)' }}
+              className="fixed top-0 left-0 right-0 z-[55] flex items-center py-2.5 px-4 sm:px-6 bg-white/95 dark:bg-[#0e0c0a] backdrop-blur-xl border-b border-slate-200/60 dark:border-white/[0.07]"
             >
               {/* Left — hamburger (mobile) / language selector (desktop) */}
               <div className="flex items-center gap-1">
