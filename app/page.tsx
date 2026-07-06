@@ -528,9 +528,9 @@ export default function Home() {
               animate="visible"
               exit="exit"
               onClick={() => setExpanded(false)}
-              className="fixed top-6 left-6 z-[60] flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500 text-white text-sm font-semibold shadow-lg hover:bg-amber-600 transition-colors"
+              className="fixed top-6 left-6 z-[60] flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.08] dark:bg-white/[0.06] backdrop-blur-xl border border-white/20 dark:border-white/[0.12] text-slate-700 dark:text-[#d8cfc0] text-sm font-medium shadow-lg hover:bg-white/20 dark:hover:bg-white/[0.10] hover:border-white/30 dark:hover:border-[#cbb994]/30 hover:text-slate-900 dark:hover:text-[#f5efe3] transition-all duration-200"
             >
-              <span className="text-base leading-none">←</span>
+              <span className="text-base leading-none opacity-70">←</span>
               Back
             </motion.button>
           )}
