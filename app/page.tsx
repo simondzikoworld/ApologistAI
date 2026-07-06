@@ -693,7 +693,7 @@ export default function Home() {
               className={
                 expanded
                   ? "fixed inset-0 z-50 overflow-hidden"
-                  : "relative w-full max-w-[420px] xl:max-w-[480px] 2xl:max-w-[520px] h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[640px] 2xl:h-[700px] rounded-2xl overflow-hidden bg-white dark:bg-[#141210] shadow-[0_20px_60px_rgba(0,0,0,0.10)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-slate-100 dark:border-[#2c2722]"
+                  : "relative w-full max-w-[420px] xl:max-w-[480px] 2xl:max-w-[520px] h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[640px] 2xl:h-[700px] rounded-2xl overflow-hidden bg-white/90 dark:bg-[#141210]/80 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.10)] dark:shadow-[0_28px_70px_rgba(0,0,0,0.55)] border border-white/60 dark:border-white/[0.08]"
               }
             >
               <AnimatePresence mode="popLayout" initial={false}>
