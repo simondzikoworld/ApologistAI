@@ -93,7 +93,7 @@ export default function ChatPage({ initialConversations, activeConversation }: P
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-900">
+    <div className="flex h-screen overflow-hidden bg-white dark:bg-[#0a0908]">
 
       {/* Mobile overlay */}
       {sidebarOpen && (
@@ -141,16 +141,16 @@ export default function ChatPage({ initialConversations, activeConversation }: P
       {/* Main area */}
       <div className="flex flex-col flex-1 min-w-0">
         {/* Top bar */}
-        <header className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <header className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-[#2c2722] shrink-0">
           <div className="flex items-center gap-3">
             {/* Mobile hamburger */}
             <button
               onClick={() => setSidebarOpen((o) => !o)}
-              className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors"
             >
               <HamburgerIcon />
             </button>
-            <a href="/" className="hidden lg:flex items-center gap-1.5 text-sm text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+            <a href="/" className="hidden lg:flex items-center gap-1.5 text-sm text-slate-500 dark:text-[#9d9484] hover:text-amber-600 dark:hover:text-[#cbb994] transition-colors">
               <ArrowLeftIcon />
               {t(lang, "navHome")}
             </a>
@@ -160,7 +160,7 @@ export default function ChatPage({ initialConversations, activeConversation }: P
             <select
               value={lang}
               onChange={(e) => { const l = e.target.value as Lang; setLang(l); localStorage.setItem("cd-lang", l); }}
-              className="text-base sm:text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-amber-400"
+              className="text-base sm:text-xs border border-slate-200 dark:border-[#2c2722] rounded-lg px-2 py-1 bg-white dark:bg-[#1e1a16] text-slate-600 dark:text-[#d8cfc0] focus:outline-none focus:ring-1 focus:ring-amber-400 dark:focus:ring-[#cbb994]/60"
             >
               {LANGS.map((l) => (
                 <option key={l} value={l}>{l}</option>
@@ -170,7 +170,7 @@ export default function ChatPage({ initialConversations, activeConversation }: P
             <div className="relative">
               <UserButton />
               {isPro && (
-                <span className="absolute -bottom-1 -right-1 text-[8px] font-black bg-amber-500 text-white px-1 py-px rounded-full leading-none pointer-events-none select-none">
+                <span className="absolute -bottom-1 -right-1 text-[8px] font-black bg-amber-500 dark:bg-[#cbb994] text-white dark:text-[#1c1813] px-1 py-px rounded-full leading-none pointer-events-none select-none">
                   PRO
                 </span>
               )}

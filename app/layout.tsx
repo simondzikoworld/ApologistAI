@@ -105,7 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* Apply saved dark-mode class before first paint to avoid flash */}
           <script dangerouslySetInnerHTML={{ __html: `(function(){try{if(localStorage.getItem('cd-theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}})();` }} />
         </head>
-        <body className={`${inter.className} bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 antialiased`}>
+        <body className={`${inter.className} antialiased`} style={{ backgroundColor: 'var(--page-bg)', color: 'var(--text-primary)' }}>
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{

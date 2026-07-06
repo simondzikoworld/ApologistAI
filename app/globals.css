@@ -5,6 +5,75 @@
 @theme {
   --color-navy: #1a1a2e;
   --color-gold: #c9a84c;
+
+  /* Beige accent (dark theme) */
+  --color-beige-500: #cbb994;
+  --color-beige-600: #e3d2ad;
+  --color-beige-100: #2b2519;
+
+  /* Warm dark surfaces */
+  --color-warm-950: #0a0908;
+  --color-warm-900: #141210;
+  --color-warm-800: #1e1a16;
+  --color-warm-700: #2c2722;
+}
+
+/* ─── Dark theme: warm black + beige ─────────────────────────────────── */
+.dark {
+  --page-bg:      #0a0908;
+  --surface:      #141210;
+  --surface-2:    #1e1a16;
+  --border:       #2c2722;
+  --text-primary: #f5efe3;
+  --text-body:    #d8cfc0;
+  --text-muted:   #9d9484;
+  --accent:       #cbb994;
+  --accent-soft:  rgb(203 185 148 / 0.18);
+  --glass-bg:     rgb(255 255 255 / 0.05);
+  --glass-border: rgb(255 255 255 / 0.12);
+  --glass-blur:   20px;
+}
+
+/* ─── Light theme ────────────────────────────────────────────────────── */
+:root {
+  --page-bg:      #f8fafc;
+  --surface:      #ffffff;
+  --surface-2:    #f1f5f9;
+  --border:       #e2e8f0;
+  --text-primary: #0f172a;
+  --text-body:    #334155;
+  --text-muted:   #64748b;
+  --accent:       #f59e0b;
+  --accent-soft:  rgb(245 158 11 / 0.12);
+  --glass-bg:     rgb(255 255 255 / 0.60);
+  --glass-border: rgb(15 23 42 / 0.09);
+  --glass-blur:   18px;
+}
+
+/* ─── Glass utilities ────────────────────────────────────────────────── */
+@layer utilities {
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.15);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.15);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-pill {
+    background: var(--glass-bg);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 9999px;
+  }
+
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(18px) saturate(1.1);
+    -webkit-backdrop-filter: blur(18px) saturate(1.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+  }
 }
 
 @keyframes wordIn {
@@ -13,7 +82,6 @@
 }
 
 @media print {
-  /* Hide everything except chat messages */
   body > * { display: none !important; }
   #print-chat { display: block !important; }
 

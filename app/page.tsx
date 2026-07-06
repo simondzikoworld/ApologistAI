@@ -105,7 +105,7 @@ function HeroBullets({ lang }: { lang: Lang }) {
           <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 text-[11px] font-bold">
             ✓
           </span>
-          <span className="text-sm text-slate-600 dark:text-slate-400 leading-snug">{b}</span>
+          <span className="text-sm text-slate-600 dark:text-[#d8cfc0] leading-snug">{b}</span>
         </motion.li>
       ))}
     </motion.ul>
@@ -243,7 +243,7 @@ export default function Home() {
   return (
     <LayoutGroup>
       {/* Full-viewport background */}
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-amber-50/30 to-slate-50 dark:from-slate-900 dark:via-slate-800/20 dark:to-slate-900">
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-amber-50/30 to-slate-50 dark:from-[#0a0908] dark:via-[#141210] dark:to-[#0a0908]">
 
         {/* Decorative background crucifix */}
         <div
@@ -254,8 +254,7 @@ export default function Home() {
           <img
             src="/crucifix.png"
             alt=""
-            className="select-none w-[78vw] h-auto lg:w-auto lg:h-[90vh]"
-            style={{ opacity: 0.13, mixBlendMode: "multiply" }}
+            className="select-none w-[78vw] h-auto lg:w-auto lg:h-[90vh] [mix-blend-mode:multiply] opacity-[0.13] dark:[mix-blend-mode:screen] dark:opacity-[0.07]"
           />
         </div>
 
@@ -267,25 +266,25 @@ export default function Home() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: OUT } }}
               exit={{ opacity: 0, y: -10, transition: { duration: 0.2, ease: IN } }}
-              className="fixed top-0 left-0 right-0 z-[55] flex items-center py-2.5 px-4 sm:px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700"
+              className="fixed top-0 left-0 right-0 z-[55] flex items-center py-2.5 px-4 sm:px-6 glass border-b-0 border-x-0 rounded-none" style={{ borderBottom: '1px solid var(--glass-border)' }}
             >
               {/* Left — hamburger (mobile) / language selector (desktop) */}
               <div className="flex items-center gap-1">
                 {/* Hamburger — mobile only */}
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors"
                   aria-label="Open menu"
                 >
-                  <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
-                  <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
-                  <span className="w-5 h-0.5 bg-slate-600 dark:bg-slate-300 rounded-full" />
+                  <span className="w-5 h-0.5 bg-slate-600 dark:bg-[#d8cfc0] rounded-full" />
+                  <span className="w-5 h-0.5 bg-slate-600 dark:bg-[#d8cfc0] rounded-full" />
+                  <span className="w-5 h-0.5 bg-slate-600 dark:bg-[#d8cfc0] rounded-full" />
                 </button>
                 {/* Language selector — dropdown (all screen sizes) */}
                 <div className="relative" ref={langDropdownRef}>
                   <button
                     onClick={() => setLangDropdownOpen((o) => !o)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-amber-300 dark:hover:border-amber-600 hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-[#2c2722] bg-white dark:bg-[#1e1a16] text-xs font-semibold text-slate-700 dark:text-[#d8cfc0] hover:border-amber-300 dark:hover:border-[#cbb994]/60 hover:bg-amber-50 dark:hover:bg-[#2c2722] transition-colors shadow-sm"
                   >
                     <span>{lang === "EN" ? "🇬🇧" : lang === "PL" ? "🇵🇱" : lang === "ES" ? "🇪🇸" : lang === "FR" ? "🇫🇷" : lang === "DE" ? "🇩🇪" : "🇧🇷"}</span>
                     <span>{lang}</span>
@@ -301,7 +300,7 @@ export default function Home() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -6, scale: 0.95 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute left-0 top-full mt-1 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden min-w-[140px]"
+                          className="absolute left-0 top-full mt-1 z-50 bg-white dark:bg-[#1e1a16] border border-slate-200 dark:border-[#2c2722] rounded-xl shadow-lg overflow-hidden min-w-[140px]"
                         >
                           {(["EN", "PL", "ES", "FR", "DE", "PT"] as const).map((l) => (
                             <button
@@ -309,8 +308,8 @@ export default function Home() {
                               onClick={() => { setLang(l); setLangDropdownOpen(false); }}
                               className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
                                 lang === l
-                                  ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-semibold"
-                                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                  ? "bg-amber-50 dark:bg-[#2b2519] text-amber-700 dark:text-[#cbb994] font-semibold"
+                                  : "text-slate-600 dark:text-[#d8cfc0] hover:bg-slate-50 dark:hover:bg-[#2c2722]"
                               }`}
                             >
                               <span className="text-base">{l === "EN" ? "🇬🇧" : l === "PL" ? "🇵🇱" : l === "ES" ? "🇪🇸" : l === "FR" ? "🇫🇷" : l === "DE" ? "🇩🇪" : "🇧🇷"}</span>
@@ -335,14 +334,14 @@ export default function Home() {
                   <a
                     key={href}
                     href={href}
-                    className="px-3 py-1.5 rounded-full text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-amber-100 dark:hover:bg-slate-800 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+                    className="px-3 py-1.5 rounded-full text-sm font-semibold text-slate-700 dark:text-[#d8cfc0] hover:bg-amber-100 dark:hover:bg-[#2c2722] hover:text-amber-700 dark:hover:text-[#cbb994] transition-colors"
                   >
                     {label}
                   </a>
                 ))}
                 <a
                   href="#pricing"
-                  className="px-3 py-1.5 rounded-full text-sm font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-full text-sm font-semibold text-amber-600 dark:text-[#cbb994] hover:bg-amber-100 dark:hover:bg-[#2c2722] transition-colors flex items-center gap-1"
                 >
                   {t(lang, "navPricing")}
                 </a>
@@ -362,7 +361,7 @@ export default function Home() {
                 ) : (
                   <>
                     <SignInButton mode="modal">
-                      <button className="hidden sm:inline-flex px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors">
+                      <button className="hidden sm:inline-flex px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 dark:text-[#d8cfc0] hover:bg-slate-100 dark:hover:bg-[#2c2722] border border-slate-200 dark:border-[#2c2722] transition-colors">
                         Sign in
                       </button>
                     </SignInButton>
@@ -400,10 +399,10 @@ export default function Home() {
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", stiffness: 320, damping: 32 }}
-                className="fixed top-0 left-0 h-full w-72 z-[80] bg-white dark:bg-slate-900 shadow-2xl flex flex-col"
+                className="fixed top-0 left-0 h-full w-72 z-[80] bg-white dark:bg-[#141210] shadow-2xl dark:shadow-black/60 flex flex-col"
               >
                 {/* Sidebar header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-[#2c2722]">
                   <div className="flex items-center">
                     <Image
                       src="/apologist.png"
@@ -415,7 +414,7 @@ export default function Home() {
                   </div>
                   <button
                     onClick={() => setSidebarOpen(false)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-lg leading-none"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-[#d8cfc0] hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors text-lg leading-none"
                   >
                     ✕
                   </button>
@@ -433,7 +432,7 @@ export default function Home() {
                       key={href}
                       href={href}
                       onClick={() => setSidebarOpen(false)}
-                      className="px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+                      className="px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 dark:text-[#d8cfc0] hover:bg-amber-50 dark:hover:bg-[#2c2722] hover:text-amber-700 dark:hover:text-[#cbb994] transition-colors"
                     >
                       {label}
                     </a>
@@ -441,14 +440,14 @@ export default function Home() {
                   <a
                     href="#pricing"
                     onClick={() => setSidebarOpen(false)}
-                    className="px-4 py-3 rounded-xl text-sm font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2"
+                    className="px-4 py-3 rounded-xl text-sm font-semibold text-amber-600 dark:text-[#cbb994] hover:bg-amber-50 dark:hover:bg-[#2c2722] transition-colors flex items-center gap-2"
                   >
                     {t(lang, "navPricing")}
                   </a>
                 </nav>
 
                 {/* Divider */}
-                <div className="mx-5 border-t border-slate-100 dark:border-slate-800" />
+                <div className="mx-5 border-t border-slate-100 dark:border-[#2c2722]" />
 
                 {/* Language selector */}
                 <div className="px-5 py-4">
@@ -460,32 +459,32 @@ export default function Home() {
                         onClick={() => { setLang(l); setSidebarOpen(false); }}
                         className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
                           lang === l
-                            ? "bg-amber-500 text-white"
-                            : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-amber-100 hover:text-amber-700"
+                            ? "bg-amber-500 dark:bg-[#cbb994] text-white dark:text-[#1c1813]"
+                            : "bg-slate-100 dark:bg-[#2c2722] text-slate-600 dark:text-[#d8cfc0] hover:bg-amber-100 dark:hover:bg-[#2b2519] hover:text-amber-700 dark:hover:text-[#cbb994]"
                         }`}
                       >
                         <span>{l === "EN" ? "🇬🇧" : l === "PL" ? "🇵🇱" : l === "ES" ? "🇪🇸" : l === "FR" ? "🇫🇷" : l === "DE" ? "🇩🇪" : "🇧🇷"}</span>
-                        <span>{l === "EN" ? "English" : l === "PL" ? "Polski" : l === "ES" ? "Español" : l === "FR" ? "Français" : "Deutsch"}</span>
+                        <span>{l === "EN" ? "English" : l === "PL" ? "Polski" : l === "ES" ? "Español" : l === "FR" ? "Français" : l === "DE" ? "Deutsch" : "Português"}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Auth */}
-                <div className="mx-5 border-t border-slate-100 dark:border-slate-800" />
+                <div className="mx-5 border-t border-slate-100 dark:border-[#2c2722]" />
                 <div className="px-5 py-4 space-y-2">
                   {isSignedIn ? (
                     <div className="flex items-center gap-3 px-1">
                       <UserButton />
                       <div>
-                        <p className="text-sm font-semibold text-slate-800 dark:text-white">{user?.firstName ?? "Account"}</p>
-                        {isPro && <p className="text-xs text-amber-500 font-bold">✦ Pro</p>}
+                        <p className="text-sm font-semibold text-slate-800 dark:text-[#f5efe3]">{user?.firstName ?? "Account"}</p>
+                        {isPro && <p className="text-xs text-amber-500 dark:text-[#cbb994] font-bold">✦ Pro</p>}
                       </div>
                     </div>
                   ) : (
                     <>
                       <SignInButton mode="modal">
-                        <button onClick={() => setSidebarOpen(false)} className="flex items-center justify-center w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <button onClick={() => setSidebarOpen(false)} className="flex items-center justify-center w-full py-2.5 rounded-xl border border-slate-200 dark:border-[#2c2722] text-sm font-semibold text-slate-700 dark:text-[#d8cfc0] hover:bg-slate-50 dark:hover:bg-[#2c2722] transition-colors">
                           Sign in
                         </button>
                       </SignInButton>
@@ -556,11 +555,11 @@ export default function Home() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-slate-900 dark:text-white leading-[1.08] tracking-tight mb-5"
+                    className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-slate-900 dark:text-[#f5efe3] leading-[1.08] tracking-tight mb-5"
                   >
                     {t(lang, "heroLine1")}
                     <br />
-                    <span className="text-amber-500">{t(lang, "heroLine2")}</span>
+                    <span className="text-amber-500 dark:text-[#cbb994]">{t(lang, "heroLine2")}</span>
                   </motion.h1>
 
                   {/* Sub-text */}
@@ -570,7 +569,7 @@ export default function Home() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="text-slate-500 dark:text-slate-400 text-base xl:text-lg leading-relaxed max-w-md xl:max-w-xl mb-6"
+                    className="text-slate-500 dark:text-[#9d9484] text-base xl:text-lg leading-relaxed max-w-md xl:max-w-xl mb-6"
                   >
                     {t(lang, "heroSub")}
                   </motion.p>
@@ -588,7 +587,7 @@ export default function Home() {
                       onClick={() => { if (isSignedIn) { router.push("/chat"); } else { setChatKey(k => k + 1); setExpanded(true); } }}
                       whileHover={{ scale: 1.04 }}
                       whileTap={{ scale: 0.97 }}
-                      className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-lg shadow-amber-200 dark:shadow-amber-900/40 transition-colors"
+                      className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 dark:bg-[#cbb994] dark:hover:bg-[#e3d2ad] text-white dark:text-[#1c1813] font-bold text-sm shadow-lg shadow-amber-200 dark:shadow-black/40 transition-colors"
                     >
                       <span>✝</span>
                       {t(lang, "tryItNow")}
@@ -619,15 +618,15 @@ export default function Home() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="border-l-2 border-amber-300 pl-4 max-w-sm"
+                    className="border-l-2 border-amber-300 dark:border-[#cbb994]/40 pl-4 max-w-sm"
                   >
-                    <p className="text-[10px] text-amber-500 font-semibold uppercase tracking-widest mb-1.5">
+                    <p className="text-[10px] text-amber-500 dark:text-[#cbb994] font-semibold uppercase tracking-widest mb-1.5">
                       {t(lang, "verseOfDay")}
                     </p>
-                    <p className="text-xs text-slate-400 italic leading-relaxed">
+                    <p className="text-xs text-slate-400 dark:text-[#9d9484] italic leading-relaxed">
                       &ldquo;{dailyVerse.text}&rdquo;
                     </p>
-                    <footer className="mt-1.5 text-[11px] text-amber-500 font-semibold">
+                    <footer className="mt-1.5 text-[11px] text-amber-500 dark:text-[#cbb994] font-semibold">
                       — {dailyVerse.ref}
                     </footer>
                   </motion.blockquote>
@@ -677,7 +676,7 @@ export default function Home() {
               className={
                 expanded
                   ? "fixed inset-0 z-50 overflow-hidden"
-                  : "relative w-full max-w-[420px] xl:max-w-[480px] 2xl:max-w-[520px] h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[640px] 2xl:h-[700px] rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.10)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] border border-slate-100 dark:border-slate-800"
+                  : "relative w-full max-w-[420px] xl:max-w-[480px] 2xl:max-w-[520px] h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[640px] 2xl:h-[700px] rounded-2xl overflow-hidden bg-white dark:bg-[#141210] shadow-[0_20px_60px_rgba(0,0,0,0.10)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-slate-100 dark:border-[#2c2722]"
               }
             >
               <AnimatePresence mode="popLayout" initial={false}>
@@ -697,9 +696,9 @@ export default function Home() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1, transition: { duration: 0.35, delay: 0.15 } }}
                     exit={{ opacity: 0, transition: { duration: 0.2 } }}
-                    className="absolute inset-0 bg-slate-100 dark:bg-slate-950 flex justify-center"
+                    className="absolute inset-0 bg-slate-100 dark:bg-[#0a0908] flex justify-center"
                   >
-                    <div className="w-full max-w-2xl h-full bg-white dark:bg-slate-900 shadow-2xl">
+                    <div className="w-full max-w-2xl h-full bg-white dark:bg-[#141210] shadow-2xl">
                       <ChatInterface key={chatKey} initialQuestion={pendingQuestion} startFresh={true} lang={lang} isPro={isPro} />
                     </div>
                   </motion.div>
@@ -714,22 +713,22 @@ export default function Home() {
       {/* ----------------------------------------------------------------
           ABOUT — below the fold (outside the hero div so crucifix stays centered)
       ---------------------------------------------------------------- */}
-      <section id="mission" className="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-20">
+      <section id="mission" className="bg-white dark:bg-[#0a0908] border-t border-slate-100 dark:border-[#2c2722] px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-20">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-amber-500 text-2xl">✝</span>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t(lang, "aboutTitle")}</h2>
+              <span className="text-amber-500 dark:text-[#cbb994] text-2xl">✝</span>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-[#f5efe3]">{t(lang, "aboutTitle")}</h2>
             </div>
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6 text-base">
+            <p className="text-slate-600 dark:text-[#d8cfc0] leading-relaxed mb-6 text-base">
               {t(lang, "aboutP1")}
             </p>
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6 text-base">
+            <p className="text-slate-600 dark:text-[#d8cfc0] leading-relaxed mb-6 text-base">
               {t(lang, "aboutP2")}
             </p>
 
             {/* Buy Me a Coffee callout */}
-            <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-amber-50 dark:bg-slate-800 border border-amber-200 dark:border-slate-700 rounded-2xl px-5 py-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed flex-1">
+            <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-amber-50 dark:bg-[#1e1a16] border border-amber-200 dark:border-[#2c2722] rounded-2xl px-5 py-4">
+              <p className="text-sm text-slate-600 dark:text-[#d8cfc0] leading-relaxed flex-1">
                 {t(lang, "buyMeCoffeeText")}
               </p>
               <a
@@ -743,7 +742,7 @@ export default function Home() {
             </div>
 
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-3 gap-0 sm:divide-x sm:divide-slate-200 sm:dark:divide-slate-700"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-0 sm:divide-x sm:divide-slate-200 sm:dark:divide-[#2c2722]"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.25 }}
@@ -765,7 +764,7 @@ export default function Home() {
                   <span
                     aria-hidden
                     className="absolute -top-3 right-1 sm:right-3 text-[72px] font-black leading-none select-none pointer-events-none
-                               text-amber-100 dark:text-slate-800 group-hover:text-amber-200 dark:group-hover:text-slate-700 transition-colors duration-500"
+                               text-amber-100 dark:text-[#2c2722] group-hover:text-amber-200 dark:group-hover:text-[#1e1a16] transition-colors duration-500"
                   >
                     0{i + 1}
                   </span>
@@ -779,19 +778,19 @@ export default function Home() {
                   </span>
 
                   {/* Title */}
-                  <h3 className="text-base font-black text-slate-900 dark:text-white mb-2 leading-tight tracking-tight">
+                  <h3 className="text-base font-black text-slate-900 dark:text-[#f5efe3] mb-2 leading-tight tracking-tight">
                     {t(lang, `feature${n}Title` as Parameters<typeof t>[1])}
                   </h3>
 
                   {/* Body */}
-                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                  <p className="text-sm text-slate-500 dark:text-[#9d9484] leading-relaxed">
                     {t(lang, `feature${n}Body` as Parameters<typeof t>[1])}
                   </p>
                 </motion.div>
               ))}
             </motion.div>
             <blockquote className="mt-12 border-l-4 border-amber-400 pl-6">
-              <p className="text-lg italic text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="text-lg italic text-slate-500 dark:text-[#9d9484] leading-relaxed">
                 &ldquo;{t(lang, "aboutQuote")}&rdquo;
               </p>
               <footer className="mt-2 text-sm text-amber-600 font-semibold">{t(lang, "aboutQuoteRef")}</footer>
@@ -802,13 +801,13 @@ export default function Home() {
       {/* ----------------------------------------------------------------
           COMMON QUESTIONS — below Our Mission
       ---------------------------------------------------------------- */}
-      <section id="common-questions" className="bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-16">
+      <section id="common-questions" className="bg-slate-50 dark:bg-[#141210] border-t border-slate-100 dark:border-[#2c2722] px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-16">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-amber-500 text-2xl">⚔</span>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t(lang, "commonQuestionsTitle")}</h2>
+            <span className="text-amber-500 dark:text-[#cbb994] text-2xl">⚔</span>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-[#f5efe3]">{t(lang, "commonQuestionsTitle")}</h2>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">{t(lang, "commonQuestionsSub")}</p>
+          <p className="text-slate-500 dark:text-[#9d9484] text-sm mb-8 leading-relaxed">{t(lang, "commonQuestionsSub")}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {tArr(lang, "objections").map((q) => (
               <button
@@ -817,10 +816,10 @@ export default function Home() {
                   window.scrollTo({ top: 0, behavior: "smooth" });
                   setTimeout(() => openWithQuestion(q), 300);
                 }}
-                className="group flex items-start gap-3 text-left px-5 py-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                className="group flex items-start gap-3 text-left px-5 py-4 rounded-2xl bg-white dark:bg-[#1e1a16] border border-slate-200 dark:border-[#2c2722] hover:border-amber-300 dark:hover:border-[#cbb994]/40 hover:bg-amber-50 dark:hover:bg-[#2c2722] transition-colors shadow-sm"
               >
-                <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 text-[10px] font-bold group-hover:bg-amber-200 transition-colors">?</span>
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-snug">{q}</span>
+                <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-amber-100 dark:bg-[#2b2519] flex items-center justify-center text-amber-600 dark:text-[#cbb994] text-[10px] font-bold group-hover:bg-amber-200 dark:group-hover:bg-[#cbb994]/20 transition-colors">?</span>
+                <span className="text-sm font-medium text-slate-700 dark:text-[#d8cfc0] leading-snug">{q}</span>
               </button>
             ))}
           </div>
@@ -830,13 +829,13 @@ export default function Home() {
       {/* ----------------------------------------------------------------
           DAILY READING — below Our Mission
       ---------------------------------------------------------------- */}
-      <section id="daily-reading" className="bg-amber-50 dark:bg-slate-800/60 border-t border-amber-100 dark:border-slate-700 px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-16">
+      <section id="daily-reading" className="bg-amber-50 dark:bg-[#0a0908] border-t border-amber-100 dark:border-[#2c2722] px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-16">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <span className="text-amber-500 text-2xl">✝</span>
+              <span className="text-amber-500 dark:text-[#cbb994] text-2xl">✝</span>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t(lang, "dailyReadingTitle")}</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-[#f5efe3]">{t(lang, "dailyReadingTitle")}</h2>
                 {readings && (
                   <p className="text-xs text-slate-400 mt-0.5">{readings.date}</p>
                 )}
@@ -870,11 +869,11 @@ export default function Home() {
               {readings.readings.map((r, i) => (
                 <div
                   key={i}
-                  className="bg-white dark:bg-slate-800 border border-amber-100 dark:border-slate-700 rounded-2xl overflow-hidden"
+                  className="bg-white dark:bg-[#141210] border border-amber-100 dark:border-[#2c2722] rounded-2xl overflow-hidden"
                 >
                   <button
                     onClick={() => setExpandedReading(expandedReading === i ? null : i)}
-                    className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-amber-50 dark:hover:bg-slate-700/50 transition-colors"
+                    className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-amber-50 dark:hover:bg-[#1e1a16] transition-colors"
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -884,7 +883,7 @@ export default function Home() {
                         )}
                       </div>
                       {r.subtitle && (
-                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-0.5 truncate">{r.subtitle}</p>
+                        <p className="text-sm font-medium text-slate-700 dark:text-[#d8cfc0] mt-0.5 truncate">{r.subtitle}</p>
                       )}
                     </div>
                     <motion.span
@@ -906,9 +905,9 @@ export default function Home() {
                         transition={{ duration: 0.25, ease: "easeInOut" }}
                         className="overflow-hidden"
                       >
-                        <div className="px-5 pb-5 border-t border-amber-100 dark:border-slate-700 pt-4">
+                        <div className="px-5 pb-5 border-t border-amber-100 dark:border-[#2c2722] pt-4">
                           {r.text.split("\n\n").map((para, j) => (
-                            <p key={j} className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-3 last:mb-0 italic">
+                            <p key={j} className="text-sm text-slate-700 dark:text-[#d8cfc0] leading-relaxed mb-3 last:mb-0 italic">
                               {para}
                             </p>
                           ))}
@@ -926,83 +925,83 @@ export default function Home() {
       {/* ----------------------------------------------------------------
           PRICING — below Daily Reading
       ---------------------------------------------------------------- */}
-      <section id="pricing" className="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-20">
+      <section id="pricing" className="bg-white dark:bg-[#141210] border-t border-slate-100 dark:border-[#2c2722] px-6 sm:px-10 lg:px-12 xl:px-20 py-12 lg:py-20">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-amber-500 text-2xl">✦</span>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t(lang, "pricingTitle")}</h2>
+            <span className="text-amber-500 dark:text-[#cbb994] text-2xl">✦</span>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-[#f5efe3]">{t(lang, "pricingTitle")}</h2>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mb-10 leading-relaxed">
+          <p className="text-slate-500 dark:text-[#9d9484] text-sm mb-10 leading-relaxed">
             {t(lang, "pricingSub")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Free card */}
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-6 flex flex-col">
+            <div className="rounded-2xl border border-slate-200 dark:border-[#2c2722] bg-slate-50 dark:bg-[#1e1a16] p-6 flex flex-col">
               <div className="mb-4">
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{t(lang, "pricingFreeName")}</p>
-                <p className="text-3xl font-black text-slate-900 dark:text-white">£0</p>
-                <p className="text-xs text-slate-400 mt-0.5">{t(lang, "pricingFreeForever")}</p>
-                <p className="text-xs text-slate-400 mt-1.5 italic">{t(lang, "pricingFreeTagline")}</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-[#9d9484] mb-1">{t(lang, "pricingFreeName")}</p>
+                <p className="text-3xl font-black text-slate-900 dark:text-[#f5efe3]">£0</p>
+                <p className="text-xs text-slate-400 dark:text-[#9d9484] mt-0.5">{t(lang, "pricingFreeForever")}</p>
+                <p className="text-xs text-slate-400 dark:text-[#9d9484] mt-1.5 italic">{t(lang, "pricingFreeTagline")}</p>
               </div>
               <ul className="space-y-2.5 flex-1 mb-6">
                 {tArr(lang, "pricingFreeFeatures").map((text, i) => {
                   const ok = i < 3;
                   return (
                     <li key={i} className="flex items-start gap-2.5">
-                      <span className={`mt-0.5 shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${ok ? "bg-amber-100 dark:bg-amber-900/40 text-amber-600" : "bg-slate-200 dark:bg-slate-700 text-slate-400"}`}>
+                      <span className={`mt-0.5 shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${ok ? "bg-amber-100 dark:bg-[#2b2519] text-amber-600 dark:text-[#cbb994]" : "bg-slate-200 dark:bg-[#2c2722] text-slate-400 dark:text-[#7c7468]"}`}>
                         {ok ? "✓" : "✕"}
                       </span>
-                      <span className={`text-sm leading-snug ${ok ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}`}>{text}</span>
+                      <span className={`text-sm leading-snug ${ok ? "text-slate-700 dark:text-[#d8cfc0]" : "text-slate-400 dark:text-[#7c7468]"}`}>{text}</span>
                     </li>
                   );
                 })}
               </ul>
               <button
                 onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-[#2c2722] text-sm font-semibold text-slate-600 dark:text-[#d8cfc0] hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors"
               >
                 {t(lang, "pricingStartFree")}
               </button>
             </div>
 
             {/* Pro card */}
-            <div className="rounded-2xl border-2 border-amber-400 dark:border-amber-500 bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/20 dark:to-slate-900 p-6 flex flex-col relative overflow-hidden">
+            <div className="rounded-2xl border-2 border-amber-400 dark:border-[#cbb994]/60 bg-gradient-to-br from-amber-50 to-white dark:from-[#2b2519] dark:to-[#141210] p-6 flex flex-col relative overflow-hidden">
               <div className="absolute top-4 right-4">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-full">{t(lang, "pricingProPopular")}</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-[#cbb994] bg-amber-100 dark:bg-[#2b2519] px-2 py-1 rounded-full">{t(lang, "pricingProPopular")}</span>
               </div>
               <div className="mb-4">
-                <p className="text-xs font-bold uppercase tracking-widest text-amber-500 mb-1">Pro</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-amber-500 dark:text-[#cbb994] mb-1">Pro</p>
                 <div className="flex items-end gap-1">
-                  <p className="text-3xl font-black text-slate-900 dark:text-white">£7</p>
-                  <p className="text-sm text-slate-400 mb-1">{t(lang, "pricingProMonth")}</p>
+                  <p className="text-3xl font-black text-slate-900 dark:text-[#f5efe3]">£7</p>
+                  <p className="text-sm text-slate-400 dark:text-[#9d9484] mb-1">{t(lang, "pricingProMonth")}</p>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">{t(lang, "pricingProCancelAnytime")}</p>
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 italic font-medium">{t(lang, "pricingProTagline")}</p>
+                <p className="text-xs text-slate-400 dark:text-[#9d9484] mt-0.5">{t(lang, "pricingProCancelAnytime")}</p>
+                <p className="text-xs text-amber-600 dark:text-[#cbb994] mt-1.5 italic font-medium">{t(lang, "pricingProTagline")}</p>
               </div>
               <ul className="space-y-2.5 flex-1 mb-6">
                 {tArr(lang, "pricingProFeatures").map((text, i) => (
                   <li key={i} className="flex items-start gap-2.5">
-                    <span className="mt-0.5 shrink-0 w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-[10px] font-bold text-amber-600">✓</span>
-                    <span className="text-sm text-slate-700 dark:text-slate-300 leading-snug">{text}</span>
+                    <span className="mt-0.5 shrink-0 w-4 h-4 rounded-full bg-amber-100 dark:bg-[#2b2519] flex items-center justify-center text-[10px] font-bold text-amber-600 dark:text-[#cbb994]">✓</span>
+                    <span className="text-sm text-slate-700 dark:text-[#d8cfc0] leading-snug">{text}</span>
                   </li>
                 ))}
               </ul>
               {isPro ? (
-                <div className="w-full py-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-bold text-center">
+                <div className="w-full py-2.5 rounded-xl bg-amber-100 dark:bg-[#2b2519] text-amber-700 dark:text-[#cbb994] text-sm font-bold text-center">
                   {t(lang, "pricingCurrentPlan")}
                 </div>
               ) : isSignedIn ? (
                 <button
                   onClick={handleProCheckout}
                   disabled={checkoutLoading}
-                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold text-center shadow-sm shadow-amber-200 dark:shadow-amber-900/30 transition-colors disabled:opacity-60"
+                  className="w-full py-2.5 rounded-xl bg-amber-500 dark:bg-[#cbb994] hover:bg-amber-600 dark:hover:bg-[#e3d2ad] text-white dark:text-[#1c1813] text-sm font-bold text-center shadow-sm shadow-amber-200 dark:shadow-black/30 transition-colors disabled:opacity-60"
                 >
                   {checkoutLoading ? t(lang, "pricingRedirecting") : t(lang, "pricingUpgradePro")}
                 </button>
               ) : (
                 <SignInButton mode="modal">
-                  <button className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold text-center shadow-sm shadow-amber-200 dark:shadow-amber-900/30 transition-colors">
+                  <button className="w-full py-2.5 rounded-xl bg-amber-500 dark:bg-[#cbb994] hover:bg-amber-600 dark:hover:bg-[#e3d2ad] text-white dark:text-[#1c1813] text-sm font-bold text-center shadow-sm shadow-amber-200 dark:shadow-black/30 transition-colors">
                     {t(lang, "pricingSignIn")}
                   </button>
                 </SignInButton>
