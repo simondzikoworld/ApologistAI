@@ -256,6 +256,10 @@ export default function Home() {
             src="/crucifix.png"
             alt=""
             className="select-none w-[78vw] h-auto lg:w-auto lg:h-[90vh] [mix-blend-mode:multiply] opacity-[0.13] dark:[mix-blend-mode:screen] dark:opacity-[0.07]"
+            style={{
+              maskImage: 'radial-gradient(ellipse at center, black 35%, transparent 72%)',
+              WebkitMaskImage: 'radial-gradient(ellipse at center, black 35%, transparent 72%)',
+            }}
           />
         </div>
 
