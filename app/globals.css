@@ -18,23 +18,7 @@
   --color-warm-700: #2c2722;
 }
 
-/* ─── Dark theme: warm black + beige ─────────────────────────────────── */
-.dark {
-  --page-bg:      #0a0908;
-  --surface:      #141210;
-  --surface-2:    #1e1a16;
-  --border:       #2c2722;
-  --text-primary: #f5efe3;
-  --text-body:    #d8cfc0;
-  --text-muted:   #9d9484;
-  --accent:       #cbb994;
-  --accent-soft:  rgb(203 185 148 / 0.18);
-  --glass-bg:     rgb(14 12 10 / 0.94);
-  --glass-border: rgb(255 255 255 / 0.09);
-  --glass-blur:   20px;
-}
-
-/* ─── Light theme ────────────────────────────────────────────────────── */
+/* ─── Light theme (must come first so .dark below can override) ──────── */
 :root {
   --page-bg:      #f8fafc;
   --surface:      #ffffff;
@@ -48,6 +32,22 @@
   --glass-bg:     rgb(255 255 255 / 0.94);
   --glass-border: rgb(15 23 42 / 0.09);
   --glass-blur:   18px;
+}
+
+/* ─── Dark theme: warm black + beige (overrides :root) ───────────────── */
+.dark {
+  --page-bg:      #0a0908;
+  --surface:      #141210;
+  --surface-2:    #1e1a16;
+  --border:       #2c2722;
+  --text-primary: #f5efe3;
+  --text-body:    #d8cfc0;
+  --text-muted:   #9d9484;
+  --accent:       #cbb994;
+  --accent-soft:  rgb(203 185 148 / 0.18);
+  --glass-bg:     rgb(14 12 10 / 0.94);
+  --glass-border: rgb(255 255 255 / 0.09);
+  --glass-blur:   20px;
 }
 
 /* ─── Glass utilities ────────────────────────────────────────────────── */
