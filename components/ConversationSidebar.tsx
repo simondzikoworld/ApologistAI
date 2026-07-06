@@ -54,7 +54,7 @@ export default function ConversationSidebar({
   }
 
   return (
-    <aside className="flex flex-col h-full bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 w-full overflow-hidden">
+    <aside className="flex flex-col h-full bg-slate-50 dark:bg-[#0e0c0a] border-r border-slate-200 dark:border-[#2c2722] w-full overflow-hidden">
       <AnimatePresence mode="wait" initial={false}>
         {collapsed ? (
           /* ── Collapsed: icon strip ── */
@@ -73,7 +73,7 @@ export default function ConversationSidebar({
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title="Expand sidebar"
-              className="p-2 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors"
             >
               <ChevronRightIcon />
             </motion.button>
@@ -99,11 +99,11 @@ export default function ConversationSidebar({
             className="flex flex-col h-full"
           >
             {/* Header */}
-            <div className="px-4 pt-5 pb-3 border-b border-slate-200 dark:border-slate-800">
+            <div className="px-4 pt-5 pb-3 border-b border-slate-200 dark:border-[#2c2722]">
               <div className="flex items-center justify-between mb-4">
                 <a href="/" className="flex items-center gap-2 group">
                   <span className="text-amber-500 font-black text-lg leading-none">✝</span>
-                  <span className="font-bold text-sm text-slate-800 dark:text-slate-100 group-hover:text-amber-600 transition-colors">
+                  <span className="font-bold text-sm text-slate-800 dark:text-[#f5efe3] group-hover:text-amber-600 transition-colors">
                     Apologist AI
                   </span>
                 </a>
@@ -112,7 +112,7 @@ export default function ConversationSidebar({
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   title="Collapse sidebar"
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors"
                 >
                   <ChevronLeftIcon />
                 </motion.button>
@@ -131,13 +131,13 @@ export default function ConversationSidebar({
             {/* Conversation list */}
             <div className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
               {grouped.length === 0 && (
-                <p className="text-xs text-slate-400 dark:text-slate-500 px-2 py-4 text-center">
+                <p className="text-xs text-slate-400 dark:text-[#7c7468] px-2 py-4 text-center">
                   No conversations yet.<br />Start chatting!
                 </p>
               )}
               {grouped.map((group) => (
                 <div key={group.label}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-2 mb-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-[#7c7468] px-2 mb-1">
                     {group.label}
                   </p>
                   <AnimatePresence initial={false}>
@@ -155,7 +155,7 @@ export default function ConversationSidebar({
                         className={`w-full flex items-center justify-between gap-1 px-2 py-2 rounded-lg text-left text-xs transition-colors group ${
                           activeId === conv.id
                             ? "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border-l-2 border-amber-500 pl-[calc(0.5rem-2px)]"
-                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                            : "text-slate-600 dark:text-[#9d9484] hover:bg-slate-100 dark:hover:bg-[#1e1a16]"
                         }`}
                       >
                         <span className="truncate flex-1">{conv.title}</span>
@@ -181,7 +181,7 @@ export default function ConversationSidebar({
             </div>
 
             {/* Footer */}
-            <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="px-4 py-3 border-t border-slate-200 dark:border-[#2c2722]">
               {isPro ? (
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-full">
                   ✦ Pro

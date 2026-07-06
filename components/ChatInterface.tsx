@@ -260,7 +260,7 @@ export default function ChatInterface({
   ───────────────────────────────────────────────── */
   function ModeBar({ layoutPrefix }: { layoutPrefix: string }) {
     return (
-      <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-xs font-medium">
+      <div className="flex rounded-lg border border-slate-200 dark:border-[#2c2722] overflow-hidden text-xs font-medium">
         {(["simple", "detailed", "challenge"] as ResponseMode[]).map((m, idx) => {
           const isLocked = PRO_MODES.includes(m) && !isPro;
           return (
@@ -273,26 +273,26 @@ export default function ChatInterface({
               }}
               title={isLocked ? "Pro feature" : undefined}
               className={`relative px-3 py-1.5 transition-colors ${
-                idx > 0 ? "border-l border-slate-200 dark:border-slate-700" : ""
+                idx > 0 ? "border-l border-slate-200 dark:border-[#2c2722]" : ""
               } ${
                 mode === m && !isLocked
-                  ? "text-white"
+                  ? "text-white dark:text-[#1c1813]"
                   : isLocked
-                  ? "text-slate-400 dark:text-slate-500 cursor-not-allowed"
-                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  ? "text-slate-400 dark:text-[#7c7468] cursor-not-allowed"
+                  : "text-slate-500 dark:text-[#9d9484] hover:bg-slate-50 dark:hover:bg-[#2c2722]"
               }`}
             >
               {mode === m && !isLocked && (
                 <motion.div
                   layoutId={`${layoutPrefix}-mode-pill`}
-                  className={`absolute inset-0 ${m === "challenge" ? "bg-red-500" : "bg-amber-500"}`}
+                  className={`absolute inset-0 ${m === "challenge" ? "bg-red-500 dark:bg-[#f0726a]" : "bg-amber-500 dark:bg-[#cbb994]"}`}
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}
                 />
               )}
               <span className="relative z-10 flex items-center gap-1">
                 {m === "simple" ? t(lang, "modeSimple") : m === "detailed" ? t(lang, "modeDetailed") : t(lang, "modeChallenge")}
                 {isLocked && (
-                  <span className="text-[9px] font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 px-1 py-px rounded leading-none">
+                  <span className="text-[9px] font-bold text-amber-500 dark:text-[#cbb994] bg-amber-50 dark:bg-[#2b2519] border border-amber-200 dark:border-[#cbb994]/30 px-1 py-px rounded leading-none">
                     PRO
                   </span>
                 )}
@@ -335,10 +335,10 @@ export default function ChatInterface({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
               >
-                <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-[#f5efe3] tracking-tight leading-tight">
                   {firstName ? `Welcome back, ${firstName}` : "Welcome to Apologist AI"}
                 </h1>
-                <p className="mt-2 text-slate-500 dark:text-slate-400 text-sm sm:text-base max-w-sm mx-auto">
+                <p className="mt-2 text-slate-500 dark:text-[#9d9484] text-sm sm:text-base max-w-sm mx-auto">
                   {t(lang, "chatHint")}
                 </p>
               </motion.div>
@@ -351,7 +351,7 @@ export default function ChatInterface({
               transition={{ duration: 0.4, ease: "easeOut", delay: 0.18 }}
               className="w-full max-w-2xl"
             >
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl dark:shadow-black/30 overflow-hidden">
+              <div className="rounded-2xl border border-slate-200 dark:border-[#2c2722] bg-white dark:bg-[#1e1a16] shadow-xl dark:shadow-black/40 overflow-hidden">
                 <textarea
                   ref={textareaRef}
                   value={input}
@@ -360,9 +360,9 @@ export default function ChatInterface({
                   placeholder={t(lang, "chatPlaceholder")}
                   rows={3}
                   disabled={loading}
-                  className="w-full resize-none bg-transparent px-5 pt-4 pb-2 text-base sm:text-sm text-slate-900 dark:text-slate-100 focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full resize-none bg-transparent px-5 pt-4 pb-2 text-base sm:text-sm text-slate-900 dark:text-[#f5efe3] focus:outline-none placeholder:text-slate-400 dark:placeholder:text-[#7c7468]"
                 />
-                <div className="flex items-center justify-between px-3 pb-3 pt-2 border-t border-slate-100 dark:border-slate-700/60 gap-2">
+                <div className="flex items-center justify-between px-3 pb-3 pt-2 border-t border-slate-100 dark:border-[#2c2722] gap-2">
                   <ModeBar layoutPrefix="hero" />
                   <motion.button
                     onClick={() => { if (input.trim() && !loading) sendMessage(input.trim()); }}
@@ -391,7 +391,7 @@ export default function ChatInterface({
                     whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => sendMessage(q)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-medium shadow-sm hover:border-amber-300 dark:hover:border-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white dark:bg-[#1e1a16] border border-slate-200 dark:border-[#2c2722] text-slate-600 dark:text-[#d8cfc0] text-xs font-medium shadow-sm hover:border-amber-300 dark:hover:border-[#cbb994]/50 hover:bg-amber-50 dark:hover:bg-[#2b2519] hover:text-amber-700 dark:hover:text-[#cbb994] transition-colors"
                   >
                     {q}
                   </motion.button>
@@ -406,9 +406,9 @@ export default function ChatInterface({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.2 }}
-                    className="mt-3 flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50"
+                    className="mt-3 flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-amber-50 dark:bg-[#1e1a16] border border-amber-200 dark:border-[#cbb994]/20"
                   >
-                    <p className="text-xs text-amber-800 dark:text-amber-200">
+                    <p className="text-xs text-amber-800 dark:text-[#d8cfc0]">
                       <span className="font-semibold">Detailed mode is Pro only.</span> Unlock unlimited messages + deep research.
                     </p>
                     <div className="flex items-center gap-2 shrink-0">
@@ -453,7 +453,7 @@ export default function ChatInterface({
                         <div className="flex items-start gap-2">
                           <span className="text-amber-500 text-base leading-none mt-0.5">✦</span>
                           <div>
-                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-0.5">
+                            <p className="text-sm font-semibold text-slate-800 dark:text-[#f5efe3] mb-0.5">
                               {msg.content === "pro_required"
                                 ? "Detailed mode requires a Pro subscription."
                                 : !isSignedIn
@@ -462,7 +462,7 @@ export default function ChatInterface({
                                 ? "You've reached your Pro daily limit for this mode."
                                 : "You've used your 12 free messages for today."}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                            <p className="text-xs text-slate-500 dark:text-[#9d9484]">
                               {msg.content === "pro_required"
                                 ? "Upgrade to Pro to unlock in-depth answers with deep source research."
                                 : !isSignedIn
@@ -480,7 +480,7 @@ export default function ChatInterface({
                                 </button>
                               </SignUpButton>
                               <SignInButton mode="modal">
-                                <button className="inline-flex items-center px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                <button className="inline-flex items-center px-3 py-1.5 rounded-full border border-slate-300 dark:border-[#2c2722] text-slate-600 dark:text-[#d8cfc0] text-xs font-semibold hover:bg-slate-50 dark:hover:bg-[#2c2722] transition-colors">
                                   Sign in
                                 </button>
                               </SignInButton>
@@ -491,7 +491,7 @@ export default function ChatInterface({
                                 ✦ {isPro ? "View plan" : "Upgrade to Pro"}
                               </a>
                               {msg.content === "daily_limit" && !isPro && (
-                                <p className="text-[10px] text-slate-400 dark:text-slate-500 self-center">or come back tomorrow for free</p>
+                                <p className="text-[10px] text-slate-400 dark:text-[#7c7468] self-center">or come back tomorrow for free</p>
                               )}
                             </>
                           )}
@@ -519,7 +519,7 @@ export default function ChatInterface({
                     transition={{ duration: 0.2 }}
                     className="flex justify-start"
                   >
-                    <div className="border-l-4 border-amber-500 bg-amber-50 dark:bg-slate-800 rounded-2xl rounded-tl-sm">
+                    <div className="border-l-4 border-amber-500 bg-amber-50 dark:bg-[#1e1a16] rounded-2xl rounded-tl-sm">
                       <TypingIndicator />
                     </div>
                   </motion.div>
@@ -530,7 +530,7 @@ export default function ChatInterface({
             </div>
 
             {/* Input bar */}
-            <div className="border-t border-slate-100 dark:border-slate-800 px-4 py-4 space-y-3 bg-white dark:bg-slate-900">
+            <div className="border-t border-slate-100 dark:border-[#2c2722] px-4 py-4 space-y-3 bg-white dark:bg-[#141210]">
               <SourcesPanel sources={sources} onChange={setSources} />
 
               <div className="flex items-center justify-between gap-2">
@@ -568,7 +568,7 @@ export default function ChatInterface({
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 6 }}
                     transition={{ duration: 0.18 }}
-                    className={`text-xs ${mode === "challenge" ? "text-red-400 font-medium" : "text-slate-400"}`}
+                    className={`text-xs ${mode === "challenge" ? "text-red-400 dark:text-[#f0726a] font-medium" : "text-slate-400 dark:text-[#9d9484]"}`}
                   >
                     {mode === "simple" ? t(lang, "modeSimpleDesc") : mode === "detailed" ? t(lang, "modeDetailedDesc") : t(lang, "modeChallengeDesc")}
                   </motion.span>
@@ -605,7 +605,7 @@ export default function ChatInterface({
                   onKeyDown={handleKeyDown}
                   placeholder={t(lang, "chatPlaceholder")}
                   rows={2}
-                  className="flex-1 resize-none border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-base sm:text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-shadow"
+                  className="flex-1 resize-none border border-slate-200 dark:border-[#2c2722] rounded-xl px-4 py-3 text-base sm:text-sm bg-white dark:bg-[#1e1a16] text-slate-900 dark:text-[#f5efe3] focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-[#cbb994]/50 focus:border-transparent placeholder:text-slate-400 dark:placeholder:text-[#7c7468] transition-shadow"
                 />
                 {speechSupported && (
                   <motion.button
@@ -615,7 +615,7 @@ export default function ChatInterface({
                     className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border transition-colors ${
                       listening
                         ? "bg-red-100 border-red-300 text-red-500"
-                        : "bg-slate-50 border-slate-200 text-slate-400 hover:text-amber-500 hover:border-amber-300"
+                        : "bg-slate-50 dark:bg-[#1e1a16] border-slate-200 dark:border-[#2c2722] text-slate-400 dark:text-[#9d9484] hover:text-amber-500 dark:hover:text-[#cbb994] hover:border-amber-300 dark:hover:border-[#cbb994]/50"
                     }`}
                     title={listening ? "Stop listening" : "Speak your question"}
                   >

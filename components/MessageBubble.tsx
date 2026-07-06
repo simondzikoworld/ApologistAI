@@ -65,7 +65,7 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
         transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
         className="flex justify-end"
       >
-        <div className="max-w-[80%] bg-navy dark:bg-slate-700 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm">
+        <div className="max-w-[80%] bg-amber-600 dark:bg-[#cbb994] text-white dark:text-[#1c1813] rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm">
           {message.content}
         </div>
       </motion.div>
@@ -81,7 +81,7 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
       transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
       className="flex justify-start group"
     >
-      <div ref={bubbleRef} className="relative max-w-[85%] border-l-4 border-amber-500 bg-amber-50 dark:bg-slate-800 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm dark:shadow-none dark:border dark:border-l-4 dark:border-slate-700 dark:border-l-amber-500">
+      <div ref={bubbleRef} className="relative max-w-[85%] border-l-4 border-amber-500 dark:border-l-[#cbb994] bg-amber-50 dark:bg-[#1e1a16] rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm dark:shadow-none dark:border dark:border-[#2c2722] dark:border-l-4 dark:border-l-[#cbb994]">
 
         {/* Action buttons — appear on hover */}
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
@@ -90,7 +90,7 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
             disabled={sharing}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-[10px] text-slate-500 dark:text-slate-400 hover:text-amber-600 hover:border-amber-300 shadow-sm disabled:opacity-50"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white dark:bg-[#2c2722] border border-slate-200 dark:border-[#2c2722] text-[10px] text-slate-500 dark:text-[#9d9484] hover:text-amber-600 dark:hover:text-[#cbb994] hover:border-amber-300 dark:hover:border-[#cbb994]/50 shadow-sm disabled:opacity-50"
             title="Save as image"
           >
             <ShareIcon />
@@ -100,7 +100,7 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
             onClick={handleCopy}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-[10px] text-slate-500 dark:text-slate-400 hover:text-amber-600 hover:border-amber-300 shadow-sm"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white dark:bg-[#2c2722] border border-slate-200 dark:border-[#2c2722] text-[10px] text-slate-500 dark:text-[#9d9484] hover:text-amber-600 dark:hover:text-[#cbb994] hover:border-amber-300 dark:hover:border-[#cbb994]/50 shadow-sm"
             title="Copy response"
           >
             {copied ? (
@@ -115,25 +115,25 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-              h1: ({ children }) => <h1 className="text-base font-bold text-slate-900 dark:text-slate-50 mt-3 mb-1">{children}</h1>,
-              h2: ({ children }) => <h2 className="text-sm font-bold text-slate-900 dark:text-slate-50 mt-3 mb-1">{children}</h2>,
-              h3: ({ children }) => <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mt-2 mb-1">{children}</h3>,
-              p: ({ children }) => <p className="text-sm text-slate-800 dark:text-slate-100 leading-relaxed mb-2 last:mb-0">{children}</p>,
+              h1: ({ children }) => <h1 className="text-base font-bold text-slate-900 dark:text-[#f5efe3] mt-3 mb-1">{children}</h1>,
+              h2: ({ children }) => <h2 className="text-sm font-bold text-slate-900 dark:text-[#f5efe3] mt-3 mb-1">{children}</h2>,
+              h3: ({ children }) => <h3 className="text-sm font-semibold text-slate-800 dark:text-[#f5efe3] mt-2 mb-1">{children}</h3>,
+              p: ({ children }) => <p className="text-sm text-slate-800 dark:text-[#f5efe3] leading-relaxed mb-2 last:mb-0">{children}</p>,
               strong: ({ children }) => <strong className="font-semibold text-slate-900 dark:text-white">{children}</strong>,
-              em: ({ children }) => <em className="italic text-slate-700 dark:text-slate-300">{children}</em>,
+              em: ({ children }) => <em className="italic text-slate-700 dark:text-[#d8cfc0]">{children}</em>,
               ul: ({ children }) => <ul className="list-disc list-outside ml-4 mb-2 space-y-1">{children}</ul>,
               ol: ({ children }) => <ol className="list-decimal list-outside ml-4 mb-2 space-y-1">{children}</ol>,
-              li: ({ children }) => <li className="text-sm text-slate-800 dark:text-slate-100 leading-relaxed">{children}</li>,
+              li: ({ children }) => <li className="text-sm text-slate-800 dark:text-[#f5efe3] leading-relaxed">{children}</li>,
               blockquote: ({ children }) => (
-                <blockquote className="border-l-2 border-amber-400 pl-3 italic text-slate-600 dark:text-slate-300 my-2">{children}</blockquote>
+                <blockquote className="border-l-2 border-amber-400 pl-3 italic text-slate-600 dark:text-[#d8cfc0] my-2">{children}</blockquote>
               ),
               code: ({ children }) => {
                 const str = String(children);
                 const ref = parseBibCode(str);
                 if (ref) return <ScripturePill reference={ref} />;
-                return <code className="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 px-1 py-0.5 rounded text-xs font-mono">{children}</code>;
+                return <code className="bg-slate-100 dark:bg-[#2c2722] text-slate-800 dark:text-[#f5efe3] px-1 py-0.5 rounded text-xs font-mono">{children}</code>;
               },
-              hr: () => <hr className="border-amber-200 dark:border-amber-800 my-3" />,
+              hr: () => <hr className="border-amber-200 dark:border-[#cbb994]/25 my-3" />,
             }}
           >
             {processedContent}
