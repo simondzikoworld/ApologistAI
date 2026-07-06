@@ -345,7 +345,7 @@ export default function Home() {
                         ? "text-amber-600 dark:text-[#cbb994]"
                         : hoveredNav === href
                           ? "text-amber-700 dark:text-[#f5efe3]"
-                          : "text-slate-600 dark:text-[#9d9484]"
+                          : "text-slate-700 dark:text-[#d8cfc0]"
                     }`}
                   >
                     {hoveredNav === href && (

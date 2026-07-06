@@ -29,8 +29,8 @@
   --text-muted:   #9d9484;
   --accent:       #cbb994;
   --accent-soft:  rgb(203 185 148 / 0.18);
-  --glass-bg:     rgb(10 9 8 / 0.82);
-  --glass-border: rgb(255 255 255 / 0.10);
+  --glass-bg:     rgb(14 12 10 / 0.94);
+  --glass-border: rgb(255 255 255 / 0.09);
   --glass-blur:   20px;
 }
 
@@ -45,7 +45,7 @@
   --text-muted:   #64748b;
   --accent:       #f59e0b;
   --accent-soft:  rgb(245 158 11 / 0.12);
-  --glass-bg:     rgb(255 255 255 / 0.82);
+  --glass-bg:     rgb(255 255 255 / 0.94);
   --glass-border: rgb(15 23 42 / 0.09);
   --glass-blur:   18px;
 }
