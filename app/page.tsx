@@ -153,6 +153,7 @@ export default function Home() {
 
   const [expanded, setExpanded] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const langDropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -324,27 +325,39 @@ export default function Home() {
               </div>
 
               {/* Centre — nav links (desktop only) */}
-              <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-1">
-                {[
-                  { href: "#", label: t(lang, "navHome") },
-                  { href: "#mission", label: t(lang, "navMission") },
-                  { href: "#common-questions", label: t(lang, "navCommonQuestions") },
-                  { href: "#daily-reading", label: t(lang, "navDailyReading") },
-                ].map(({ href, label }) => (
+              <div
+                className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-0.5"
+                onMouseLeave={() => setHoveredNav(null)}
+              >
+                {([
+                  { href: "#", label: t(lang, "navHome"), accent: false },
+                  { href: "#mission", label: t(lang, "navMission"), accent: false },
+                  { href: "#common-questions", label: t(lang, "navCommonQuestions"), accent: false },
+                  { href: "#daily-reading", label: t(lang, "navDailyReading"), accent: false },
+                  { href: "#pricing", label: t(lang, "navPricing"), accent: true },
+                ] as const).map(({ href, label, accent }) => (
                   <a
                     key={href}
                     href={href}
-                    className="px-3 py-1.5 rounded-full text-sm font-semibold text-slate-700 dark:text-[#d8cfc0] hover:bg-amber-100 dark:hover:bg-[#2c2722] hover:text-amber-700 dark:hover:text-[#cbb994] transition-colors"
+                    onMouseEnter={() => setHoveredNav(href)}
+                    className={`relative px-3 py-1.5 rounded-full text-sm font-semibold transition-colors duration-100 ${
+                      accent
+                        ? "text-amber-600 dark:text-[#cbb994]"
+                        : hoveredNav === href
+                          ? "text-amber-700 dark:text-[#f5efe3]"
+                          : "text-slate-600 dark:text-[#9d9484]"
+                    }`}
                   >
-                    {label}
+                    {hoveredNav === href && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-full bg-amber-100/80 dark:bg-white/[0.07] border border-amber-200/60 dark:border-white/[0.10] backdrop-blur-sm"
+                        transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.5 }}
+                      />
+                    )}
+                    <span className="relative z-10">{label}</span>
                   </a>
                 ))}
-                <a
-                  href="#pricing"
-                  className="px-3 py-1.5 rounded-full text-sm font-semibold text-amber-600 dark:text-[#cbb994] hover:bg-amber-100 dark:hover:bg-[#2c2722] transition-colors flex items-center gap-1"
-                >
-                  {t(lang, "navPricing")}
-                </a>
               </div>
 
               {/* Right — auth + dark mode toggle */}
@@ -366,7 +379,7 @@ export default function Home() {
                       </button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <button className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm transition-colors">
+                      <button className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 dark:bg-[#cbb994] hover:bg-amber-600 dark:hover:bg-[#e3d2ad] text-white dark:text-[#1c1813] text-xs font-bold shadow-sm transition-colors">
                         ✦ Get Pro
                       </button>
                     </SignUpButton>
