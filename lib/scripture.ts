@@ -11,6 +11,8 @@
 // licence (see SUPPORTED below).
 // ---------------------------------------------------------------------------
 
+import { BOOKS_BY_LANG } from "@/data/bibleBooks";
+
 const API_BASE = "https://api.getbible.net/v2";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // chapters are immutable; cache hard
 
@@ -83,19 +85,34 @@ interface ParsedRef {
   to: number;
 }
 
-/** Parses "John 3:16", "1 Cor 15:3-5", "Ps. 23:1". Returns null if unusable. */
-export function parseReference(raw: string): ParsedRef | null {
+const normalizeKey = (s: string) => s.toLowerCase().replace(/\./g, "").replace(/\s+/g, "");
+
+/**
+ * Resolves a book name in `lang` (or English) to its 1-based number.
+ * Lets a Polish "Łk" or French "Jean" resolve as readily as "Luke".
+ */
+function resolveBook(name: string, lang: string): number | null {
+  const key = normalizeKey(name);
+  for (const source of [BOOKS_BY_LANG[lang], BOOKS_BY_LANG.EN]) {
+    if (!source) continue;
+    const idx = source.findIndex((variants) => variants.some((v) => normalizeKey(v) === key));
+    if (idx !== -1) return idx + 1;
+  }
+  // Fall back to the English canonical list and its abbreviations.
+  const canonical = BOOKS.find((b) => normalizeKey(b) === key) ?? ALIASES[key];
+  return canonical ? BOOKS.indexOf(canonical) + 1 : null;
+}
+
+/** Parses "John 3:16", "1 Cor 15:3-5", "Łk 24,6". Returns null if unusable. */
+export function parseReference(raw: string, lang = "EN"): ParsedRef | null {
   const cleaned = raw.trim().replace(/\.$/, "");
   // Book may contain a leading numeral and spaces; chapter:verse[-verse] tail.
   const m = /^(.+?)\s*\.?\s+(\d+)\s*[:,]\s*(\d+)(?:\s*[-–]\s*(\d+))?$/.exec(cleaned);
   if (!m) return null;
 
-  const key = m[1].toLowerCase().replace(/\./g, "").replace(/\s+/g, "");
-  const canonical =
-    BOOKS.find((b) => b.toLowerCase().replace(/\s+/g, "") === key) ??
-    ALIASES[key] ??
-    null;
-  if (!canonical) return null;
+  const bookNr = resolveBook(m[1], lang);
+  if (!bookNr) return null;
+  const canonical = BOOKS[bookNr - 1];
 
   const from = Number(m[3]);
   const to = m[4] ? Number(m[4]) : from;
@@ -145,7 +162,7 @@ export async function lookupVerse(lang: string, reference: string): Promise<Vers
   const translation = SUPPORTED[lang];
   if (!translation) return null;
 
-  const ref = parseReference(reference);
+  const ref = parseReference(reference, lang);
   if (!ref) return null;
 
   try {
@@ -173,6 +190,33 @@ export async function lookupVerse(lang: string, reference: string): Promise<Vers
     console.error(`[scripture] lookup failed for "${reference}" (${lang}):`, err);
     return null;
   }
+}
+
+/**
+ * Verse text for the clickable pill in the UI.
+ *
+ * Unlike lookupVerse, this never returns nothing just because the answer's
+ * language has no licensed translation: it resolves the reference using the
+ * answer's book names, then reads the verse in English. The caller shows the
+ * returned `translation` label, so a Polish reader sees "KJV" and knows they
+ * are being given the English text rather than Biblia Tysiąclecia.
+ */
+export async function lookupVerseForDisplay(
+  lang: string,
+  reference: string,
+): Promise<VerseLookup | null> {
+  const native = await lookupVerse(lang, reference);
+  if (native) return native;
+
+  const ref = parseReference(reference, lang);
+  if (!ref) return null;
+
+  const englishRef =
+    ref.from === ref.to
+      ? `${ref.bookName} ${ref.chapter}:${ref.from}`
+      : `${ref.bookName} ${ref.chapter}:${ref.from}-${ref.to}`;
+
+  return lookupVerse("EN", englishRef);
 }
 
 /** The tool exposed to the model for languages in SUPPORTED. */

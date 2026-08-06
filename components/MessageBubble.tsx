@@ -72,7 +72,7 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
     );
   }
 
-  const processedContent = wrapScriptureRefs(message.content);
+  const processedContent = wrapScriptureRefs(message.content, lang);
 
   return (
     <motion.div
@@ -130,7 +130,7 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
               code: ({ children }) => {
                 const str = String(children);
                 const ref = parseBibCode(str);
-                if (ref) return <ScripturePill reference={ref} />;
+                if (ref) return <ScripturePill reference={ref} lang={lang} />;
                 return <code className="bg-slate-100 dark:bg-[#2c2722] text-slate-800 dark:text-[#f5efe3] px-1 py-0.5 rounded text-xs font-mono">{children}</code>;
               },
               hr: () => <hr className="border-amber-200 dark:border-[#cbb994]/25 my-3" />,

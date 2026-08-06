@@ -1,91 +1,61 @@
-// Bible book names — full and common abbreviations
-const BOOK_NAMES = [
-  "Genesis", "Gen",
-  "Exodus", "Exod", "Ex",
-  "Leviticus", "Lev",
-  "Numbers", "Num",
-  "Deuteronomy", "Deut",
-  "Joshua", "Josh",
-  "Judges", "Judg",
-  "Ruth",
-  "1 Samuel", "1Sam", "1 Sam",
-  "2 Samuel", "2Sam", "2 Sam",
-  "1 Kings", "1Kgs", "1 Kgs",
-  "2 Kings", "2Kgs", "2 Kgs",
-  "1 Chronicles", "1Chr", "1 Chr",
-  "2 Chronicles", "2Chr", "2 Chr",
-  "Ezra",
-  "Nehemiah", "Neh",
-  "Esther", "Esth",
-  "Job",
-  "Psalms", "Psalm", "Ps",
-  "Proverbs", "Prov",
-  "Ecclesiastes", "Eccl",
-  "Song of Solomon", "Song",
-  "Isaiah", "Isa",
-  "Jeremiah", "Jer",
-  "Lamentations", "Lam",
-  "Ezekiel", "Ezek",
-  "Daniel", "Dan",
-  "Hosea", "Hos",
-  "Joel",
-  "Amos",
-  "Obadiah", "Obad",
-  "Jonah", "Jon",
-  "Micah", "Mic",
-  "Nahum", "Nah",
-  "Habakkuk", "Hab",
-  "Zephaniah", "Zeph",
-  "Haggai", "Hag",
-  "Zechariah", "Zech",
-  "Malachi", "Mal",
-  "Matthew", "Matt",
-  "Mark",
-  "Luke",
-  "John",
-  "Acts",
-  "Romans", "Rom",
-  "1 Corinthians", "1Cor", "1 Cor",
-  "2 Corinthians", "2Cor", "2 Cor",
-  "Galatians", "Gal",
-  "Ephesians", "Eph",
-  "Philippians", "Phil",
-  "Colossians", "Col",
-  "1 Thessalonians", "1Thess", "1 Thess",
-  "2 Thessalonians", "2Thess", "2 Thess",
-  "1 Timothy", "1Tim", "1 Tim",
-  "2 Timothy", "2Tim", "2 Tim",
-  "Titus",
-  "Philemon", "Phlm",
-  "Hebrews", "Heb",
-  "James", "Jas",
-  "1 Peter", "1Pet", "1 Pet",
-  "2 Peter", "2Pet", "2 Pet",
-  "1 John", "1John",
-  "2 John", "2John",
-  "3 John", "3John",
-  "Jude",
-  "Revelation", "Rev",
-].sort((a, b) => b.length - a.length); // longest first so "Song of Solomon" matches before "Song"
+import { BOOKS_BY_LANG } from "@/data/bibleBooks";
 
-// Build a regex that matches e.g. "John 3:16", "1 Cor 15:3-5", "Ps. 23:1"
-const bookPattern = BOOK_NAMES.map((b) =>
-  b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-).join("|");
+// ---------------------------------------------------------------------------
+// Detection of Bible references in an answer, so they can be rendered as
+// clickable pills.
+//
+// This is language-aware: a Polish answer cites "Łk 24,6" and a French one
+// "Jean 3:16", neither of which matches English book names or a ":" separator.
+// Before this, pills only ever appeared in English answers.
+// ---------------------------------------------------------------------------
 
-export const SCRIPTURE_RE = new RegExp(
-  `\\b(${bookPattern})\\.?\\s+(\\d+):(\\d+)(?:[–\\-](\\d+))?\\b`,
-  "g"
-);
+function escape(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Book variants for a language, longest first so "Song of Solomon" beats "Song". */
+function variantsFor(lang: string): string[] {
+  const books = BOOKS_BY_LANG[lang] ?? BOOKS_BY_LANG.EN;
+  // Always allow English too — models mix in English book names.
+  const all = [...books.flat(), ...BOOKS_BY_LANG.EN.flat()];
+  return [...new Set(all)].sort((a, b) => b.length - a.length);
+}
+
+const reCache = new Map<string, RegExp>();
 
 /**
- * Preprocess markdown so that Bible references get wrapped in a special
- * backtick syntax: `BIB:John 3:16`
- * The ReactMarkdown `code` renderer then detects the BIB: prefix and renders
- * a ScripturePill instead of a <code> block.
+ * Matches "John 3:16", "1 Cor 15:3-5", "Łk 24,6", "Röm 8,28".
+ * Chapter/verse may be separated by ":" or "," (continental style).
+ *
+ * Group 1 is the character before the reference, group 2 the reference itself.
+ * `\b` can't open this pattern: it is ASCII-only, so it never fires before a
+ * non-ASCII initial like "Ł" and Polish references went undetected. Matching an
+ * explicit boundary character avoids lookbehind, which older Safari rejects at
+ * parse time — that would throw as this module loads and blank the page.
  */
-export function wrapScriptureRefs(text: string): string {
-  return text.replace(SCRIPTURE_RE, (match) => `\`BIB:${match}\``);
+export function scriptureRegex(lang = "EN"): RegExp {
+  const cached = reCache.get(lang);
+  if (cached) return cached;
+
+  const books = variantsFor(lang).map(escape).join("|");
+  const ref = `(?:${books})\\.?\\s*\\d{1,3}\\s*[:,]\\s*\\d{1,3}(?:\\s*[–-]\\s*\\d{1,3})?`;
+  const re = new RegExp(`(^|[^\\p{L}\\p{N}])(${ref})(?![\\p{L}\\p{N}])`, "gu");
+
+  reCache.set(lang, re);
+  return re;
+}
+
+/** Kept for callers that don't know the language. */
+export const SCRIPTURE_RE = scriptureRegex("EN");
+
+/**
+ * Preprocess markdown so Bible references get wrapped in a special backtick
+ * syntax: `BIB:John 3:16`. The ReactMarkdown `code` renderer then detects the
+ * BIB: prefix and renders a ScripturePill instead of a <code> block.
+ */
+export function wrapScriptureRefs(text: string, lang = "EN"): string {
+  // The leading boundary character is part of the match, so put it back.
+  return text.replace(scriptureRegex(lang), (_m, before: string, ref: string) => `${before}\`BIB:${ref}\``);
 }
 
 /** Strip the BIB: prefix to get the plain reference string */

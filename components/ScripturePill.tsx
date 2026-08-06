@@ -5,14 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface Props {
   reference: string;
+  /** Language of the answer, so the verse is shown in its translation. */
+  lang?: string;
 }
 
 interface VerseData {
   text: string;
   reference: string;
+  translation: string;
 }
 
-export default function ScripturePill({ reference }: Props) {
+export default function ScripturePill({ reference, lang = "EN" }: Props) {
   const [open, setOpen] = useState(false);
   const [verse, setVerse] = useState<VerseData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,11 +28,16 @@ export default function ScripturePill({ reference }: Props) {
     if (verse !== null || error) return;
     setLoading(true);
     try {
-      const encoded = reference.replace(/\s+/g, "+");
-      const res = await fetch(`https://bible-api.com/${encoded}?translation=kjv`);
+      const res = await fetch(
+        `/api/verse?ref=${encodeURIComponent(reference)}&lang=${encodeURIComponent(lang)}`,
+      );
       if (!res.ok) throw new Error("not found");
       const data = await res.json();
-      setVerse({ text: data.text?.trim() ?? "", reference: data.reference ?? reference });
+      setVerse({
+        text: data.text ?? "",
+        reference: data.reference ?? reference,
+        translation: data.translation ?? "",
+      });
     } catch {
       setError(true);
     } finally {
@@ -66,8 +74,15 @@ export default function ScripturePill({ reference }: Props) {
             >
               <span className="flex items-center gap-1.5 mb-2 block">
                 <span className="text-amber-600 dark:text-[#cbb994] text-sm">✝</span>
+                {/* The reference as written in the answer — the lookup returns
+                    a canonical English label, which would read wrong in a
+                    French or Polish reply. */}
                 <span className="text-xs font-bold text-amber-700 dark:text-[#e3d2ad]">{reference}</span>
-                <span className="text-[10px] text-slate-400 dark:text-[#7c7468] ml-1">KJV</span>
+                {verse?.translation && (
+                  <span className="text-[10px] text-slate-400 dark:text-[#7c7468] ml-1">
+                    {verse.translation}
+                  </span>
+                )}
               </span>
               {loading && (
                 <span className="flex gap-1 items-center block">
