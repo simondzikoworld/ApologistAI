@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "compare": "tsx scripts/compare-models.ts"
+    "compare": "tsx scripts/compare-models.ts",
+    "check:quotes": "tsx scripts/check-quotes.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

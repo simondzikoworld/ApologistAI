@@ -3,6 +3,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { buildSystemPrompt, MAX_TOKENS } from "@/lib/claude";
 import { streamText } from "@/lib/llm";
 import { isSupported, lookupVerse, LOOKUP_TOOL } from "@/lib/scripture";
+import { checkQuotes } from "@/lib/quoteCheck";
 import { fetchAndParseSources } from "@/lib/sources";
 import { incrementUsage, getLimit, userUsageKey, ipUsageKey, type Tier } from "@/lib/usage";
 import type { ChatRequest, ResponseMode } from "@/lib/types";
@@ -90,6 +91,8 @@ export async function POST(req: NextRequest) {
     // Verbatim quoting is only offered for languages with a public-domain text
     // (see lib/scripture.ts). Elsewhere the model cites without quoting.
     const canQuote = isSupported(lang);
+    // Verse texts the tool returned this turn, used to validate quotes below.
+    const verifiedTexts: string[] = [];
 
     const generator = streamText(
       (provider) => ({
@@ -106,9 +109,11 @@ export async function POST(req: NextRequest) {
               if (name !== LOOKUP_TOOL.name) return "unknown_tool";
               const ref = (input as { reference?: string })?.reference ?? "";
               const found = await lookupVerse(lang, ref);
-              return found
-                ? `${found.reference} (${found.translation}): ${found.text}`
-                : `not_found: no text available for "${ref}". Cite the reference without quoting it.`;
+              if (!found) {
+                return `not_found: no text available for "${ref}". Cite the reference without quoting it.`;
+              }
+              verifiedTexts.push(found.text);
+              return `${found.reference} (${found.translation}): ${found.text}`;
             },
           }
         : {},
@@ -121,15 +126,33 @@ export async function POST(req: NextRequest) {
 
     const readable = new ReadableStream({
       async start(controller) {
+        let answer = "";
         try {
-          if (!first.done) controller.enqueue(encoder.encode(first.value));
+          if (!first.done) {
+            answer += first.value;
+            controller.enqueue(encoder.encode(first.value));
+          }
           for await (const text of generator) {
+            answer += text;
             controller.enqueue(encoder.encode(text));
           }
           controller.close();
         } catch (err) {
           console.error("Chat stream error:", err);
           controller.close();
+        }
+
+        // Post-hoc only: the answer is already streamed, so this never adds
+        // latency. Unmatched spans may be legitimate non-Scripture quotes
+        // (Catechism, saints) — treat as a review signal, not a failure.
+        if (canQuote) {
+          const report = checkQuotes(answer, verifiedTexts);
+          if (report.unmatched.length) {
+            console.warn(
+              `[quotes] ${report.unmatched.length}/${report.total} unverified (${lang}/${mode}):`,
+              report.unmatched.map((q) => q.slice(0, 80)),
+            );
+          }
         }
       },
     });
