@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { buildSystemPrompt, MAX_TOKENS } from "@/lib/claude";
-import { getProvider } from "@/lib/llm";
+import { streamText } from "@/lib/llm";
 import { fetchAndParseSources } from "@/lib/sources";
 import { incrementUsage, getLimit, userUsageKey, ipUsageKey, type Tier } from "@/lib/usage";
 import type { ChatRequest, ResponseMode } from "@/lib/types";
@@ -86,26 +86,31 @@ export async function POST(req: NextRequest) {
     // Provider chosen by LLM_PROVIDER (DeepSeek by default, Claude as fallback).
     // cache_control is a no-op on DeepSeek — it caches identical prefixes
     // automatically — but is kept for the Claude path.
-    const provider = getProvider();
-    const stream = provider.client.messages.stream({
+    const generator = streamText((provider) => ({
       model: provider.models[mode],
       max_tokens: MAX_TOKENS[mode],
       ...(provider.thinking ? { thinking: provider.thinking } : {}),
       system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
       messages: trimmedMessages.map((m) => ({ role: m.role, content: m.content })),
-    });
+    }));
+
+    // Pull the first chunk before returning a Response so that a total failure
+    // (all retries + fallback exhausted) surfaces as a 500 the client can show,
+    // rather than an empty 200 stream.
+    const first = await generator.next();
 
     const readable = new ReadableStream({
       async start(controller) {
-        for await (const chunk of stream) {
-          if (
-            chunk.type === "content_block_delta" &&
-            chunk.delta.type === "text_delta"
-          ) {
-            controller.enqueue(encoder.encode(chunk.delta.text));
+        try {
+          if (!first.done) controller.enqueue(encoder.encode(first.value));
+          for await (const text of generator) {
+            controller.enqueue(encoder.encode(text));
           }
+          controller.close();
+        } catch (err) {
+          console.error("Chat stream error:", err);
+          controller.close();
         }
-        controller.close();
       },
     });
 

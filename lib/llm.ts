@@ -89,6 +89,51 @@ export function getProvider(name?: ProviderName): Provider {
   return resolved === "anthropic" ? anthropicProvider() : deepseekProvider();
 }
 
+/**
+ * Streams text, retrying the primary provider once and then falling back to
+ * Claude before giving up.
+ *
+ * DeepSeek's endpoint drops connections often enough to matter (1 of 10 calls
+ * in the migration benchmark died with ECONNRESET), and there was no retry
+ * anywhere in the chat path. Failures before the first token are invisible to
+ * the user; once a token is on the wire we can't restart without duplicating
+ * text, so we log and end the stream cleanly rather than corrupt the answer.
+ */
+export async function* streamText(
+  build: (provider: Provider) => Anthropic.MessageStreamParams,
+): AsyncGenerator<string, void, unknown> {
+  const primary = getProvider();
+  const attempts: Provider[] = [primary, primary];
+  if (primary.name !== "anthropic" && process.env.ANTHROPIC_API_KEY) {
+    attempts.push(getProvider("anthropic"));
+  }
+
+  let emitted = false;
+  let lastError: unknown;
+
+  for (const [i, provider] of attempts.entries()) {
+    try {
+      const stream = provider.client.messages.stream(build(provider));
+      for await (const chunk of stream) {
+        if (chunk.type === "content_block_delta" && chunk.delta.type === "text_delta") {
+          emitted = true;
+          yield chunk.delta.text;
+        }
+      }
+      return;
+    } catch (err) {
+      lastError = err;
+      if (emitted) {
+        console.error(`[llm] ${provider.name} failed mid-stream, ending early:`, err);
+        return;
+      }
+      console.error(`[llm] ${provider.name} attempt ${i + 1}/${attempts.length} failed:`, err);
+    }
+  }
+
+  throw lastError;
+}
+
 /** Cost in USD for one call, given a provider's rates for that mode. */
 export function estimateCost(
   price: Pricing,
