@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { buildSystemPrompt, MAX_TOKENS } from "@/lib/claude";
 import { streamText } from "@/lib/llm";
+import { isSupported, lookupVerse, LOOKUP_TOOL } from "@/lib/scripture";
 import { fetchAndParseSources } from "@/lib/sources";
 import { incrementUsage, getLimit, userUsageKey, ipUsageKey, type Tier } from "@/lib/usage";
 import type { ChatRequest, ResponseMode } from "@/lib/types";
@@ -79,20 +80,39 @@ export async function POST(req: NextRequest) {
     const lastUserMessage = trimmedMessages.filter((m) => m.role === "user").at(-1)?.content ?? "";
     const sourceLimit = SOURCE_LIMIT[mode];
     const sourcesText = await fetchAndParseSources(sources ?? [], lastUserMessage, sourceLimit);
-    const systemPrompt = buildSystemPrompt(mode, sourcesText, lang);
+    const systemPrompt = buildSystemPrompt(mode, sourcesText, lang, isSupported(lang));
 
     const encoder = new TextEncoder();
 
     // Provider chosen by LLM_PROVIDER (DeepSeek by default, Claude as fallback).
     // cache_control is a no-op on DeepSeek — it caches identical prefixes
     // automatically — but is kept for the Claude path.
-    const generator = streamText((provider) => ({
-      model: provider.models[mode],
-      max_tokens: MAX_TOKENS[mode],
-      ...(provider.thinking ? { thinking: provider.thinking } : {}),
-      system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-      messages: trimmedMessages.map((m) => ({ role: m.role, content: m.content })),
-    }));
+    // Verbatim quoting is only offered for languages with a public-domain text
+    // (see lib/scripture.ts). Elsewhere the model cites without quoting.
+    const canQuote = isSupported(lang);
+
+    const generator = streamText(
+      (provider) => ({
+        model: provider.models[mode],
+        max_tokens: MAX_TOKENS[mode],
+        ...(provider.thinking ? { thinking: provider.thinking } : {}),
+        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
+        messages: trimmedMessages.map((m) => ({ role: m.role, content: m.content })),
+      }),
+      canQuote
+        ? {
+            tools: [LOOKUP_TOOL],
+            runTool: async (name, input) => {
+              if (name !== LOOKUP_TOOL.name) return "unknown_tool";
+              const ref = (input as { reference?: string })?.reference ?? "";
+              const found = await lookupVerse(lang, ref);
+              return found
+                ? `${found.reference} (${found.translation}): ${found.text}`
+                : `not_found: no text available for "${ref}". Cite the reference without quoting it.`;
+            },
+          }
+        : {},
+    );
 
     // Pull the first chunk before returning a Response so that a total failure
     // (all retries + fallback exhausted) surfaces as a 500 the client can show,

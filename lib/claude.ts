@@ -109,9 +109,25 @@ IMPORTANT LANGUAGE RULES — FRENCH:
 - Bible verses: the reference translation is the Bible Louis Segond 1910 (LSG). Never translate an English verse into French on the fly and present it as a quotation. Per the SCRIPTURE QUOTATION RULE: quote only when you are certain of LSG's exact wording; otherwise give the reference and paraphrase openly, without quotation marks.`,
 };
 
-export function buildSystemPrompt(mode: ResponseMode, sourcesText: string, lang = "EN"): string {
+// Only added when a verbatim text source exists for the response language.
+const LOOKUP_TOOL_BLOCK = `
+
+SCRIPTURE LOOKUP TOOL — available for this language. This SUPERSEDES the general quotation rule above:
+- You have a \`lookup_scripture\` tool that returns the exact, verbatim text of any Bible verse.
+- The ONLY text you may place inside quotation marks is text returned by \`lookup_scripture\` in this conversation. Text you remember is never permitted inside quotation marks, no matter how confident you are — your recall is reliably wrong about commas, apostrophes, and word order, and those differences are exactly what makes a quotation false.
+- So: if you are going to quote, call the tool FIRST, then reproduce its output character for character — same punctuation, same capitalisation, same accents. Do not "tidy" it, do not change a trailing comma to a full stop, do not drop an opening word.
+- Pass the reference using the ENGLISH book name (e.g. "1 Corinthians 15:17") no matter which language you are answering in.
+- If the tool returns not_found, cite the reference without quotation marks and paraphrase openly.
+- You do not have to quote at all. But if quotation marks appear anywhere in your answer around Scripture, a tool call must have produced that text.`;
+
+export function buildSystemPrompt(
+  mode: ResponseMode,
+  sourcesText: string,
+  lang = "EN",
+  canQuote = false,
+): string {
   const modeBlock = MODE_INSTRUCTIONS[mode];
-  const langBlock = LANG_INSTRUCTIONS[lang] ?? "";
+  const langBlock = (LANG_INSTRUCTIONS[lang] ?? "") + (canQuote ? LOOKUP_TOOL_BLOCK : "");
   const sourceBlock = sourcesText.trim()
     ? `\n\n---\n\nREFERENCE MATERIAL FROM TRUSTED APOLOGETICS SOURCES:\n\n${sourcesText}\n\n---\n\nDraw on the above material to support and enrich your answers where applicable. Always prioritize Scripture as the ultimate authority.`
     : "\n\nAlways prioritize Scripture as the ultimate authority.";

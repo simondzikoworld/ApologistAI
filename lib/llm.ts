@@ -99,8 +99,17 @@ export function getProvider(name?: ProviderName): Provider {
  * the user; once a token is on the wire we can't restart without duplicating
  * text, so we log and end the stream cleanly rather than corrupt the answer.
  */
+export interface StreamOptions {
+  tools?: Anthropic.Tool[];
+  /** Executes a tool call and returns the result string given back to the model. */
+  runTool?: (name: string, input: unknown) => Promise<string>;
+  /** Safety valve so a confused model can't loop forever. */
+  maxToolRounds?: number;
+}
+
 export async function* streamText(
   build: (provider: Provider) => Anthropic.MessageStreamParams,
+  opts: StreamOptions = {},
 ): AsyncGenerator<string, void, unknown> {
   const primary = getProvider();
   const attempts: Provider[] = [primary, primary];
@@ -108,19 +117,49 @@ export async function* streamText(
     attempts.push(getProvider("anthropic"));
   }
 
+  const maxRounds = opts.maxToolRounds ?? 3;
   let emitted = false;
   let lastError: unknown;
 
   for (const [i, provider] of attempts.entries()) {
     try {
-      const stream = provider.client.messages.stream(build(provider));
-      for await (const chunk of stream) {
-        if (chunk.type === "content_block_delta" && chunk.delta.type === "text_delta") {
-          emitted = true;
-          yield chunk.delta.text;
+      const base = build(provider);
+      let messages = base.messages;
+
+      for (let round = 0; ; round++) {
+        const stream = provider.client.messages.stream({
+          ...base,
+          messages,
+          ...(opts.tools?.length ? { tools: opts.tools } : {}),
+        });
+
+        for await (const chunk of stream) {
+          if (chunk.type === "content_block_delta" && chunk.delta.type === "text_delta") {
+            emitted = true;
+            yield chunk.delta.text;
+          }
         }
+
+        const final = await stream.finalMessage();
+        const toolUses = final.content.filter(
+          (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+        );
+        if (!toolUses.length || !opts.runTool || round >= maxRounds) return;
+
+        const results: Anthropic.ToolResultBlockParam[] = await Promise.all(
+          toolUses.map(async (t) => ({
+            type: "tool_result" as const,
+            tool_use_id: t.id,
+            content: await opts.runTool!(t.name, t.input),
+          })),
+        );
+
+        messages = [
+          ...messages,
+          { role: "assistant", content: final.content as Anthropic.ContentBlockParam[] },
+          { role: "user", content: results },
+        ];
       }
-      return;
     } catch (err) {
       lastError = err;
       if (emitted) {
