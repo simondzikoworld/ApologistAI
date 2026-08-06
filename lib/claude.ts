@@ -1,16 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { ResponseMode } from "./types";
 
-export const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-  defaultHeaders: { "anthropic-beta": "prompt-caching-2024-07-31" },
-});
-
-export const MODEL_FOR_MODE: Record<ResponseMode, string> = {
-  simple:    "claude-haiku-4-5-20251001",
-  detailed:  "claude-sonnet-4-6",
-  challenge: "claude-haiku-4-5-20251001",
-};
+// Client and per-mode model config now live in lib/llm.ts (the Claude setup is
+// preserved there as the `anthropic` provider). This file owns prompt building.
 
 const BASE_PROMPT = `You are an expert Christian apologist with a strong Catholic foundation — deeply knowledgeable in Scripture (KJV and modern translations), Catholic Tradition, the Catechism of the Catholic Church, Church history, theology, philosophy of religion, and comparative religion.
 

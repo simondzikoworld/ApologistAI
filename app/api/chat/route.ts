@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { anthropic, buildSystemPrompt, MAX_TOKENS, MODEL_FOR_MODE } from "@/lib/claude";
+import { buildSystemPrompt, MAX_TOKENS } from "@/lib/claude";
+import { getProvider } from "@/lib/llm";
 import { fetchAndParseSources } from "@/lib/sources";
 import { incrementUsage, getLimit, userUsageKey, ipUsageKey, type Tier } from "@/lib/usage";
 import type { ChatRequest, ResponseMode } from "@/lib/types";
@@ -82,10 +83,14 @@ export async function POST(req: NextRequest) {
 
     const encoder = new TextEncoder();
 
-    // All modes → Claude (Haiku for simple/challenge, Sonnet for detailed)
-    const stream = anthropic.messages.stream({
-      model: MODEL_FOR_MODE[mode],
+    // Provider chosen by LLM_PROVIDER (DeepSeek by default, Claude as fallback).
+    // cache_control is a no-op on DeepSeek — it caches identical prefixes
+    // automatically — but is kept for the Claude path.
+    const provider = getProvider();
+    const stream = provider.client.messages.stream({
+      model: provider.models[mode],
       max_tokens: MAX_TOKENS[mode],
+      ...(provider.thinking ? { thinking: provider.thinking } : {}),
       system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
       messages: trimmedMessages.map((m) => ({ role: m.role, content: m.content })),
     });

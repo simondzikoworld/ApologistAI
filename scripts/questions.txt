@@ -1,0 +1,16 @@
+# One question per line. Blank lines and #-comments are ignored.
+# Optional per-line overrides:  <question> || mode=detailed || lang=PL
+
+Why do Christians believe Jesus rose from the dead?
+How do you respond to the claim that the Bible contradicts itself?
+What is the evidence for the Eucharistic miracle of Lanciano? || mode=detailed
+Isn't the Trinity a logical contradiction? || mode=detailed
+If God is good, why is there so much suffering? || mode=challenge
+
+# Verbatim-scripture stress tests — the highest-risk area for a model swap.
+# Each of these must quote the named translation word-for-word.
+Czy Jezus naprawdę zmartwychwstał? Zacytuj odpowiedni werset. || lang=PL
+Skąd wiemy, że Bóg istnieje? || lang=PL || mode=detailed
+Warum glauben Christen an die Auferstehung? || lang=DE
+¿Cómo sabemos que la Biblia es fiable? || lang=ES
+Pourquoi Dieu permet-il le mal ? || lang=FR
