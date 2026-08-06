@@ -41,7 +41,7 @@ export default function ScripturePill({ reference }: Props) {
     <span className="relative inline-block align-baseline mx-0.5">
       <button
         onClick={handleClick}
-        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[11px] font-semibold border border-amber-300 hover:bg-amber-200 transition-colors leading-none"
+        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-[#2b2519] text-amber-700 dark:text-[#e3d2ad] text-[11px] font-semibold border border-amber-300 dark:border-[#cbb994]/30 hover:bg-amber-200 dark:hover:bg-[#3a3220] transition-colors leading-none"
         title="Click to read verse"
       >
         <BookIcon />
@@ -62,25 +62,25 @@ export default function ScripturePill({ reference }: Props) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 6, scale: 0.96 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="absolute left-0 top-full mt-2 z-50 w-72 bg-white dark:bg-slate-800 border border-amber-200 dark:border-slate-700 rounded-2xl shadow-xl dark:shadow-slate-900/50 p-4 block"
+              className="absolute left-0 top-full mt-2 z-50 w-72 rounded-2xl bg-white/95 dark:bg-[#141210]/90 backdrop-blur-xl border border-amber-200/70 dark:border-white/[0.08] shadow-xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.55)] p-4 block"
             >
               <span className="flex items-center gap-1.5 mb-2 block">
-                <span className="text-amber-600 text-sm">✝</span>
-                <span className="text-xs font-bold text-amber-700">{reference}</span>
-                <span className="text-[10px] text-slate-400 ml-1">KJV</span>
+                <span className="text-amber-600 dark:text-[#cbb994] text-sm">✝</span>
+                <span className="text-xs font-bold text-amber-700 dark:text-[#e3d2ad]">{reference}</span>
+                <span className="text-[10px] text-slate-400 dark:text-[#7c7468] ml-1">KJV</span>
               </span>
               {loading && (
                 <span className="flex gap-1 items-center block">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce [animation-delay:0ms]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce [animation-delay:150ms]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce [animation-delay:300ms]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 dark:bg-[#cbb994] animate-bounce [animation-delay:0ms]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 dark:bg-[#cbb994] animate-bounce [animation-delay:150ms]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 dark:bg-[#cbb994] animate-bounce [animation-delay:300ms]" />
                 </span>
               )}
               {error && (
-                <span className="text-xs text-slate-400 italic block">Could not load verse.</span>
+                <span className="text-xs text-slate-400 dark:text-[#7c7468] italic block">Could not load verse.</span>
               )}
               {verse && (
-                <span className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed italic block">
+                <span className="text-xs text-slate-700 dark:text-[#d8cfc0] leading-relaxed italic block">
                   &ldquo;{verse.text}&rdquo;
                 </span>
               )}
