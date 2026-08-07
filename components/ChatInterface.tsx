@@ -65,6 +65,8 @@ export default function ChatInterface({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const userScrolledUpRef = useRef(false);
+  // Marks the next scroll event as ours, so auto-follow isn't mistaken for the reader.
+  const programmaticScrollRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
@@ -97,16 +99,48 @@ export default function ChatInterface({
   useEffect(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
+
+    const atBottom = () => el.scrollHeight - el.scrollTop - el.clientHeight <= 80;
+
+    // Auto-follow fires `scroll` as well, so the old check — "is the container
+    // far from the bottom?" — tracked our own animation rather than the reader,
+    // and kept dragging them back down mid-answer. Distinguishing the two is
+    // what makes scrolling up during a reply possible.
+    let lastTop = el.scrollTop;
+
     const onScroll = () => {
-      userScrolledUpRef.current = el.scrollHeight - el.scrollTop - el.clientHeight > 80;
+      // Ignore the scroll our own auto-follow just caused.
+      if (programmaticScrollRef.current) {
+        programmaticScrollRef.current = false;
+        lastTop = el.scrollTop;
+        return;
+      }
+      // Any upward movement is the reader taking over. Reading direction rather
+      // than listening for wheel/touch also covers dragging the scrollbar and
+      // paging with the keyboard.
+      if (el.scrollTop < lastTop - 2) userScrolledUpRef.current = true;
+      // Returning to the bottom re-arms it — the usual chat convention.
+      if (atBottom()) userScrolledUpRef.current = false;
+      lastTop = el.scrollTop;
     };
+
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    if (!userScrolledUpRef.current) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (userScrolledUpRef.current) return;
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    // Assigning scrollTop is instant. A smooth scroll per streamed chunk left a
+    // long-running animation permanently in flight for the reader to fight.
+    const target = el.scrollHeight - el.clientHeight;
+    // Only claim the next scroll event if this actually moves the view —
+    // otherwise no event fires, the flag goes stale, and it swallows the
+    // reader's next real scroll.
+    if (Math.abs(el.scrollTop - target) > 1) {
+      programmaticScrollRef.current = true;
+      el.scrollTop = target;
     }
   }, [messages, loading]);
 
@@ -438,7 +472,7 @@ export default function ChatInterface({
             {/* Messages */}
             <div
               ref={scrollContainerRef}
-              className="flex-1 overflow-y-auto scroll-smooth px-4 py-6 space-y-4"
+              className="flex-1 overflow-y-auto px-4 py-6 space-y-4"
             >
               <AnimatePresence initial={false}>
                 {messages.map((msg, i) =>
