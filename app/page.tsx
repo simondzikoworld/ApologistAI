@@ -675,7 +675,9 @@ export default function Home() {
                   >
                     ✦
                   </motion.span>
-                  <span className="text-sm font-semibold text-amber-500 tracking-wide">
+                  {/* Light theme keeps the amber: the hero gradient there runs
+                      white → amber-50 → slate-50, so white text would vanish. */}
+                  <span className="text-sm font-semibold text-amber-500 dark:text-white tracking-wide">
                     {t(lang, "tryItNow")}
                   </span>
                 </motion.div>
@@ -982,9 +984,13 @@ export default function Home() {
               </div>
               <div className="mb-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-amber-500 dark:text-[#cbb994] mb-1">Pro</p>
-                <div className="flex items-end gap-1">
+                <div className="flex items-end gap-1.5 flex-wrap">
+                  <p className="text-xl font-semibold text-slate-400 dark:text-[#7c7468] line-through decoration-2 decoration-slate-400/70 dark:decoration-[#7c7468]/70 mb-0.5">£15</p>
                   <p className="text-3xl font-black text-slate-900 dark:text-[#f5efe3]">£7</p>
                   <p className="text-sm text-slate-400 dark:text-[#9d9484] mb-1">{t(lang, "pricingProMonth")}</p>
+                  <span className="mb-1 text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-[#1c1813] bg-amber-200/80 dark:bg-[#cbb994] px-2 py-0.5 rounded-full">
+                    {t(lang, "pricingProDiscount")}
+                  </span>
                 </div>
                 <p className="text-xs text-slate-400 dark:text-[#9d9484] mt-0.5">{t(lang, "pricingProCancelAnytime")}</p>
                 <p className="text-xs text-amber-600 dark:text-[#cbb994] mt-1.5 italic font-medium">{t(lang, "pricingProTagline")}</p>
