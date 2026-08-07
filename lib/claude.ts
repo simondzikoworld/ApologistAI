@@ -18,7 +18,7 @@ PRIORITY ORDER for every answer:
 3. Catholic perspective — always LAST, as a closing note only
 
 IMPORTANT — Catholic perspective rule:
-At the very END of every response (Simple and Detailed modes only), add a brief closing section titled **"🕊️ Catholic Perspective"** — with that title written in the SAME language as the rest of your answer, never left in English. Keep the 🕊️. Use: Polish "🕊️ Perspektywa katolicka", German "🕊️ Katholische Perspektive", Spanish "🕊️ Perspectiva católica", French "🕊️ Perspective catholique", Portuguese "🕊️ Perspetiva católica". Keep it short — 2–4 sentences maximum. It should complement the biblical answer, not replace or overshadow it. Cite the Catechism, a saint, or Church council if directly relevant.
+At the very END of every response (Simple and Detailed modes only), add a brief closing section using the exact title given under CLOSING SECTION TITLE below. Keep it short — 2–4 sentences maximum. It should complement the biblical answer, not replace or overshadow it. Cite the Catechism, a saint, or Church council if directly relevant.
 
 SCRIPTURE QUOTATION RULE — applies in every language:
 - Do BOTH: quote the verse in the translation named for your language, AND give its sense in your own words. The quotation carries the weight; the paraphrase makes sure the reader takes the right meaning from it even if a word differs.
@@ -42,7 +42,7 @@ RESPONSE MODE: SIMPLE — be extremely brief. Users want a fast, direct answer, 
 - Plain everyday language — zero theological jargon
 - At most 1 Bible verse, quoted inline. No lists, no headings, no bold except ONE key phrase
 - No historical background, no multiple arguments, no sub-sections
-- Catholic Perspective: 1 sentence only, placed at the very end, no heading needed — just a natural closing line
+- Catholic Perspective: 1 sentence only, placed at the very end. A heading is not required — a natural closing line is fine — but if you do label it, use the exact CLOSING SECTION TITLE below and no other wording
 - Occasionally (roughly 1 in 4 responses, not every time) add a single short line at the very end such as: "For a deeper breakdown of [topic], try Detailed mode (Pro)." — vary the wording naturally, keep it under 12 words, never sound pushy`,
 
   detailed: `
@@ -109,6 +109,23 @@ IMPORTANT LANGUAGE RULES — FRENCH:
 - Bible verses: quote from the Bible Louis Segond 1910 (LSG) and follow the quotation with its sense in your own words, per the SCRIPTURE QUOTATION RULE. Never translate an English verse into French on the fly.`,
 };
 
+/**
+ * Title of the closing Catholic section, per language.
+ *
+ * Only the active language's title is ever put in the prompt. Listing them all
+ * and asking the model to pick leaked the wrong one — English answers came back
+ * headed "Perspektywa katolicka", because Polish sat first in the list and
+ * English wasn't in it at all.
+ */
+const CATHOLIC_HEADING: Record<string, string> = {
+  EN: "🕊️ Catholic Perspective",
+  PL: "🕊️ Perspektywa katolicka",
+  DE: "🕊️ Katholische Perspektive",
+  ES: "🕊️ Perspectiva católica",
+  FR: "🕊️ Perspective catholique",
+  PT: "🕊️ Perspetiva católica",
+};
+
 // Only added when a verbatim text source exists for the response language.
 const LOOKUP_TOOL_BLOCK = `
 
@@ -128,11 +145,17 @@ export function buildSystemPrompt(
 ): string {
   const modeBlock = MODE_INSTRUCTIONS[mode];
   const langBlock = (LANG_INSTRUCTIONS[lang] ?? "") + (canQuote ? LOOKUP_TOOL_BLOCK : "");
+  // Challenge mode has no Catholic closing section at all.
+  const headingBlock =
+    mode === "challenge"
+      ? ""
+      : `\n\nCLOSING SECTION TITLE — the closing section's title must be exactly this, character for character. Do not translate it, and never use another language's wording:\n${CATHOLIC_HEADING[lang] ?? CATHOLIC_HEADING.EN}`;
+
   const sourceBlock = sourcesText.trim()
     ? `\n\n---\n\nREFERENCE MATERIAL FROM TRUSTED APOLOGETICS SOURCES:\n\n${sourcesText}\n\n---\n\nDraw on the above material to support and enrich your answers where applicable. Always prioritize Scripture as the ultimate authority.`
     : "\n\nAlways prioritize Scripture as the ultimate authority.";
 
-  return `${BASE_PROMPT}\n${modeBlock}${langBlock}${sourceBlock}`;
+  return `${BASE_PROMPT}\n${modeBlock}${langBlock}${headingBlock}${sourceBlock}`;
 }
 
 export const MAX_TOKENS: Record<ResponseMode, number> = {
