@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useUser, UserButton } from "@clerk/nextjs";
+import { useIsPro } from "@/lib/useIsPro";
 import { motion } from "framer-motion";
 import AnimatedThemeToggler from "./AnimatedThemeToggler";
 import ConversationSidebar from "./ConversationSidebar";
@@ -21,8 +22,8 @@ interface Props {
 
 export default function ChatPage({ initialConversations, activeConversation }: Props) {
   const router = useRouter();
-  const { user, isSignedIn } = useUser();
-  const isPro = (user?.publicMetadata?.isPro as boolean) ?? false;
+  const { isSignedIn } = useUser();
+  const isPro = useIsPro();
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
   const [lang, setLang] = useState<Lang>(() => {
     if (typeof window === "undefined") return "EN";

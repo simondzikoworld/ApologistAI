@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, LayoutGroup, type Variants } from "framer-motion";
 import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { useIsPro } from "@/lib/useIsPro";
 import ChatInterface from "@/components/ChatInterface";
 import ChatPreview from "@/components/ChatPreview";
 import AnimatedThemeToggler from "@/components/AnimatedThemeToggler";
@@ -148,7 +149,7 @@ function AppStoreBadges({ lang }: { lang: Lang }) {
 export default function Home() {
   const router = useRouter();
   const { user, isSignedIn } = useUser();
-  const isPro = (user?.publicMetadata?.isPro as boolean) ?? false;
+  const isPro = useIsPro();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const [expanded, setExpanded] = useState(false);
