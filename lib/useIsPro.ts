@@ -2,6 +2,7 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import { readIsPro } from "./pro";
 
 /**
  * Pro status from Clerk, refreshed on mount.
@@ -39,5 +40,5 @@ export function useIsPro(): boolean {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, userId]);
 
-  return (user?.publicMetadata?.isPro as boolean) ?? false;
+  return readIsPro(user?.publicMetadata);
 }

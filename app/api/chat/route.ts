@@ -4,6 +4,7 @@ import { buildSystemPrompt, MAX_TOKENS } from "@/lib/claude";
 import { streamText } from "@/lib/llm";
 import { isSupported, lookupVerse, LOOKUP_TOOL } from "@/lib/scripture";
 import { checkQuotes } from "@/lib/quoteCheck";
+import { readIsPro } from "@/lib/pro";
 import { fetchAndParseSources } from "@/lib/sources";
 import { incrementUsage, getLimit, userUsageKey, ipUsageKey, type Tier } from "@/lib/usage";
 import type { ChatRequest, ResponseMode } from "@/lib/types";
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
   if (userId) {
     const clerk = await clerkClient();
     const clerkUser = await clerk.users.getUser(userId);
-    isPro = (clerkUser.publicMetadata as { isPro?: boolean })?.isPro === true;
+    isPro = readIsPro(clerkUser.publicMetadata);
     tier = isPro ? "pro" : "free";
   }
 
