@@ -77,6 +77,7 @@ interface Dict {
   pricingFreeTagline: string;
   pricingProPopular: string;
   pricingProMonth: string;
+  pricingProDiscount: string;
   pricingProCancelAnytime: string;
   pricingProTagline: string;
   pricingStartFree: string;
@@ -181,6 +182,7 @@ const EN: Dict = {
   pricingFreeTagline: "Best for basic use",
   pricingProPopular: "Most popular",
   pricingProMonth: "/month",
+  pricingProDiscount: "53% off",
   pricingProCancelAnytime: "cancel anytime",
   pricingProTagline: "Best for students, teachers & debaters",
   pricingStartFree: "Start free",
@@ -294,12 +296,13 @@ const PL: Dict = {
   pricingFreeTagline: "Idealny do podstawowego użytku",
   pricingProPopular: "Najpopularniejszy",
   pricingProMonth: "/mies.",
+  pricingProDiscount: "53% taniej",
   pricingProCancelAnytime: "anuluj w dowolnym momencie",
   pricingProTagline: "Dla uczniów, nauczycieli i apologetów",
   pricingStartFree: "Zacznij za darmo",
-  pricingUpgradePro: "Przejdź na Pro — 7 $/mies.",
+  pricingUpgradePro: "Przejdź na Pro — 7 £/mies.",
   pricingRedirecting: "Przekierowanie do kasy…",
-  pricingSignIn: "Zaloguj się, aby przejść na Pro → 7 $/mies.",
+  pricingSignIn: "Zaloguj się, aby przejść na Pro → 7 £/mies.",
   pricingCurrentPlan: "✦ Masz plan Pro",
   pricingFreeFeatures: [
     "12 wiadomości dziennie",
@@ -407,6 +410,7 @@ const ES: Dict = {
   pricingFreeTagline: "Ideal para uso básico",
   pricingProPopular: "Más popular",
   pricingProMonth: "/mes",
+  pricingProDiscount: "53% de descuento",
   pricingProCancelAnytime: "cancela cuando quieras",
   pricingProTagline: "Para estudiantes, profesores y debatientes",
   pricingStartFree: "Comenzar gratis",
@@ -520,12 +524,13 @@ const FR: Dict = {
   pricingFreeTagline: "Idéal pour une utilisation de base",
   pricingProPopular: "Le plus populaire",
   pricingProMonth: "/mois",
+  pricingProDiscount: "-53 %",
   pricingProCancelAnytime: "annule quand tu veux",
   pricingProTagline: "Pour les étudiants, enseignants et débatteurs",
   pricingStartFree: "Commencer gratuitement",
-  pricingUpgradePro: "Passer à Pro — 7 $/mois",
+  pricingUpgradePro: "Passer à Pro — 7 £/mois",
   pricingRedirecting: "Redirection vers le paiement…",
-  pricingSignIn: "Connecte-toi pour passer à Pro → 7 $/mois",
+  pricingSignIn: "Connecte-toi pour passer à Pro → 7 £/mois",
   pricingCurrentPlan: "✦ Tu es abonné Pro",
   pricingFreeFeatures: [
     "12 messages par jour",
@@ -633,12 +638,13 @@ const DE: Dict = {
   pricingFreeTagline: "Am besten für den Grundgebrauch",
   pricingProPopular: "Am beliebtesten",
   pricingProMonth: "/Monat",
+  pricingProDiscount: "53 % Rabatt",
   pricingProCancelAnytime: "jederzeit kündbar",
   pricingProTagline: "Für Studenten, Lehrer und Debattierer",
   pricingStartFree: "Kostenlos starten",
-  pricingUpgradePro: "Auf Pro upgraden — 7 $/Monat",
+  pricingUpgradePro: "Auf Pro upgraden — 7 £/Monat",
   pricingRedirecting: "Weiterleitung zur Zahlung…",
-  pricingSignIn: "Anmelden, um auf Pro zu wechseln → 7 $/Monat",
+  pricingSignIn: "Anmelden, um auf Pro zu wechseln → 7 £/Monat",
   pricingCurrentPlan: "✦ Du bist Pro-Mitglied",
   pricingFreeFeatures: [
     "12 Nachrichten pro Tag",
@@ -746,6 +752,7 @@ const PT: Dict = {
   pricingFreeTagline: "Ideal para uso básico",
   pricingProPopular: "Mais popular",
   pricingProMonth: "/mês",
+  pricingProDiscount: "53% de desconto",
   pricingProCancelAnytime: "cancele quando quiser",
   pricingProTagline: "Para estudantes, professores e debatedores",
   pricingStartFree: "Começar gratuitamente",
