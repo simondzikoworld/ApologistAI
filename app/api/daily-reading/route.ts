@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { redis } from "@/lib/redis";
 
 export const runtime = "nodejs";
 export const revalidate = 86400;
@@ -45,20 +46,58 @@ const SECOND_MASS_MARKERS = ["first reading", "second reading"];
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-async function translateReadings(data: DailyReadingData, lang: string): Promise<DailyReadingData> {
-  const targetLang = lang === "PL" ? "Polish" : lang === "ES" ? "Spanish" : lang === "FR" ? "French" : "German";
+// Translations are identical for every visitor on a given day, so cache them
+// instead of paying for an LLM call (and a ~14s wait) on every request.
+const TRANSLATION_TTL_SECONDS = 36 * 60 * 60;
+
+async function translateOnce(data: DailyReadingData, targetLang: string): Promise<DailyReadingData> {
   const payload = JSON.stringify(data);
   const msg = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 4096,
+    // German/Polish run noticeably longer than the English source; 4096 could
+    // truncate the JSON mid-string.
+    max_tokens: 8192,
     messages: [{
       role: "user",
-      content: `Translate the following Catholic daily Mass readings JSON from English to ${targetLang}. Translate ALL text fields (date, title, reference, subtitle, text). Keep the exact same JSON structure. Return ONLY the JSON, no explanation.\n\n${payload}`,
+      content: `Translate the following Catholic daily Mass readings JSON from English to ${targetLang}. Translate ALL text fields (date, title, reference, subtitle, text). Keep the exact same JSON structure. The output must be valid JSON: escape any double quote inside a string as \\", or use typographic quotes instead. Return ONLY the JSON, no explanation.\n\n${payload}`,
     }],
   });
-  const raw = (msg.content[0] as { type: string; text: string }).text.trim();
-  const jsonStr = raw.startsWith("```") ? raw.replace(/^```[a-z]*\n?/, "").replace(/\n?```$/, "") : raw;
-  return JSON.parse(jsonStr) as DailyReadingData;
+  if (msg.stop_reason === "max_tokens") throw new Error("translation truncated");
+  const raw = (msg.content[0] as { type: string; text: string }).text;
+  // Tolerate code fences or stray prose around the object.
+  const jsonStr = raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1);
+  const parsed = JSON.parse(jsonStr) as DailyReadingData;
+  if (!parsed.readings?.length) throw new Error("translation missing readings");
+  return parsed;
+}
+
+async function translateReadings(data: DailyReadingData, lang: string): Promise<DailyReadingData> {
+  const targetLang = lang === "PL" ? "Polish" : lang === "ES" ? "Spanish" : lang === "FR" ? "French" : "German";
+  const cacheKey = `daily-reading:${lang}:${new Date().toISOString().slice(0, 10)}`;
+
+  try {
+    const cached = await redis.get<DailyReadingData>(cacheKey);
+    if (cached?.readings?.length) return cached;
+  } catch (err) {
+    console.warn("Daily reading cache read failed:", err);
+  }
+
+  // The model occasionally returns malformed JSON (unescaped quotes are common
+  // in German „…“ text), so give it a second attempt before failing.
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const translated = await translateOnce(data, targetLang);
+      redis.set(cacheKey, translated, { ex: TRANSLATION_TTL_SECONDS }).catch((err) => {
+        console.warn("Daily reading cache write failed:", err);
+      });
+      return translated;
+    } catch (err) {
+      lastErr = err;
+      console.warn(`Daily reading translation (${lang}) attempt ${attempt + 1} failed:`, err);
+    }
+  }
+  throw lastErr;
 }
 
 export async function GET(req: NextRequest) {
