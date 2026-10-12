@@ -88,9 +88,13 @@ async function translateReadings(data: DailyReadingData, lang: string): Promise<
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const translated = await translateOnce(data, targetLang);
-      redis.set(cacheKey, translated, { ex: TRANSLATION_TTL_SECONDS }).catch((err) => {
+      // Awaited on purpose: Vercel can freeze the function once the response
+      // is sent, which would silently drop a fire-and-forget write.
+      try {
+        await redis.set(cacheKey, translated, { ex: TRANSLATION_TTL_SECONDS });
+      } catch (err) {
         console.warn("Daily reading cache write failed:", err);
-      });
+      }
       return translated;
     } catch (err) {
       lastErr = err;
