@@ -1,0 +1,300 @@
+{
+ "code": "drc",
+ "name": "Douay-Rheims (Challoner)",
+ "lang": "EN",
+ "psalms": "vulgate",
+ "books": [
+  {
+   "id": "Gen",
+   "ch": 50
+  },
+  {
+   "id": "Exod",
+   "ch": 40
+  },
+  {
+   "id": "Lev",
+   "ch": 27
+  },
+  {
+   "id": "Num",
+   "ch": 36
+  },
+  {
+   "id": "Deut",
+   "ch": 34
+  },
+  {
+   "id": "Josh",
+   "ch": 24
+  },
+  {
+   "id": "Judg",
+   "ch": 21
+  },
+  {
+   "id": "Ruth",
+   "ch": 4
+  },
+  {
+   "id": "1Sam",
+   "ch": 31
+  },
+  {
+   "id": "2Sam",
+   "ch": 24
+  },
+  {
+   "id": "1Kgs",
+   "ch": 22
+  },
+  {
+   "id": "2Kgs",
+   "ch": 25
+  },
+  {
+   "id": "1Chr",
+   "ch": 29
+  },
+  {
+   "id": "2Chr",
+   "ch": 36
+  },
+  {
+   "id": "Ezra",
+   "ch": 10
+  },
+  {
+   "id": "Neh",
+   "ch": 13
+  },
+  {
+   "id": "Tob",
+   "ch": 14
+  },
+  {
+   "id": "Jdt",
+   "ch": 16
+  },
+  {
+   "id": "Esth",
+   "ch": 16
+  },
+  {
+   "id": "1Macc",
+   "ch": 16
+  },
+  {
+   "id": "2Macc",
+   "ch": 15
+  },
+  {
+   "id": "Job",
+   "ch": 42
+  },
+  {
+   "id": "Ps",
+   "ch": 150
+  },
+  {
+   "id": "Prov",
+   "ch": 31
+  },
+  {
+   "id": "Eccl",
+   "ch": 12
+  },
+  {
+   "id": "Song",
+   "ch": 8
+  },
+  {
+   "id": "Wis",
+   "ch": 19
+  },
+  {
+   "id": "Sir",
+   "ch": 51
+  },
+  {
+   "id": "Isa",
+   "ch": 66
+  },
+  {
+   "id": "Jer",
+   "ch": 52
+  },
+  {
+   "id": "Lam",
+   "ch": 5
+  },
+  {
+   "id": "Bar",
+   "ch": 6
+  },
+  {
+   "id": "Ezek",
+   "ch": 48
+  },
+  {
+   "id": "Dan",
+   "ch": 14
+  },
+  {
+   "id": "Hos",
+   "ch": 14
+  },
+  {
+   "id": "Joel",
+   "ch": 3
+  },
+  {
+   "id": "Amos",
+   "ch": 9
+  },
+  {
+   "id": "Obad",
+   "ch": 1
+  },
+  {
+   "id": "Jonah",
+   "ch": 4
+  },
+  {
+   "id": "Mic",
+   "ch": 7
+  },
+  {
+   "id": "Nah",
+   "ch": 3
+  },
+  {
+   "id": "Hab",
+   "ch": 3
+  },
+  {
+   "id": "Zeph",
+   "ch": 3
+  },
+  {
+   "id": "Hag",
+   "ch": 2
+  },
+  {
+   "id": "Zech",
+   "ch": 14
+  },
+  {
+   "id": "Mal",
+   "ch": 4
+  },
+  {
+   "id": "Matt",
+   "ch": 28
+  },
+  {
+   "id": "Mark",
+   "ch": 16
+  },
+  {
+   "id": "Luke",
+   "ch": 24
+  },
+  {
+   "id": "John",
+   "ch": 21
+  },
+  {
+   "id": "Acts",
+   "ch": 28
+  },
+  {
+   "id": "Rom",
+   "ch": 16
+  },
+  {
+   "id": "1Cor",
+   "ch": 16
+  },
+  {
+   "id": "2Cor",
+   "ch": 13
+  },
+  {
+   "id": "Gal",
+   "ch": 6
+  },
+  {
+   "id": "Eph",
+   "ch": 6
+  },
+  {
+   "id": "Phil",
+   "ch": 4
+  },
+  {
+   "id": "Col",
+   "ch": 4
+  },
+  {
+   "id": "1Thess",
+   "ch": 5
+  },
+  {
+   "id": "2Thess",
+   "ch": 3
+  },
+  {
+   "id": "1Tim",
+   "ch": 6
+  },
+  {
+   "id": "2Tim",
+   "ch": 4
+  },
+  {
+   "id": "Titus",
+   "ch": 3
+  },
+  {
+   "id": "Phlm",
+   "ch": 1
+  },
+  {
+   "id": "Heb",
+   "ch": 13
+  },
+  {
+   "id": "Jas",
+   "ch": 5
+  },
+  {
+   "id": "1Pet",
+   "ch": 5
+  },
+  {
+   "id": "2Pet",
+   "ch": 3
+  },
+  {
+   "id": "1John",
+   "ch": 5
+  },
+  {
+   "id": "2John",
+   "ch": 1
+  },
+  {
+   "id": "3John",
+   "ch": 1
+  },
+  {
+   "id": "Jude",
+   "ch": 1
+  },
+  {
+   "id": "Rev",
+   "ch": 22
+  }
+ ]
+}

@@ -1349,3 +1349,87 @@ export const BOOKS_BY_LANG: Record<string, string[][]> = {
     ]
   ]
 };
+
+// The seven deuterocanonical books, appended after the 66 above (indices
+// 66–72, in this order: Tobit, Judith, Wisdom, Sirach, Baruch, 1 & 2 Maccabees)
+// so every Catholic book resolves. Short forms that collide with ordinary words
+// (French "Si", "1 M") are deliberately left out.
+const DEUTEROCANON: Record<string, string[][]> = {
+  EN: [
+    ["Tobit", "Tob", "Tobias"],
+    ["Judith", "Jdt", "Jth"],
+    ["Wisdom", "Wisdom of Solomon", "Wis", "Wisd"],
+    ["Sirach", "Ecclesiasticus", "Sir", "Ecclus"],
+    ["Baruch", "Bar"],
+    ["1 Maccabees", "1 Macc", "1 Mac", "1 Machabees"],
+    ["2 Maccabees", "2 Macc", "2 Mac", "2 Machabees"],
+  ],
+  FR: [
+    ["Tobie", "Tb"],
+    ["Judith", "Jdt"],
+    ["Sagesse", "Sg"],
+    ["Siracide", "Ecclésiastique", "Sir"],
+    ["Baruch", "Ba"],
+    ["1 Maccabées", "1 Macc"],
+    ["2 Maccabées", "2 Macc"],
+  ],
+  DE: [
+    ["Tobit", "Tobias", "Tob"],
+    ["Judit", "Judith", "Jdt"],
+    ["Weisheit", "Weish"],
+    ["Jesus Sirach", "Sirach", "Sir"],
+    ["Baruch", "Bar"],
+    ["1 Makkabäer", "1 Makk"],
+    ["2 Makkabäer", "2 Makk"],
+  ],
+  ES: [
+    ["Tobías", "Tob", "Tb"],
+    ["Judit", "Jdt"],
+    ["Sabiduría", "Sab", "Sb"],
+    ["Eclesiástico", "Sirácida", "Sirácide", "Eclo", "Sir"],
+    ["Baruc", "Baruch", "Bar"],
+    ["1 Macabeos", "1 Mac"],
+    ["2 Macabeos", "2 Mac"],
+  ],
+  PT: [
+    ["Tobias", "Tb"],
+    ["Judite", "Jdt"],
+    ["Sabedoria", "Sb"],
+    ["Eclesiástico", "Siracida", "Eclo"],
+    ["Baruc", "Br"],
+    ["1 Macabeus", "1 Mc"],
+    ["2 Macabeus", "2 Mc"],
+  ],
+  PL: [
+    ["Księga Tobiasza", "Tobiasza", "Tb"],
+    ["Księga Judyty", "Judyty", "Jdt"],
+    ["Księga Mądrości", "Mądrości", "Mdr"],
+    ["Mądrość Syracha", "Syracha", "Syr", "Eklezjastyk"],
+    ["Księga Barucha", "Barucha", "Ba"],
+    ["1 Księga Machabejska", "1 Machabejska", "1 Mch"],
+    ["2 Księga Machabejska", "2 Machabejska", "2 Mch"],
+  ],
+};
+
+for (const [lang, books] of Object.entries(DEUTEROCANON)) {
+  BOOKS_BY_LANG[lang]?.push(...books);
+}
+
+// Standard German short forms (Loccumer Richtlinien) — German answers cite
+// "Joh 3,16" / "Röm 8,28", which the full names above don't match.
+const DE_SHORT: Record<number, string[]> = {
+  0: ["Gen"], 1: ["Ex"], 2: ["Lev"], 3: ["Num"], 4: ["Dtn"], 5: ["Jos"], 6: ["Ri"],
+  8: ["1 Sam"], 9: ["2 Sam"], 10: ["1 Kön"], 11: ["2 Kön"], 12: ["1 Chr"], 13: ["2 Chr"],
+  14: ["Esr"], 15: ["Neh"], 16: ["Est"], 17: ["Ijob", "Hiob"], 18: ["Ps"], 19: ["Spr"],
+  20: ["Koh"], 21: ["Hld"], 22: ["Jes"], 23: ["Jer"], 24: ["Klgl"], 25: ["Ez"], 26: ["Dan"],
+  27: ["Hos"], 29: ["Am"], 30: ["Obd"], 32: ["Mi"], 34: ["Hab"], 35: ["Zef"], 36: ["Hag"],
+  37: ["Sach"], 38: ["Mal"], 39: ["Mt"], 40: ["Mk"], 41: ["Lk"], 42: ["Joh"], 43: ["Apg"],
+  44: ["Röm"], 45: ["1 Kor"], 46: ["2 Kor"], 47: ["Gal"], 48: ["Eph"], 49: ["Phil"],
+  50: ["Kol"], 51: ["1 Thess"], 52: ["2 Thess"], 53: ["1 Tim"], 54: ["2 Tim"], 55: ["Tit"],
+  56: ["Phlm"], 57: ["Hebr"], 58: ["Jak"], 59: ["1 Petr"], 60: ["2 Petr"], 61: ["1 Joh"],
+  62: ["2 Joh"], 63: ["3 Joh"], 64: ["Jud"], 65: ["Offb"],
+};
+for (const [i, names] of Object.entries(DE_SHORT)) {
+  const entry = BOOKS_BY_LANG.DE?.[Number(i)];
+  if (entry) for (const n of names) if (!entry.includes(n)) entry.push(n);
+}
