@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { listConversations, saveConversation } from "@/lib/conversations";
+import { listConversations, listConversationSummaries, saveConversation } from "@/lib/conversations";
 import type { Conversation } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // ?summary=1 skips message bodies (used by the mobile app's history list,
+  // which opens a single conversation via /api/conversations/[id]).
+  if (req.nextUrl.searchParams.get("summary") === "1") {
+    return NextResponse.json(await listConversationSummaries(userId));
+  }
 
   const conversations = await listConversations(userId);
   return NextResponse.json(conversations);
