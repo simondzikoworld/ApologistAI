@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Source_Serif_4 } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin", "latin-ext"] });
+// Plus Jakarta Sans for all UI text; Source Serif 4 for display headings (greeting, brand).
+const sans = Plus_Jakarta_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-jakarta" });
+const serif = Source_Serif_4({ subsets: ["latin", "latin-ext"], style: ["normal", "italic"], variable: "--font-source-serif" });
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://apologistai.com";
 
@@ -98,12 +100,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" className={`${sans.variable} ${serif.variable}`} suppressHydrationWarning>
         <head>
           {/* Apply saved dark-mode class before first paint to avoid flash */}
           <script dangerouslySetInnerHTML={{ __html: `(function(){try{if(localStorage.getItem('cd-theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}})();` }} />
         </head>
-        <body className={`${inter.className} antialiased`} style={{ backgroundColor: 'var(--page-bg)', color: 'var(--text-primary)' }}>
+        <body className="font-sans antialiased" style={{ backgroundColor: 'var(--page-bg)', color: 'var(--text-primary)' }}>
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{

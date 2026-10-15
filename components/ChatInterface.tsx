@@ -9,13 +9,10 @@ import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
 import SourcesPanel from "./SourcesPanel";
 import { t, tArr, type Lang } from "@/lib/i18n";
-
-const starterItemVariants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.28, ease: "easeOut" as const } },
-};
+import { DAILY_VERSES_BY_LANG } from "@/data/dailyVerses";
 
 const HISTORY_KEY = "cd-chat-history";
+const PROMPT_INDEX_KEY = "cd-help-prompt";
 const PRO_MODES: ResponseMode[] = ["detailed"];
 
 function deriveTitle(text: string): string {
@@ -60,6 +57,7 @@ export default function ChatInterface({
   const [mode, setMode] = useState<ResponseMode>("simple");
   const [showProPrompt, setShowProPrompt] = useState(false);
   const [listening, setListening] = useState(false);
+  const [showSources, setShowSources] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -280,6 +278,46 @@ export default function ChatInterface({
     [messages, sources, mode, lang]
   );
 
+  // Grow the composer with its content, up to a cap where it starts scrolling.
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
+  }, [input, messages.length]);
+
+  // Greeting and daily cards depend on the reader's clock, so they're only
+  // worked out after mount — the server's time zone would give the wrong answer.
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => setNow(new Date()), []);
+
+  // The subtitle under the greeting steps to the next variant each time the
+  // chat opens. The ref keeps StrictMode's double effect from skipping one.
+  const [promptIndex, setPromptIndex] = useState(0);
+  const promptPickedRef = useRef(false);
+  useEffect(() => {
+    if (promptPickedRef.current) return;
+    promptPickedRef.current = true;
+    let next = 0;
+    try {
+      next = parseInt(localStorage.getItem(PROMPT_INDEX_KEY) ?? "-1", 10) + 1 || 0;
+      localStorage.setItem(PROMPT_INDEX_KEY, String(next));
+    } catch {}
+    setPromptIndex(next);
+  }, []);
+  const helpPrompts = tArr(lang, "chatHelpPrompts");
+  const helpPrompt = helpPrompts[promptIndex % helpPrompts.length];
+
+  const greeting = !now
+    ? " "
+    : `${t(lang, now.getHours() < 12 ? "greetingMorning" : now.getHours() < 18 ? "greetingAfternoon" : "greetingEvening")}${firstName ? `, ${firstName}` : ""}`;
+
+  const dayOfYear = now ? Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86_400_000) : 0;
+  const verses = DAILY_VERSES_BY_LANG[lang] ?? DAILY_VERSES_BY_LANG.EN;
+  const verse = verses[dayOfYear % verses.length];
+  const starters = tArr(lang, "starterQuestions");
+  const suggestion = starters[dayOfYear % starters.length];
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -288,15 +326,17 @@ export default function ChatInterface({
   }
 
   const hasMessages = messages.length > 0;
+  const busy = loading || isStreaming;
 
   /* ─────────────────────────────────────────────────
-     Shared mode selector (used in both welcome + chat)
+     Mode selector — glass segmented pills
   ───────────────────────────────────────────────── */
   function ModeBar({ layoutPrefix }: { layoutPrefix: string }) {
     return (
-      <div className="flex rounded-lg border border-slate-200 dark:border-[#2c2722] overflow-hidden text-xs font-medium">
-        {(["simple", "detailed", "challenge"] as ResponseMode[]).map((m, idx) => {
+      <div className="inline-flex items-center gap-0.5 p-1 rounded-full border border-[var(--border)] text-xs">
+        {(["simple", "detailed", "challenge"] as ResponseMode[]).map((m) => {
           const isLocked = PRO_MODES.includes(m) && !isPro;
+          const isActive = mode === m && !isLocked;
           return (
             <button
               key={m}
@@ -306,35 +346,173 @@ export default function ChatInterface({
                 setMode(m);
               }}
               title={isLocked ? "Pro feature" : undefined}
-              className={`relative px-3 py-1.5 transition-colors ${
-                idx > 0 ? "border-l border-slate-200 dark:border-[#2c2722]" : ""
-              } ${
-                mode === m && !isLocked
-                  ? "text-white dark:text-[#1c1813]"
+              className={`relative px-3 py-1 rounded-full transition-colors ${
+                isActive
+                  ? m === "challenge"
+                    ? "text-red-600 dark:text-[#f0726a]"
+                    : "text-amber-700 dark:text-[#e3d2ad]"
                   : isLocked
-                  ? "text-slate-400 dark:text-[#7c7468] cursor-not-allowed"
-                  : "text-slate-500 dark:text-[#9d9484] hover:bg-slate-50 dark:hover:bg-[#2c2722]"
+                  ? "text-[var(--text-muted)] opacity-70 cursor-not-allowed"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-body)]"
               }`}
             >
-              {mode === m && !isLocked && (
+              {isActive && (
                 <motion.div
                   layoutId={`${layoutPrefix}-mode-pill`}
-                  className={`absolute inset-0 ${m === "challenge" ? "bg-red-500 dark:bg-[#f0726a]" : "bg-amber-500 dark:bg-[#cbb994]"}`}
+                  className={`absolute inset-0 rounded-full ${
+                    m === "challenge" ? "bg-red-500/[0.14] dark:bg-[#f0726a]/[0.22]" : "bg-amber-500/[0.16] dark:bg-[#cbb994]/[0.20]"
+                  }`}
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}
                 />
               )}
               <span className="relative z-10 flex items-center gap-1">
                 {m === "simple" ? t(lang, "modeSimple") : m === "detailed" ? t(lang, "modeDetailed") : t(lang, "modeChallenge")}
                 {isLocked && (
-                  <span className="text-[9px] font-bold text-amber-500 dark:text-[#cbb994] bg-amber-50 dark:bg-[#2b2519] border border-amber-200 dark:border-[#cbb994]/30 px-1 py-px rounded leading-none">
-                    PRO
-                  </span>
+                  <span className="text-[9px] font-medium tracking-wide text-amber-600 dark:text-[#cbb994]">PRO</span>
                 )}
               </span>
             </button>
           );
         })}
       </div>
+    );
+  }
+
+  /* Rendered by calling, not as <Composer/>: a component defined in here would
+     remount every render and drop the textarea's focus mid-typing. */
+  function renderComposer() {
+    return (
+      <div className="relative z-10 flex items-end gap-1.5 pl-2 pr-2 py-2 rounded-[28px] glass shadow-[0_8px_30px_rgb(0_0_0/0.08)] dark:shadow-[0_8px_30px_rgb(0_0_0/0.35)] focus-within:border-amber-400/60 dark:focus-within:border-[#cbb994]/35 transition-colors">
+        <button
+          onClick={() => setShowSources((s) => !s)}
+          title="Sources"
+          className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+            showSources
+              ? "text-amber-600 dark:text-[#cbb994] bg-[var(--active-bg)]"
+              : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)]"
+          }`}
+        >
+          <PlusIcon open={showSources} />
+        </button>
+        <textarea
+          ref={textareaRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={t(lang, "chatPlaceholder")}
+          rows={1}
+          className="flex-1 min-w-0 resize-none bg-transparent py-2.5 px-1 text-base sm:text-[15px] leading-6 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none"
+        />
+        {speechSupported && (
+          <button
+            onClick={toggleListening}
+            title={listening ? "Stop listening" : "Speak your question"}
+            className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+              listening
+                ? "text-red-500 dark:text-[#f0726a] bg-red-500/10"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)]"
+            }`}
+          >
+            {listening ? (
+              <motion.span animate={{ scale: [1, 1.25, 1] }} transition={{ repeat: Infinity, duration: 1 }}>
+                <MicIcon active />
+              </motion.span>
+            ) : (
+              <MicIcon active={false} />
+            )}
+          </button>
+        )}
+        <motion.button
+          onClick={() => {
+            if (busy) stopStreaming();
+            else if (input.trim()) sendMessage(input.trim());
+          }}
+          disabled={!input.trim() && !busy}
+          whileTap={{ scale: 0.92 }}
+          title={busy ? "Stop" : "Send"}
+          className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-colors disabled:opacity-35 disabled:cursor-not-allowed ${
+            busy
+              ? "bg-red-500 hover:bg-red-600 dark:bg-[#f0726a] text-white dark:text-[#1c1813]"
+              : "bg-amber-500 hover:bg-amber-600 dark:bg-[#e3d2ad] dark:hover:bg-[#f5efe3] text-white dark:text-[#1c1813]"
+          }`}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {busy ? (
+              <motion.span key="stop" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.12 }}>
+                <StopIcon />
+              </motion.span>
+            ) : (
+              <motion.span key="send" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.12 }}>
+                <SendIcon />
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </motion.button>
+      </div>
+    );
+  }
+
+  function renderModeRow(layoutPrefix: string, centered: boolean) {
+    return (
+      <div className={`flex items-center gap-x-3 gap-y-2 flex-wrap ${centered ? "justify-center" : ""}`}>
+        <ModeBar layoutPrefix={layoutPrefix} />
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={mode}
+            initial={{ opacity: 0, y: 2 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -2 }}
+            transition={{ duration: 0.18 }}
+            className={`text-xs ${mode === "challenge" ? "text-red-500 dark:text-[#f0726a]" : "text-[var(--text-muted)]"}`}
+          >
+            {mode === "simple" ? t(lang, "modeSimpleDesc") : mode === "detailed" ? t(lang, "modeDetailedDesc") : t(lang, "modeChallengeDesc")}
+          </motion.span>
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  function renderProPrompt() {
+    return (
+      <AnimatePresence>
+        {showProPrompt && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            className="relative flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-amber-50 dark:bg-[#1a160e] border border-amber-200 dark:border-[#cbb994]/20"
+          >
+            <p className="text-xs text-amber-800 dark:text-[#d8cfc0]">
+              <span className="font-medium">Detailed mode is Pro only.</span> Unlock more messages + deep research.
+            </p>
+            <div className="flex items-center gap-3 shrink-0">
+              <a href="/#pricing" onClick={() => setShowProPrompt(false)} className="text-xs font-medium text-amber-600 dark:text-[#e3d2ad] hover:underline underline-offset-2">
+                See pricing →
+              </a>
+              <button onClick={() => setShowProPrompt(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm leading-none">✕</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
+
+  function renderSources() {
+    return (
+      <AnimatePresence initial={false}>
+        {showSources && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.18 }}
+            className="relative z-10"
+          >
+            <SourcesPanel sources={sources} onChange={setSources} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     );
   }
 
@@ -352,109 +530,81 @@ export default function ChatInterface({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.12 } }}
-            className="absolute inset-0 flex flex-col items-center justify-center px-4 gap-7 overflow-y-auto py-8"
+            className="absolute inset-0 overflow-y-auto"
           >
-            {/* Cross + greeting */}
-            <div className="text-center space-y-3">
-              <motion.span
-                initial={{ scale: 0.7, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 280, damping: 18, delay: 0.05 }}
-                className="block text-5xl text-amber-500 select-none"
-              >
-                ✝
-              </motion.span>
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
-              >
-                <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-[#f5efe3] tracking-tight leading-tight">
-                  {firstName ? `Welcome back, ${firstName}` : "Welcome to Apologist AI"}
-                </h1>
-                <p className="mt-2 text-slate-500 dark:text-[#9d9484] text-sm sm:text-base max-w-sm mx-auto">
-                  {t(lang, "chatHint")}
-                </p>
-              </motion.div>
-            </div>
-
-            {/* Hero input box */}
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut", delay: 0.18 }}
-              className="w-full max-w-2xl"
-            >
-              <div className="rounded-2xl border border-slate-200 dark:border-[#2c2722] bg-white dark:bg-[#1e1a16] shadow-xl dark:shadow-black/40 overflow-hidden">
-                <textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={t(lang, "chatPlaceholder")}
-                  rows={3}
-                  disabled={loading}
-                  className="w-full resize-none bg-transparent px-5 pt-4 pb-2 text-base sm:text-sm text-slate-900 dark:text-[#f5efe3] focus:outline-none placeholder:text-slate-400 dark:placeholder:text-[#7c7468]"
-                />
-                <div className="flex items-center justify-between px-3 pb-3 pt-2 border-t border-slate-100 dark:border-[#2c2722] gap-2">
-                  <ModeBar layoutPrefix="hero" />
-                  <motion.button
-                    onClick={() => { if (input.trim() && !loading) sendMessage(input.trim()); }}
-                    disabled={!input.trim() || loading}
-                    whileHover={{ scale: 1.06 }}
-                    whileTap={{ scale: 0.92 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors shrink-0"
-                  >
-                    <SendIcon />
-                  </motion.button>
-                </div>
+            <div className="min-h-full flex flex-col items-center justify-center px-4 pt-16 pb-10 lg:py-12">
+              {/* Greeting */}
+              <div className="text-center">
+                <motion.span
+                  initial={{ scale: 0.7, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 280, damping: 18, delay: 0.05 }}
+                  className="block text-4xl leading-none text-amber-500 dark:text-[#e3d2ad] greeting-glow select-none"
+                  aria-hidden="true"
+                >
+                  ✝
+                </motion.span>
+                <motion.h1
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={now ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+                  transition={{ duration: 0.45, ease: "easeOut" }}
+                  className="mt-5 font-serif text-[2.6rem] sm:text-6xl font-medium tracking-[-0.02em] leading-[1.05] text-[var(--text-primary)] greeting-glow"
+                >
+                  {greeting}
+                </motion.h1>
+                <motion.p
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={now ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+                  transition={{ duration: 0.4, ease: "easeOut", delay: 0.12 }}
+                  className="mt-4 text-lg sm:text-xl font-light text-[var(--text-muted)]"
+                >
+                  {helpPrompt}
+                </motion.p>
               </div>
 
-              {/* Starter question chips */}
+              {/* Composer */}
               <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={{ visible: { transition: { staggerChildren: 0.06, delayChildren: 0.28 } }, hidden: {} }}
-                className="flex flex-wrap gap-2 mt-4 justify-center"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut", delay: 0.18 }}
+                className="relative w-full max-w-2xl mt-10 space-y-3"
               >
-                {tArr(lang, "starterQuestions").map((q) => (
-                  <motion.button
-                    key={q}
-                    variants={starterItemVariants}
-                    whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => sendMessage(q)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white dark:bg-[#1e1a16] border border-slate-200 dark:border-[#2c2722] text-slate-600 dark:text-[#d8cfc0] text-xs font-medium shadow-sm hover:border-amber-300 dark:hover:border-[#cbb994]/50 hover:bg-amber-50 dark:hover:bg-[#2b2519] hover:text-amber-700 dark:hover:text-[#cbb994] transition-colors"
-                  >
-                    {q}
-                  </motion.button>
-                ))}
+                <div aria-hidden="true" className="glow-haze absolute -inset-x-24 -inset-y-20" />
+                {renderSources()}
+                {renderComposer()}
+                <div className="relative pt-1">{renderModeRow("hero", true)}</div>
+                {renderProPrompt()}
               </motion.div>
 
-              {/* Pro prompt (if locked mode clicked) */}
-              <AnimatePresence>
-                {showProPrompt && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.2 }}
-                    className="mt-3 flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-amber-50 dark:bg-[#1e1a16] border border-amber-200 dark:border-[#cbb994]/20"
+              {/* Daily cards */}
+              {now && (
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  variants={{ visible: { transition: { staggerChildren: 0.08, delayChildren: 0.28 } }, hidden: {} }}
+                  className="grid sm:grid-cols-2 gap-4 w-full max-w-3xl mt-12"
+                >
+                  <WelcomeCard
+                    icon={<BookIcon />}
+                    label={t(lang, "verseOfDay")}
+                    action={t(lang, "reflectDeeper")}
+                    onAction={() => sendMessage(`${t(lang, "reflectPrompt")} "${verse.text}" (${verse.ref})`)}
                   >
-                    <p className="text-xs text-amber-800 dark:text-[#d8cfc0]">
-                      <span className="font-semibold">Detailed mode is Pro only.</span> Unlock unlimited messages + deep research.
-                    </p>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <a href="#pricing" onClick={() => setShowProPrompt(false)} className="text-xs font-semibold text-amber-600 hover:text-amber-700 underline underline-offset-2">
-                        See pricing ↓
-                      </a>
-                      <button onClick={() => setShowProPrompt(false)} className="text-slate-400 hover:text-slate-600 text-sm leading-none">✕</button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+                    <p className="font-serif italic text-[17px] leading-relaxed text-[var(--text-body)]">&ldquo;{verse.text}&rdquo;</p>
+                    <p className="mt-2 text-xs text-[var(--text-muted)]">— {verse.ref}</p>
+                  </WelcomeCard>
+                  <WelcomeCard
+                    icon={<LightbulbIcon />}
+                    label={t(lang, "tryAsking")}
+                    accent
+                    action={t(lang, "askThis")}
+                    onAction={() => sendMessage(suggestion)}
+                  >
+                    <p className="text-[17px] leading-relaxed text-[var(--text-body)]">{suggestion}</p>
+                  </WelcomeCard>
+                </motion.div>
+              )}
+            </div>
           </motion.div>
 
         ) : (
@@ -470,24 +620,21 @@ export default function ChatInterface({
             className="absolute inset-0 flex flex-col"
           >
             {/* Messages */}
-            <div
-              ref={scrollContainerRef}
-              className="flex-1 overflow-y-auto px-4 py-6 space-y-4"
-            >
-              <AnimatePresence initial={false}>
-                {messages.map((msg, i) =>
-                  msg.role === "assistant" && (msg.content === "daily_limit" || msg.content === "pro_required") ? (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex justify-start"
-                    >
-                      <div className="max-w-[85%] rounded-2xl rounded-tl-sm px-4 py-3 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/10 border border-amber-200 dark:border-amber-700/50 space-y-3">
-                        <div className="flex items-start gap-2">
-                          <span className="text-amber-500 text-base leading-none mt-0.5">✦</span>
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
+              <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 pt-16 lg:pt-10 pb-8 space-y-7">
+                <AnimatePresence initial={false}>
+                  {messages.map((msg, i) =>
+                    msg.role === "assistant" && (msg.content === "daily_limit" || msg.content === "pro_required") ? (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="rounded-2xl px-5 py-4 bg-amber-50 dark:bg-[#1a160e] border border-amber-200 dark:border-[#cbb994]/20 space-y-3"
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <span className="text-amber-500 dark:text-[#cbb994] text-base leading-none mt-0.5">✦</span>
                           <div>
-                            <p className="text-sm font-semibold text-slate-800 dark:text-[#f5efe3] mb-0.5">
+                            <p className="text-sm font-medium text-[var(--text-primary)] mb-0.5">
                               {msg.content === "pro_required"
                                 ? "Detailed mode requires a Pro subscription."
                                 : !isSignedIn
@@ -496,7 +643,7 @@ export default function ChatInterface({
                                 ? "You've reached your Pro daily limit for this mode."
                                 : "You've used your 12 free messages for today."}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-[#9d9484]">
+                            <p className="text-xs text-[var(--text-muted)]">
                               {msg.content === "pro_required"
                                 ? "Upgrade to Pro to unlock in-depth answers with deep source research."
                                 : !isSignedIn
@@ -509,186 +656,84 @@ export default function ChatInterface({
                           {!isSignedIn ? (
                             <>
                               <SignUpButton mode="modal">
-                                <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors">
+                                <button className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 dark:bg-[#cbb994] dark:hover:bg-[#e3d2ad] text-white dark:text-[#1c1813] text-xs font-medium transition-colors">
                                   Create free account
                                 </button>
                               </SignUpButton>
                               <SignInButton mode="modal">
-                                <button className="inline-flex items-center px-3 py-1.5 rounded-full border border-slate-300 dark:border-[#2c2722] text-slate-600 dark:text-[#d8cfc0] text-xs font-semibold hover:bg-slate-50 dark:hover:bg-[#2c2722] transition-colors">
+                                <button className="inline-flex items-center px-3.5 py-1.5 rounded-full border border-[var(--border)] text-[var(--text-body)] text-xs font-medium hover:bg-[var(--hover-bg)] transition-colors">
                                   Sign in
                                 </button>
                               </SignInButton>
                             </>
                           ) : (
                             <>
-                              <a href="#pricing" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition-colors">
+                              <a href="/#pricing" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 dark:bg-[#cbb994] dark:hover:bg-[#e3d2ad] text-white dark:text-[#1c1813] text-xs font-medium transition-colors">
                                 ✦ {isPro ? "View plan" : "Upgrade to Pro"}
                               </a>
                               {msg.content === "daily_limit" && !isPro && (
-                                <p className="text-[10px] text-slate-400 dark:text-[#7c7468] self-center">or come back tomorrow for free</p>
+                                <p className="text-[11px] text-[var(--text-muted)] self-center">or come back tomorrow for free</p>
                               )}
                             </>
                           )}
                         </div>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <MessageBubble
-                      key={i}
-                      message={msg}
-                      streaming={isStreaming && i === messages.length - 1}
-                      lang={lang}
-                    />
-                  )
-                )}
-              </AnimatePresence>
+                      </motion.div>
+                    ) : (
+                      <MessageBubble
+                        key={i}
+                        message={msg}
+                        streaming={isStreaming && i === messages.length - 1}
+                        lang={lang}
+                      />
+                    )
+                  )}
+                </AnimatePresence>
 
-              <AnimatePresence>
-                {loading && (
-                  <motion.div
-                    key="typing"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 6 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex justify-start"
-                  >
-                    <div className="border-l-4 border-amber-500 bg-amber-50 dark:bg-[#1e1a16] rounded-2xl rounded-tl-sm">
+                <AnimatePresence>
+                  {loading && (
+                    <motion.div
+                      key="typing"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <TypingIndicator />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-              <div ref={bottomRef} />
+                <div ref={bottomRef} />
+              </div>
             </div>
 
-            {/* Input bar */}
-            <div className="border-t border-slate-100 dark:border-[#2c2722] px-4 py-4 space-y-3 bg-white dark:bg-[#141210]">
-              <SourcesPanel sources={sources} onChange={setSources} />
-
-              <div className="flex items-center justify-between gap-2">
-                {messages.length > 0 && (
-                  <div className="flex items-center gap-1">
-                    <motion.button
-                      onClick={clearHistory}
-                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] text-slate-400 hover:text-red-400 hover:bg-red-50 border border-transparent hover:border-red-100 transition-colors"
-                      title="Clear conversation"
-                    >
-                      <TrashIcon />
-                      {t(lang, "clearBtn")}
-                    </motion.button>
-                    <motion.button
+            {/* Input area */}
+            <div className="shrink-0 px-4 sm:px-6 pb-4 pt-2">
+              <div className="mx-auto w-full max-w-3xl space-y-2.5">
+                {renderProPrompt()}
+                {renderSources()}
+                {renderComposer()}
+                <div className="flex items-center justify-between gap-3 flex-wrap px-1">
+                  {renderModeRow("chat", false)}
+                  <div className="flex items-center gap-1 ml-auto">
+                    <button
                       onClick={handlePrint}
-                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] text-slate-400 hover:text-amber-600 hover:bg-amber-50 border border-transparent hover:border-amber-200 transition-colors"
                       title="Print / Save as PDF"
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)] transition-colors"
                     >
                       <PrintIcon />
                       {t(lang, "printBtn")}
-                    </motion.button>
+                    </button>
+                    <button
+                      onClick={clearHistory}
+                      title="Clear conversation"
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] text-[var(--text-muted)] hover:text-red-500 dark:hover:text-[#f0726a] hover:bg-[var(--hover-bg)] transition-colors"
+                    >
+                      <TrashIcon />
+                      {t(lang, "clearBtn")}
+                    </button>
                   </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs text-slate-400 shrink-0">{t(lang, "responseMode")}</span>
-                <ModeBar layoutPrefix="chat" />
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={mode}
-                    initial={{ opacity: 0, x: -6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 6 }}
-                    transition={{ duration: 0.18 }}
-                    className={`text-xs ${mode === "challenge" ? "text-red-400 dark:text-[#f0726a] font-medium" : "text-slate-400 dark:text-[#9d9484]"}`}
-                  >
-                    {mode === "simple" ? t(lang, "modeSimpleDesc") : mode === "detailed" ? t(lang, "modeDetailedDesc") : t(lang, "modeChallengeDesc")}
-                  </motion.span>
-                </AnimatePresence>
-              </div>
-
-              <AnimatePresence>
-                {showProPrompt && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50"
-                  >
-                    <p className="text-xs text-amber-800 dark:text-amber-200">
-                      <span className="font-semibold">Detailed mode is Pro only.</span> Unlock unlimited messages + deep research.
-                    </p>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <a href="#pricing" onClick={() => setShowProPrompt(false)} className="text-xs font-semibold text-amber-600 hover:text-amber-700 underline underline-offset-2">
-                        See pricing ↓
-                      </a>
-                      <button onClick={() => setShowProPrompt(false)} className="text-slate-400 hover:text-slate-600 text-sm leading-none">✕</button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <div className="flex gap-2 items-end">
-                <textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={t(lang, "chatPlaceholder")}
-                  rows={2}
-                  className="flex-1 resize-none border border-slate-200 dark:border-[#2c2722] rounded-xl px-4 py-3 text-base sm:text-sm bg-white dark:bg-[#1e1a16] text-slate-900 dark:text-[#f5efe3] focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-[#cbb994]/50 focus:border-transparent placeholder:text-slate-400 dark:placeholder:text-[#7c7468] transition-shadow"
-                />
-                {speechSupported && (
-                  <motion.button
-                    onClick={toggleListening}
-                    whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.92 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                    className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border transition-colors ${
-                      listening
-                        ? "bg-red-100 border-red-300 text-red-500"
-                        : "bg-slate-50 dark:bg-[#1e1a16] border-slate-200 dark:border-[#2c2722] text-slate-400 dark:text-[#9d9484] hover:text-amber-500 dark:hover:text-[#cbb994] hover:border-amber-300 dark:hover:border-[#cbb994]/50"
-                    }`}
-                    title={listening ? "Stop listening" : "Speak your question"}
-                  >
-                    {listening ? (
-                      <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 1 }}>
-                        <MicIcon active />
-                      </motion.span>
-                    ) : (
-                      <MicIcon active={false} />
-                    )}
-                  </motion.button>
-                )}
-                <motion.button
-                  onClick={() => {
-                    if (loading || isStreaming) stopStreaming();
-                    else if (input.trim()) sendMessage(input.trim());
-                  }}
-                  disabled={!input.trim() && !loading && !isStreaming}
-                  whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.92 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-xl text-white transition-colors ${
-                    loading || isStreaming
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed"
-                  }`}
-                  title={loading || isStreaming ? "Stop" : "Send"}
-                >
-                  <AnimatePresence mode="wait" initial={false}>
-                    {loading || isStreaming ? (
-                      <motion.span key="stop" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.12 }}>
-                        <StopIcon />
-                      </motion.span>
-                    ) : (
-                      <motion.span key="send" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.12 }}>
-                        <SendIcon />
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </motion.button>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -700,44 +745,118 @@ export default function ChatInterface({
   );
 }
 
+function WelcomeCard({
+  icon, label, accent = false, action, onAction, children,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  accent?: boolean;
+  action: string;
+  onAction: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 16 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.38, ease: "easeOut" } },
+      }}
+      className="flex flex-col items-center text-center px-6 pt-6 pb-5 rounded-3xl border border-[var(--border)] bg-[var(--surface)]"
+    >
+      <span
+        className={`w-11 h-11 rounded-full flex items-center justify-center ${
+          accent
+            ? "bg-amber-100 dark:bg-[#2b2519] text-amber-600 dark:text-[#e3d2ad]"
+            : "bg-[var(--surface-2)] text-[var(--text-body)]"
+        }`}
+      >
+        {icon}
+      </span>
+      <p className={`mt-4 text-xs font-medium uppercase tracking-[0.08em] ${accent ? "text-amber-600 dark:text-[#cbb994]" : "text-[var(--text-body)]"}`}>
+        {label}
+      </p>
+      <div className="mt-3 flex-1">{children}</div>
+      <button
+        onClick={onAction}
+        className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-primary)] hover:text-amber-600 dark:hover:text-[#e3d2ad] transition-colors group"
+      >
+        {action}
+        <span className="transition-transform group-hover:translate-x-0.5">→</span>
+      </button>
+    </motion.div>
+  );
+}
+
+const lineIcon = {
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.5,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  viewBox: "0 0 24 24",
+};
+
 function SendIcon() {
   return (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+    <svg className="w-[18px] h-[18px]" {...lineIcon} strokeWidth={2}>
+      <path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" />
     </svg>
   );
 }
 
 function StopIcon() {
   return (
-    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-      <rect x="5" y="5" width="14" height="14" rx="2" />
+    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+      <rect x="5" y="5" width="14" height="14" rx="2.5" />
+    </svg>
+  );
+}
+
+function PlusIcon({ open }: { open: boolean }) {
+  return (
+    <svg className={`w-5 h-5 transition-transform duration-200 ${open ? "rotate-45" : ""}`} {...lineIcon}>
+      <path d="M12 5v14M5 12h14" />
     </svg>
   );
 }
 
 function TrashIcon() {
   return (
-    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    <svg className="w-3.5 h-3.5" {...lineIcon}>
+      <path d="M5 7h14M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
     </svg>
   );
 }
 
 function PrintIcon() {
   return (
-    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+    <svg className="w-3.5 h-3.5" {...lineIcon}>
+      <path d="M7 9V4h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v6H7z" />
     </svg>
   );
 }
 
 function MicIcon({ active }: { active: boolean }) {
   return (
-    <svg className="w-4 h-4" fill={active ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 3a4 4 0 014 4v4a4 4 0 01-8 0V7a4 4 0 014-4z" />
+    <svg className="w-[18px] h-[18px]" {...lineIcon} fill={active ? "currentColor" : "none"}>
+      <rect x="9" y="3" width="6" height="11" rx="3" />
+      <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" />
+    </svg>
+  );
+}
+
+function BookIcon() {
+  return (
+    <svg className="w-5 h-5" {...lineIcon}>
+      <path d="M12 6.5C10.5 5.3 8.5 4.75 6 4.75c-1 0-2 .1-3 .35v13.5c1-.25 2-.35 3-.35 2.5 0 4.5.55 6 1.75m0-13.5c1.5-1.2 3.5-1.75 6-1.75 1 0 2 .1 3 .35v13.5c-1-.25-2-.35-3-.35-2.5 0-4.5.55-6 1.75m0-13.5V20" />
+    </svg>
+  );
+}
+
+function LightbulbIcon() {
+  return (
+    <svg className="w-5 h-5" {...lineIcon}>
+      <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V16h5v-.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3Z" />
     </svg>
   );
 }

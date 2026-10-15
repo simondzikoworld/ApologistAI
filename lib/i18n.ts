@@ -85,6 +85,20 @@ interface Dict {
   pricingRedirecting: string;
   pricingSignIn: string;
   pricingCurrentPlan: string;
+  // chat page
+  greetingMorning: string;
+  greetingAfternoon: string;
+  greetingEvening: string;
+  chatHelpPrompts: string[];
+  reflectDeeper: string;
+  reflectPrompt: string;
+  tryAsking: string;
+  askThis: string;
+  sidebarMain: string;
+  sidebarRecent: string;
+  newChat: string;
+  noConversations: string;
+  upgradePro: string;
   // arrays
   bullets: string[];
   objections: string[];
@@ -94,6 +108,26 @@ interface Dict {
 }
 
 const EN: Dict = {
+  greetingMorning: "Good morning",
+  greetingAfternoon: "Good afternoon",
+  greetingEvening: "Good evening",
+  chatHelpPrompts: [
+    "How can I help you today?",
+    "Ask me anything, I'm here now.",
+    "What's on your heart today?",
+    "Bring me your toughest question.",
+    "What would you like to explore today?",
+    "I'm listening. What's on your mind?",
+  ],
+  reflectDeeper: "Reflect deeper",
+  reflectPrompt: "Help me reflect on this verse:",
+  tryAsking: "Try asking",
+  askThis: "Ask this",
+  sidebarMain: "Main",
+  sidebarRecent: "Recent",
+  newChat: "New chat",
+  noConversations: "No conversations yet.",
+  upgradePro: "Upgrade to Pro",
   navHome: "Home",
   navMission: "Our Mission",
   heroLine1: "The Undefeated",
@@ -208,6 +242,26 @@ const EN: Dict = {
 };
 
 const PL: Dict = {
+  greetingMorning: "Dzień dobry",
+  greetingAfternoon: "Dzień dobry",
+  greetingEvening: "Dobry wieczór",
+  chatHelpPrompts: [
+    "W czym mogę Ci dziś pomóc?",
+    "Zapytaj mnie o cokolwiek, jestem tutaj.",
+    "Co leży Ci dziś na sercu?",
+    "Zadaj mi swoje najtrudniejsze pytanie.",
+    "Co chcesz dziś zgłębić?",
+    "Słucham. O czym myślisz?",
+  ],
+  reflectDeeper: "Rozważ głębiej",
+  reflectPrompt: "Pomóż mi rozważyć ten werset:",
+  tryAsking: "Zapytaj na przykład",
+  askThis: "Zapytaj",
+  sidebarMain: "Menu",
+  sidebarRecent: "Ostatnie",
+  newChat: "Nowy czat",
+  noConversations: "Brak rozmów.",
+  upgradePro: "Przejdź na Pro",
   navHome: "Strona główna",
   navMission: "Nasza misja",
   heroLine1: "Niezwyciężona",
@@ -322,6 +376,26 @@ const PL: Dict = {
 };
 
 const ES: Dict = {
+  greetingMorning: "Buenos días",
+  greetingAfternoon: "Buenas tardes",
+  greetingEvening: "Buenas noches",
+  chatHelpPrompts: [
+    "¿En qué puedo ayudarte hoy?",
+    "Pregúntame lo que quieras, aquí estoy.",
+    "¿Qué hay en tu corazón hoy?",
+    "Tráeme tu pregunta más difícil.",
+    "¿Qué te gustaría explorar hoy?",
+    "Te escucho. ¿Qué tienes en mente?",
+  ],
+  reflectDeeper: "Reflexionar más",
+  reflectPrompt: "Ayúdame a reflexionar sobre este versículo:",
+  tryAsking: "Prueba a preguntar",
+  askThis: "Preguntar",
+  sidebarMain: "Principal",
+  sidebarRecent: "Recientes",
+  newChat: "Nuevo chat",
+  noConversations: "Aún no hay conversaciones.",
+  upgradePro: "Pásate a Pro",
   navHome: "Inicio",
   navMission: "Nuestra misión",
   heroLine1: "La Apologética",
@@ -436,6 +510,26 @@ const ES: Dict = {
 };
 
 const FR: Dict = {
+  greetingMorning: "Bonjour",
+  greetingAfternoon: "Bon après-midi",
+  greetingEvening: "Bonsoir",
+  chatHelpPrompts: [
+    "Comment puis-je vous aider aujourd'hui ?",
+    "Demandez-moi ce que vous voulez, je suis là.",
+    "Qu'avez-vous sur le cœur aujourd'hui ?",
+    "Posez-moi votre question la plus difficile.",
+    "Que souhaitez-vous explorer aujourd'hui ?",
+    "Je vous écoute. À quoi pensez-vous ?",
+  ],
+  reflectDeeper: "Approfondir",
+  reflectPrompt: "Aidez-moi à méditer ce verset :",
+  tryAsking: "Essayez de demander",
+  askThis: "Demander",
+  sidebarMain: "Principal",
+  sidebarRecent: "Récents",
+  newChat: "Nouvelle discussion",
+  noConversations: "Aucune conversation pour l'instant.",
+  upgradePro: "Passer à Pro",
   navHome: "Accueil",
   navMission: "Notre mission",
   heroLine1: "L'Apologétique",
@@ -550,6 +644,26 @@ const FR: Dict = {
 };
 
 const DE: Dict = {
+  greetingMorning: "Guten Morgen",
+  greetingAfternoon: "Guten Tag",
+  greetingEvening: "Guten Abend",
+  chatHelpPrompts: [
+    "Wie kann ich dir heute helfen?",
+    "Frag mich alles, ich bin jetzt für dich da.",
+    "Was liegt dir heute auf dem Herzen?",
+    "Stell mir deine schwierigste Frage.",
+    "Was möchtest du heute erkunden?",
+    "Ich höre zu. Was beschäftigt dich?",
+  ],
+  reflectDeeper: "Tiefer nachdenken",
+  reflectPrompt: "Hilf mir, über diesen Vers nachzudenken:",
+  tryAsking: "Frag zum Beispiel",
+  askThis: "Fragen",
+  sidebarMain: "Menü",
+  sidebarRecent: "Zuletzt",
+  newChat: "Neuer Chat",
+  noConversations: "Noch keine Unterhaltungen.",
+  upgradePro: "Auf Pro upgraden",
   navHome: "Startseite",
   navMission: "Unsere Mission",
   heroLine1: "Die Unbesiegte",
@@ -664,6 +778,26 @@ const DE: Dict = {
 };
 
 const PT: Dict = {
+  greetingMorning: "Bom dia",
+  greetingAfternoon: "Boa tarde",
+  greetingEvening: "Boa noite",
+  chatHelpPrompts: [
+    "Como posso ajudar hoje?",
+    "Pergunte-me qualquer coisa, estou aqui.",
+    "O que está no seu coração hoje?",
+    "Traga-me a sua pergunta mais difícil.",
+    "O que gostaria de explorar hoje?",
+    "Estou ouvindo. O que está pensando?",
+  ],
+  reflectDeeper: "Refletir mais",
+  reflectPrompt: "Ajude-me a refletir sobre este versículo:",
+  tryAsking: "Experimente perguntar",
+  askThis: "Perguntar",
+  sidebarMain: "Principal",
+  sidebarRecent: "Recentes",
+  newChat: "Nova conversa",
+  noConversations: "Ainda não há conversas.",
+  upgradePro: "Mudar para Pro",
   navHome: "Início",
   navMission: "Nossa missão",
   heroLine1: "A Apologética",

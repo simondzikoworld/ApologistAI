@@ -18,6 +18,13 @@
   --color-warm-700: #2c2722;
 }
 
+/* Fonts come from next/font variables set on <html> in app/layout.tsx.
+   `inline` makes the utilities reference them directly instead of via :root. */
+@theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), Georgia, serif;
+}
+
 /* ─── Light theme (must come first so .dark below can override) ──────── */
 :root {
   --page-bg:      #f8fafc;
@@ -32,6 +39,11 @@
   --glass-bg:     rgb(255 255 255 / 0.94);
   --glass-border: rgb(15 23 42 / 0.09);
   --glass-blur:   18px;
+  --sidebar-bg:   #f1f5f9;
+  --hover-bg:     rgb(15 23 42 / 0.05);
+  --active-bg:    rgb(15 23 42 / 0.07);
+  --glow:         rgb(245 158 11 / 0.22);
+  --glow-soft:    rgb(245 158 11 / 0.08);
 }
 
 /* ─── Dark theme: warm black + beige (overrides :root) ───────────────── */
@@ -48,6 +60,11 @@
   --glass-bg:     rgb(14 12 10 / 0.94);
   --glass-border: rgb(255 255 255 / 0.09);
   --glass-blur:   20px;
+  --sidebar-bg:   #11100e;
+  --hover-bg:     rgb(245 239 227 / 0.04);
+  --active-bg:    rgb(245 239 227 / 0.07);
+  --glow:         rgb(227 210 173 / 0.28);
+  --glow-soft:    rgb(203 185 148 / 0.07);
 }
 
 /* ─── Glass utilities ────────────────────────────────────────────────── */
@@ -73,6 +90,34 @@
     -webkit-backdrop-filter: blur(18px) saturate(1.1);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
+  }
+}
+
+@layer utilities {
+  /* Soft halo behind display text, e.g. the chat greeting. */
+  .text-glow {
+    text-shadow: 0 0 28px var(--glow), 0 0 64px var(--glow-soft);
+  }
+
+  /* Beige/cream halo on the chat greeting: a tight cream core, then wider beige rings. */
+  .greeting-glow {
+    text-shadow:
+      0 0 10px rgb(203 185 148 / 0.35),
+      0 0 30px rgb(203 185 148 / 0.30),
+      0 0 70px rgb(203 185 148 / 0.20);
+  }
+  .dark .greeting-glow {
+    text-shadow:
+      0 0 8px rgb(245 239 227 / 0.35),
+      0 0 24px rgb(227 210 173 / 0.45),
+      0 0 60px rgb(203 185 148 / 0.35),
+      0 0 120px rgb(203 185 148 / 0.20);
+  }
+
+  /* Warm haze behind the hero input. Decorative only. */
+  .glow-haze {
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, var(--glow-soft) 0%, transparent 65%);
   }
 }
 

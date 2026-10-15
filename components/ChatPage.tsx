@@ -2,16 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useUser, UserButton } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { useIsPro } from "@/lib/useIsPro";
 import { motion } from "framer-motion";
-import AnimatedThemeToggler from "./AnimatedThemeToggler";
 import ConversationSidebar from "./ConversationSidebar";
 import ChatInterface from "./ChatInterface";
-import { t, type Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/i18n";
 import type { Conversation, Message } from "@/lib/types";
 
-const LANGS: Lang[] = ["EN", "PL", "ES", "FR", "DE", "PT"];
 const LOCAL_HISTORY_KEY = "cd-chat-history";
 const MIGRATED_KEY = "cd-history-migrated";
 
@@ -93,30 +91,41 @@ export default function ChatPage({ initialConversations, activeConversation }: P
     }
   }
 
+  function handleLangChange(l: Lang) {
+    setLang(l);
+    localStorage.setItem("cd-lang", l);
+  }
+
+  const sidebarProps = {
+    conversations,
+    activeId,
+    onNew: handleNew,
+    onDelete: handleDelete,
+    isPro,
+    lang,
+    onLangChange: handleLangChange,
+  };
+
   return (
-    <div className="flex h-screen overflow-hidden bg-white dark:bg-[#0a0908]">
+    <div className="flex h-dvh overflow-hidden bg-[var(--page-bg)]">
 
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-black/40 lg:hidden"
+          className="fixed inset-0 z-20 bg-black/40 backdrop-blur-[2px] lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Desktop sidebar — animated width */}
       <motion.div
-        animate={{ width: sidebarCollapsed ? 56 : 256 }}
-        initial={{ width: 256 }}
+        animate={{ width: sidebarCollapsed ? 68 : 280 }}
+        initial={false}
         transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
         className="hidden lg:block h-full shrink-0 overflow-hidden"
       >
         <ConversationSidebar
-          conversations={conversations}
-          activeId={activeId}
-          onNew={handleNew}
-          onDelete={handleDelete}
-          isPro={isPro}
+          {...sidebarProps}
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
         />
@@ -124,62 +133,30 @@ export default function ChatPage({ initialConversations, activeConversation }: P
 
       {/* Mobile sidebar — fixed overlay */}
       <div
-        className={`fixed inset-y-0 left-0 z-30 w-64 lg:hidden transition-transform duration-200 ${
+        className={`fixed inset-y-0 left-0 z-30 w-[280px] max-w-[85vw] lg:hidden transition-transform duration-200 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <ConversationSidebar
-          conversations={conversations}
-          activeId={activeId}
-          onNew={handleNew}
-          onDelete={handleDelete}
-          isPro={isPro}
+          {...sidebarProps}
           collapsed={false}
+          canCollapse={false}
           onToggleCollapse={() => {}}
+          onNavigate={() => setSidebarOpen(false)}
         />
       </div>
 
       {/* Main area */}
-      <div className="flex flex-col flex-1 min-w-0">
-        {/* Top bar */}
-        <header className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-[#2c2722] shrink-0">
-          <div className="flex items-center gap-3">
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setSidebarOpen((o) => !o)}
-              className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors"
-            >
-              <HamburgerIcon />
-            </button>
-            <a href="/" className="hidden lg:flex items-center gap-1.5 text-sm text-slate-500 dark:text-[#9d9484] hover:text-amber-600 dark:hover:text-[#cbb994] transition-colors">
-              <ArrowLeftIcon />
-              {t(lang, "navHome")}
-            </a>
-          </div>
+      <main className="relative flex flex-col flex-1 min-w-0">
+        {/* Mobile menu button — the sidebar carries everything else */}
+        <button
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open menu"
+          className="lg:hidden absolute top-3 left-3 z-10 p-2 rounded-xl glass text-[var(--text-body)]"
+        >
+          <HamburgerIcon />
+        </button>
 
-          <div className="flex items-center gap-2">
-            <select
-              value={lang}
-              onChange={(e) => { const l = e.target.value as Lang; setLang(l); localStorage.setItem("cd-lang", l); }}
-              className="text-base sm:text-xs border border-slate-200 dark:border-[#2c2722] rounded-lg px-2 py-1 bg-white dark:bg-[#1e1a16] text-slate-600 dark:text-[#d8cfc0] focus:outline-none focus:ring-1 focus:ring-amber-400 dark:focus:ring-[#cbb994]/60"
-            >
-              {LANGS.map((l) => (
-                <option key={l} value={l}>{l}</option>
-              ))}
-            </select>
-            <AnimatedThemeToggler />
-            <div className="relative">
-              <UserButton />
-              {isPro && (
-                <span className="absolute -bottom-1 -right-1 text-[8px] font-black bg-amber-500 dark:bg-[#cbb994] text-white dark:text-[#1c1813] px-1 py-px rounded-full leading-none pointer-events-none select-none">
-                  PRO
-                </span>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Chat area */}
         <div className="flex-1 overflow-hidden">
           <ChatInterface
             key={chatKey}
@@ -191,7 +168,7 @@ export default function ChatPage({ initialConversations, activeConversation }: P
             onConversationSaved={handleConversationSaved}
           />
         </div>
-      </div>
+      </main>
     </div>
   );
 }
@@ -199,15 +176,8 @@ export default function ChatPage({ initialConversations, activeConversation }: P
 function HamburgerIcon() {
   return (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7h16M4 12h16M4 17h16" />
     </svg>
   );
 }
 
-function ArrowLeftIcon() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-    </svg>
-  );
-}

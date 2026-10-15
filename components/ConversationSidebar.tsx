@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUser, UserButton } from "@clerk/nextjs";
+import AnimatedThemeToggler from "./AnimatedThemeToggler";
+import { t, type Lang } from "@/lib/i18n";
 import type { Conversation } from "@/lib/types";
+
+const LANGS: Lang[] = ["EN", "PL", "ES", "FR", "DE", "PT"];
 
 interface Props {
   conversations: Conversation[];
@@ -13,34 +18,27 @@ interface Props {
   isPro: boolean;
   collapsed: boolean;
   onToggleCollapse: () => void;
-}
-
-function groupByDate(convs: Conversation[]): { label: string; items: Conversation[] }[] {
-  const now = Date.now();
-  const DAY = 86_400_000;
-  const groups: { label: string; items: Conversation[] }[] = [
-    { label: "Today", items: [] },
-    { label: "Yesterday", items: [] },
-    { label: "This week", items: [] },
-    { label: "Older", items: [] },
-  ];
-  for (const c of convs) {
-    const age = now - c.updatedAt;
-    if (age < DAY) groups[0].items.push(c);
-    else if (age < 2 * DAY) groups[1].items.push(c);
-    else if (age < 7 * DAY) groups[2].items.push(c);
-    else groups[3].items.push(c);
-  }
-  return groups.filter((g) => g.items.length > 0);
+  lang: Lang;
+  onLangChange: (lang: Lang) => void;
+  /** Called after any navigation, so the mobile drawer can close itself. */
+  onNavigate?: () => void;
+  /** Hides the collapse button (the mobile drawer has no collapsed state). */
+  canCollapse?: boolean;
 }
 
 export default function ConversationSidebar({
   conversations, activeId, onNew, onDelete, isPro, collapsed, onToggleCollapse,
+  lang, onLangChange, onNavigate, canCollapse = true,
 }: Props) {
   const router = useRouter();
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const { user } = useUser();
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const grouped = groupByDate(conversations);
+
+  const navItems = [
+    { href: "/#daily-reading", label: t(lang, "navDailyReading"), icon: <BookIcon /> },
+    { href: "/#common-questions", label: t(lang, "navCommonQuestions"), icon: <QuestionIcon /> },
+    { href: "/#mission", label: t(lang, "navMission"), icon: <CrossIcon /> },
+  ];
 
   async function handleDelete(e: React.MouseEvent, id: string) {
     e.stopPropagation();
@@ -53,184 +51,249 @@ export default function ConversationSidebar({
     }
   }
 
+  const isChatActive = activeId === null;
+
   return (
-    <aside className="flex flex-col h-full bg-slate-50 dark:bg-[#0e0c0a] border-r border-slate-200 dark:border-[#2c2722] w-full overflow-hidden">
-      <AnimatePresence mode="wait" initial={false}>
-        {collapsed ? (
-          /* ── Collapsed: icon strip ── */
-          <motion.div
-            key="collapsed"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="flex flex-col items-center gap-3 pt-5 pb-4 h-full"
+    <aside className="flex flex-col h-full w-full overflow-hidden bg-[var(--sidebar-bg)] border-r border-[var(--border)]">
+      {/* ── Brand ── */}
+      <div className={`flex items-center h-16 shrink-0 ${collapsed ? "justify-center px-2" : "justify-between px-4"}`}>
+        {!collapsed && (
+          <a href="/" className="flex items-center gap-2.5 min-w-0 group">
+            <BrandMark />
+            <span className="font-serif text-[1.35rem] font-semibold tracking-tight text-[var(--text-primary)] truncate">
+              Apologist AI
+            </span>
+          </a>
+        )}
+        {canCollapse && (
+          <button
+            onClick={onToggleCollapse}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)] transition-colors"
           >
-            <a href="/" title="Apologist AI" className="text-amber-500 font-black text-xl leading-none mb-1">✝</a>
+            <PanelIcon flipped={collapsed} />
+          </button>
+        )}
+      </div>
 
-            <motion.button
-              onClick={onToggleCollapse}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              title="Expand sidebar"
-              className="p-2 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors"
-            >
-              <ChevronRightIcon />
-            </motion.button>
+      {/* ── Main nav ── */}
+      <nav className={`shrink-0 ${collapsed ? "px-2" : "px-3"}`}>
+        {!collapsed && <SectionLabel>{t(lang, "sidebarMain")}</SectionLabel>}
+        <div className="space-y-0.5">
+          <NavRow
+            collapsed={collapsed}
+            active={isChatActive}
+            icon={<ChatIcon />}
+            label={t(lang, "newChat")}
+            onClick={() => { onNew(); onNavigate?.(); }}
+          />
+          {navItems.map((item) => (
+            <NavRow key={item.href} collapsed={collapsed} icon={item.icon} label={item.label} href={item.href} />
+          ))}
+        </div>
+      </nav>
 
-            <motion.button
-              onClick={onNew}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.92 }}
-              title="New conversation"
-              className="p-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white transition-colors shadow-sm"
-            >
-              <PlusIcon />
-            </motion.button>
-          </motion.div>
-        ) : (
-          /* ── Expanded: full sidebar ── */
-          <motion.div
-            key="expanded"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="flex flex-col h-full"
-          >
-            {/* Header */}
-            <div className="px-4 pt-5 pb-3 border-b border-slate-200 dark:border-[#2c2722]">
-              <div className="flex items-center justify-between mb-4">
-                <a href="/" className="flex items-center gap-2 group">
-                  <span className="text-amber-500 font-black text-lg leading-none">✝</span>
-                  <span className="font-bold text-sm text-slate-800 dark:text-[#f5efe3] group-hover:text-amber-600 transition-colors">
-                    Apologist AI
-                  </span>
-                </a>
-                <motion.button
-                  onClick={onToggleCollapse}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  title="Collapse sidebar"
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors"
-                >
-                  <ChevronLeftIcon />
-                </motion.button>
-              </div>
-              <motion.button
-                onClick={onNew}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors shadow-sm"
-              >
-                <PlusIcon />
-                New conversation
-              </motion.button>
-            </div>
-
-            {/* Conversation list */}
-            <div className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
-              {grouped.length === 0 && (
-                <p className="text-xs text-slate-400 dark:text-[#7c7468] px-2 py-4 text-center">
-                  No conversations yet.<br />Start chatting!
-                </p>
-              )}
-              {grouped.map((group) => (
-                <div key={group.label}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-[#7c7468] px-2 mb-1">
-                    {group.label}
-                  </p>
-                  <AnimatePresence initial={false}>
-                    {group.items.map((conv) => (
-                      <motion.button
-                        key={conv.id}
-                        layout
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -8, height: 0 }}
-                        transition={{ duration: 0.18 }}
-                        onClick={() => router.push(`/chat/${conv.id}`)}
-                        onMouseEnter={() => setHoveredId(conv.id)}
-                        onMouseLeave={() => setHoveredId(null)}
-                        className={`w-full flex items-center justify-between gap-1 px-2 py-2 rounded-lg text-left text-xs transition-colors group ${
+      {/* ── Recent conversations ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto mt-6">
+        {!collapsed && (
+          <div className="px-3 pb-3">
+            <SectionLabel>{t(lang, "sidebarRecent")}</SectionLabel>
+            {conversations.length === 0 ? (
+              <p className="font-serif italic text-sm text-[var(--text-muted)] text-center py-6">
+                {t(lang, "noConversations")}
+              </p>
+            ) : (
+              <div className="space-y-0.5">
+                <AnimatePresence initial={false}>
+                  {conversations.map((conv) => (
+                    <motion.div
+                      key={conv.id}
+                      layout
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.18 }}
+                      className="group relative"
+                    >
+                      <button
+                        onClick={() => { router.push(`/chat/${conv.id}`); onNavigate?.(); }}
+                        className={`w-full text-left pl-3 pr-9 py-2 rounded-lg text-sm truncate transition-colors ${
                           activeId === conv.id
-                            ? "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border-l-2 border-amber-500 pl-[calc(0.5rem-2px)]"
-                            : "text-slate-600 dark:text-[#9d9484] hover:bg-slate-100 dark:hover:bg-[#1e1a16]"
+                            ? "bg-[var(--active-bg)] text-[var(--text-primary)]"
+                            : "text-[var(--text-muted)] hover:text-[var(--text-body)] hover:bg-[var(--hover-bg)]"
                         }`}
                       >
-                        <span className="truncate flex-1">{conv.title}</span>
-                        {hoveredId === conv.id && (
-                          <button
-                            onClick={(e) => handleDelete(e, conv.id)}
-                            disabled={deletingId === conv.id}
-                            className="shrink-0 w-5 h-5 flex items-center justify-center rounded text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                            title="Delete"
-                          >
-                            {deletingId === conv.id ? (
-                              <span className="w-3 h-3 border border-slate-400 border-t-transparent rounded-full animate-spin block" />
-                            ) : (
-                              <TrashIcon />
-                            )}
-                          </button>
+                        {conv.title}
+                      </button>
+                      <button
+                        onClick={(e) => handleDelete(e, conv.id)}
+                        disabled={deletingId === conv.id}
+                        title="Delete"
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-md text-[var(--text-muted)] hover:text-red-500 dark:hover:text-[#f0726a] opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                      >
+                        {deletingId === conv.id ? (
+                          <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin block" />
+                        ) : (
+                          <TrashIcon />
                         )}
-                      </motion.button>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              ))}
-            </div>
-
-            {/* Footer */}
-            <div className="px-4 py-3 border-t border-slate-200 dark:border-[#2c2722]">
-              {isPro ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-full">
-                  ✦ Pro
-                </span>
-              ) : (
-                <a
-                  href="/#pricing"
-                  className="text-[10px] text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-                >
-                  ✦ Upgrade to Pro
-                </a>
-              )}
-            </div>
-          </motion.div>
+                      </button>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
         )}
-      </AnimatePresence>
+      </div>
+
+      {/* ── Footer: plan, account, language, theme ── */}
+      <div className={`shrink-0 border-t border-[var(--border)] ${collapsed ? "px-2 py-3" : "px-3 py-3"} space-y-3`}>
+        {!isPro && !collapsed && (
+          <a
+            href="/#pricing"
+            className="flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 dark:bg-[#cbb994] dark:hover:bg-[#e3d2ad] text-white dark:text-[#1c1813] text-sm font-medium transition-colors"
+          >
+            ✦ {t(lang, "upgradePro")}
+          </a>
+        )}
+
+        <div className={`flex items-center ${collapsed ? "flex-col gap-3" : "gap-2"}`}>
+          <div className={`flex items-center gap-2.5 min-w-0 ${collapsed ? "" : "flex-1"}`}>
+            <UserButton />
+            {!collapsed && (
+              <div className="min-w-0">
+                <p className="text-sm text-[var(--text-body)] truncate leading-tight">
+                  {user?.firstName ?? user?.username ?? "Account"}
+                </p>
+                <p className={`text-[11px] leading-tight ${isPro ? "text-amber-600 dark:text-[#cbb994]" : "text-[var(--text-muted)]"}`}>
+                  {isPro ? "✦ Pro" : "Free"}
+                </p>
+              </div>
+            )}
+          </div>
+          {!collapsed && (
+            <select
+              value={lang}
+              onChange={(e) => onLangChange(e.target.value as Lang)}
+              aria-label="Language"
+              className="text-base sm:text-xs rounded-lg px-1.5 py-1 bg-transparent border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-body)] focus:outline-none focus:ring-1 focus:ring-amber-400 dark:focus:ring-[#cbb994]/60 cursor-pointer"
+            >
+              {LANGS.map((l) => (
+                <option key={l} value={l} className="bg-[var(--surface)]">{l}</option>
+              ))}
+            </select>
+          )}
+          <AnimatedThemeToggler />
+        </div>
+      </div>
     </aside>
   );
 }
 
-function PlusIcon() {
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+    <p className="px-3 pb-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--text-muted)]">
+      {children}
+    </p>
+  );
+}
+
+function NavRow({
+  collapsed, active = false, icon, label, href, onClick,
+}: {
+  collapsed: boolean;
+  active?: boolean;
+  icon: React.ReactNode;
+  label: string;
+  href?: string;
+  onClick?: () => void;
+}) {
+  const className = `flex items-center gap-3 w-full rounded-xl text-[15px] transition-colors ${
+    collapsed ? "justify-center p-2.5" : "px-3 py-2.5"
+  } ${
+    active
+      ? "bg-[var(--active-bg)] text-[var(--text-primary)]"
+      : "text-[var(--text-body)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)]"
+  }`;
+  const content = (
+    <>
+      <span className={`shrink-0 ${active ? "text-amber-600 dark:text-[#cbb994]" : "text-[var(--text-muted)]"}`}>{icon}</span>
+      {!collapsed && <span className="truncate">{label}</span>}
+    </>
+  );
+  return href ? (
+    <a href={href} title={collapsed ? label : undefined} className={className}>{content}</a>
+  ) : (
+    <button onClick={onClick} title={collapsed ? label : undefined} className={className}>{content}</button>
+  );
+}
+
+function BrandMark() {
+  return (
+    <span className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center bg-amber-100 dark:bg-[#2b2519] text-amber-600 dark:text-[#e3d2ad] text-base leading-none shadow-[0_0_18px_var(--glow-soft)]">
+      ✝
+    </span>
+  );
+}
+
+/* Thin line icons, matching the design system's "clean thin line icons in a neutral tone". */
+const iconProps = {
+  className: "w-[18px] h-[18px]",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.5,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  viewBox: "0 0 24 24",
+};
+
+function ChatIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v10a1.5 1.5 0 0 1-1.5 1.5H9l-5 3.5V5.5Z" />
+    </svg>
+  );
+}
+
+function BookIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M12 6.5C10.5 5.3 8.5 4.75 6 4.75c-1 0-2 .1-3 .35v13.5c1-.25 2-.35 3-.35 2.5 0 4.5.55 6 1.75m0-13.5c1.5-1.2 3.5-1.75 6-1.75 1 0 2 .1 3 .35v13.5c-1-.25-2-.35-3-.35-2.5 0-4.5.55-6 1.75m0-13.5V20" />
+    </svg>
+  );
+}
+
+function QuestionIcon() {
+  return (
+    <svg {...iconProps}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M9.75 9.5a2.35 2.35 0 0 1 4.5.9c0 1.6-2.25 2-2.25 3.35M12 16.75h.01" />
+    </svg>
+  );
+}
+
+function CrossIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M12 3.5v17M7 8.5h10" />
+    </svg>
+  );
+}
+
+function PanelIcon({ flipped }: { flipped: boolean }) {
+  return (
+    <svg {...iconProps}>
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
+      <path d="M9 4.5v15" />
+      <path d={flipped ? "M13 10l2 2-2 2" : "M15.5 10l-2 2 2 2"} />
     </svg>
   );
 }
 
 function TrashIcon() {
   return (
-    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-    </svg>
-  );
-}
-
-function ChevronLeftIcon() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      <path d="M5 7h14M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
     </svg>
   );
 }

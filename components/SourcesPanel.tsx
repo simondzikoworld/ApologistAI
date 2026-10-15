@@ -34,11 +34,11 @@ export default function SourcesPanel({ sources, onChange }: Props) {
   }
 
   return (
-    <div className="border border-slate-200 dark:border-[#2c2722] rounded-xl overflow-hidden">
+    <div className="glass rounded-2xl overflow-hidden">
       <motion.button
         onClick={() => setOpen((o) => !o)}
         whileTap={{ scale: 0.99 }}
-        className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-[#1e1a16] hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors text-sm font-medium text-slate-700 dark:text-[#d8cfc0]"
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--hover-bg)] transition-colors text-sm font-medium text-[var(--text-body)]"
       >
         <span className="flex items-center gap-2">
           <BookIcon />
@@ -65,7 +65,7 @@ export default function SourcesPanel({ sources, onChange }: Props) {
             transition={{ duration: 0.22, ease: "easeInOut" }}
             style={{ overflow: "hidden" }}
           >
-            <div className="px-4 py-3 space-y-3 bg-white dark:bg-[#141210]">
+            <div className="px-4 py-3 space-y-3 border-t border-[var(--glass-border)]">
               <motion.ul
                 className="space-y-1.5"
                 initial="hidden"
