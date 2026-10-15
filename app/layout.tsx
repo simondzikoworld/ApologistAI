@@ -149,7 +149,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         price: "0",
                         priceCurrency: "USD",
                         name: "Free Plan",
-                        description: "12 messages per day in Simple mode",
+                        description: "12 messages per day in Simple mode, plus 1 Detailed answer every 3 days",
                       },
                       {
                         "@type": "Offer",
@@ -187,7 +187,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         name: "Is Apologist AI free to use?",
                         acceptedAnswer: {
                           "@type": "Answer",
-                          text: "Yes, Apologist AI is free with 12 messages per day. A Pro subscription at £7/month unlocks 30 messages/day and the Detailed research mode.",
+                          text: "Yes, Apologist AI is free with 12 messages per day, and free accounts can try one Detailed answer every 3 days. A Pro subscription at £7/month unlocks 30 messages/day and the Detailed research mode.",
                         },
                       },
                       {

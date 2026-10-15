@@ -31,6 +31,31 @@ export async function incrementUsage(key: string): Promise<number> {
   return count;
 }
 
+// Free accounts get one Detailed answer per window, as a taste of Pro.
+export const DETAILED_TRIAL_DAYS = 3;
+const TRIAL_SECONDS = DETAILED_TRIAL_DAYS * 24 * 60 * 60;
+
+function detailedTrialKey(userId: string): string {
+  return `trial:detailed:${userId}`;
+}
+
+/** Claims the trial if it's free. SET NX makes two parallel requests unable to both win. */
+export async function claimDetailedTrial(userId: string): Promise<boolean> {
+  const result = await redis.set(detailedTrialKey(userId), Date.now(), { nx: true, ex: TRIAL_SECONDS });
+  return result === "OK";
+}
+
+/** Gives the trial back, for when the answer it paid for never arrived. */
+export async function refundDetailedTrial(userId: string): Promise<void> {
+  await redis.del(detailedTrialKey(userId));
+}
+
+/** When the trial can next be used (ms epoch), or null if it's available now. */
+export async function detailedTrialRetryAt(userId: string): Promise<number | null> {
+  const ttl = await redis.ttl(detailedTrialKey(userId));
+  return ttl > 0 ? Date.now() + ttl * 1000 : null;
+}
+
 export function getLimit(tier: Tier, mode: ResponseMode): number {
   const limits = DAILY_LIMITS[tier] as Record<string, number>;
   return limits[mode] ?? 0;

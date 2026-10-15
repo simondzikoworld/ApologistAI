@@ -99,6 +99,17 @@ interface Dict {
   newChat: string;
   noConversations: string;
   upgradePro: string;
+  trialBadge: string;
+  trialHint: string;
+  trialSignupTitle: string;
+  trialSignupBody: string;
+  trialUsedTitle: string;
+  trialUsedBody: string;
+  signUpFree: string;
+  supportTitle: string;
+  supportBody: string;
+  supportCta: string;
+  supportDismiss: string;
   // arrays
   bullets: string[];
   objections: string[];
@@ -108,6 +119,17 @@ interface Dict {
 }
 
 const EN: Dict = {
+  trialBadge: "1 free",
+  trialHint: "Your free Detailed answer: 1 every 3 days",
+  trialSignupTitle: "Try Detailed mode free",
+  trialSignupBody: "Create a free account to get one Detailed answer every 3 days.",
+  trialUsedTitle: "You've used your free Detailed answer.",
+  trialUsedBody: "Your next one unlocks {when}. Go Pro for 15 Detailed answers a day.",
+  signUpFree: "Sign up free",
+  supportTitle: "Enjoying Apologist AI?",
+  supportBody: "Try Pro to support me, and get Detailed answers every day.",
+  supportCta: "See Pro",
+  supportDismiss: "Maybe later",
   greetingMorning: "Good morning",
   greetingAfternoon: "Good afternoon",
   greetingEvening: "Good evening",
@@ -228,9 +250,8 @@ const EN: Dict = {
     "12 messages per day",
     "Simple mode",
     "⚔ Challenge mode",
-    "Detailed mode",
-    "Deep 6-source research",
-    "Unlimited daily messages",
+    "1 Detailed answer every 3 days",
+    "Daily Detailed answers & deep 6-source research",
   ],
   pricingProFeatures: [
     "30 messages/day in Simple mode",
@@ -242,6 +263,17 @@ const EN: Dict = {
 };
 
 const PL: Dict = {
+  trialBadge: "1 gratis",
+  trialHint: "Twoja darmowa szczegółowa odpowiedź: 1 co 3 dni",
+  trialSignupTitle: "Wypróbuj tryb Szczegółowy za darmo",
+  trialSignupBody: "Załóż darmowe konto, aby otrzymać jedną szczegółową odpowiedź co 3 dni.",
+  trialUsedTitle: "Wykorzystano darmową szczegółową odpowiedź.",
+  trialUsedBody: "Następna odblokuje się {when}. Przejdź na Pro, aby mieć 15 szczegółowych odpowiedzi dziennie.",
+  signUpFree: "Załóż darmowe konto",
+  supportTitle: "Podoba Ci się Apologist AI?",
+  supportBody: "Wypróbuj Pro, aby mnie wesprzeć, i miej szczegółowe odpowiedzi każdego dnia.",
+  supportCta: "Zobacz Pro",
+  supportDismiss: "Może później",
   greetingMorning: "Dzień dobry",
   greetingAfternoon: "Dzień dobry",
   greetingEvening: "Dobry wieczór",
@@ -362,9 +394,8 @@ const PL: Dict = {
     "12 wiadomości dziennie",
     "Tryb Prosty",
     "⚔ Tryb Wyzwanie",
-    "Tryb Szczegółowy",
-    "Dogłębne badanie z 6 źródeł",
-    "Nieograniczone wiadomości dziennie",
+    "1 szczegółowa odpowiedź co 3 dni",
+    "Codzienne szczegółowe odpowiedzi i badanie z 6 źródeł",
   ],
   pricingProFeatures: [
     "30 wiadomości/dzień w trybie Prostym",
@@ -376,6 +407,17 @@ const PL: Dict = {
 };
 
 const ES: Dict = {
+  trialBadge: "1 gratis",
+  trialHint: "Tu respuesta detallada gratuita: 1 cada 3 días",
+  trialSignupTitle: "Prueba el modo Detallado gratis",
+  trialSignupBody: "Crea una cuenta gratuita para obtener una respuesta detallada cada 3 días.",
+  trialUsedTitle: "Has usado tu respuesta detallada gratuita.",
+  trialUsedBody: "La siguiente se desbloquea {when}. Pásate a Pro para tener 15 respuestas detalladas al día.",
+  signUpFree: "Crear cuenta gratis",
+  supportTitle: "¿Te gusta Apologist AI?",
+  supportBody: "Prueba Pro para apoyarme y obtén respuestas detalladas cada día.",
+  supportCta: "Ver Pro",
+  supportDismiss: "Quizá más tarde",
   greetingMorning: "Buenos días",
   greetingAfternoon: "Buenas tardes",
   greetingEvening: "Buenas noches",
@@ -496,9 +538,8 @@ const ES: Dict = {
     "12 mensajes por día",
     "Modo Simple",
     "⚔ Modo Desafío",
-    "Modo Detallado",
-    "Investigación profunda con 6 fuentes",
-    "Mensajes diarios ilimitados",
+    "1 respuesta detallada cada 3 días",
+    "Respuestas detalladas diarias e investigación con 6 fuentes",
   ],
   pricingProFeatures: [
     "30 mensajes/día en modo Simple",
@@ -510,6 +551,17 @@ const ES: Dict = {
 };
 
 const FR: Dict = {
+  trialBadge: "1 offert",
+  trialHint: "Votre réponse détaillée gratuite : 1 tous les 3 jours",
+  trialSignupTitle: "Essayez le mode Détaillé gratuitement",
+  trialSignupBody: "Créez un compte gratuit pour obtenir une réponse détaillée tous les 3 jours.",
+  trialUsedTitle: "Vous avez utilisé votre réponse détaillée gratuite.",
+  trialUsedBody: "La prochaine se débloque {when}. Passez à Pro pour 15 réponses détaillées par jour.",
+  signUpFree: "Créer un compte gratuit",
+  supportTitle: "Vous aimez Apologist AI ?",
+  supportBody: "Essayez Pro pour me soutenir, et profitez de réponses détaillées chaque jour.",
+  supportCta: "Voir Pro",
+  supportDismiss: "Plus tard",
   greetingMorning: "Bonjour",
   greetingAfternoon: "Bon après-midi",
   greetingEvening: "Bonsoir",
@@ -630,9 +682,8 @@ const FR: Dict = {
     "12 messages par jour",
     "Mode Simple",
     "⚔ Mode Défi",
-    "Mode Détaillé",
-    "Recherche approfondie avec 6 sources",
-    "Messages quotidiens illimités",
+    "1 réponse détaillée tous les 3 jours",
+    "Réponses détaillées quotidiennes et recherche avec 6 sources",
   ],
   pricingProFeatures: [
     "30 messages/jour en mode Simple",
@@ -644,6 +695,17 @@ const FR: Dict = {
 };
 
 const DE: Dict = {
+  trialBadge: "1 gratis",
+  trialHint: "Deine kostenlose ausführliche Antwort: 1 alle 3 Tage",
+  trialSignupTitle: "Ausführlich-Modus gratis testen",
+  trialSignupBody: "Erstelle ein kostenloses Konto und erhalte alle 3 Tage eine ausführliche Antwort.",
+  trialUsedTitle: "Du hast deine kostenlose ausführliche Antwort genutzt.",
+  trialUsedBody: "Die nächste wird {when} freigeschaltet. Mit Pro bekommst du 15 ausführliche Antworten pro Tag.",
+  signUpFree: "Kostenlos registrieren",
+  supportTitle: "Gefällt dir Apologist AI?",
+  supportBody: "Probier Pro, um mich zu unterstützen, und erhalte jeden Tag ausführliche Antworten.",
+  supportCta: "Pro ansehen",
+  supportDismiss: "Vielleicht später",
   greetingMorning: "Guten Morgen",
   greetingAfternoon: "Guten Tag",
   greetingEvening: "Guten Abend",
@@ -764,9 +826,8 @@ const DE: Dict = {
     "12 Nachrichten pro Tag",
     "Einfach-Modus",
     "⚔ Herausforderungs-Modus",
-    "Ausführlich-Modus",
-    "Tiefenrecherche mit 6 Quellen",
-    "Unbegrenzte tägliche Nachrichten",
+    "1 ausführliche Antwort alle 3 Tage",
+    "Tägliche ausführliche Antworten & Recherche mit 6 Quellen",
   ],
   pricingProFeatures: [
     "30 Nachrichten/Tag im Einfach-Modus",
@@ -778,6 +839,17 @@ const DE: Dict = {
 };
 
 const PT: Dict = {
+  trialBadge: "1 grátis",
+  trialHint: "Sua resposta detalhada gratuita: 1 a cada 3 dias",
+  trialSignupTitle: "Experimente o modo Detalhado grátis",
+  trialSignupBody: "Crie uma conta gratuita para receber uma resposta detalhada a cada 3 dias.",
+  trialUsedTitle: "Você usou sua resposta detalhada gratuita.",
+  trialUsedBody: "A próxima será liberada {when}. Mude para Pro e tenha 15 respostas detalhadas por dia.",
+  signUpFree: "Criar conta grátis",
+  supportTitle: "Está gostando do Apologist AI?",
+  supportBody: "Experimente o Pro para me apoiar e tenha respostas detalhadas todos os dias.",
+  supportCta: "Ver Pro",
+  supportDismiss: "Talvez depois",
   greetingMorning: "Bom dia",
   greetingAfternoon: "Boa tarde",
   greetingEvening: "Boa noite",
@@ -898,9 +970,8 @@ const PT: Dict = {
     "12 mensagens por dia",
     "Modo Simples",
     "⚔ Modo Desafio",
-    "Modo Detalhado",
-    "Pesquisa profunda com 6 fontes",
-    "Mensagens diárias ilimitadas",
+    "1 resposta detalhada a cada 3 dias",
+    "Respostas detalhadas diárias e pesquisa com 6 fontes",
   ],
   pricingProFeatures: [
     "30 mensagens/dia no modo Simples",

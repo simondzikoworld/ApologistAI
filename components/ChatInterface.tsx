@@ -13,6 +13,22 @@ import { DAILY_VERSES_BY_LANG } from "@/data/dailyVerses";
 
 const HISTORY_KEY = "cd-chat-history";
 const PROMPT_INDEX_KEY = "cd-help-prompt";
+const SUPPORT_COUNT_KEY = "cd-support-count";
+const SUPPORT_EVERY = 2;
+
+type LockReason = "pro" | "signup" | "used";
+type TrialStatus = { available: boolean; retryAt: number | null };
+
+// Assistant messages that stand for a notice card rather than an answer.
+const NOTICES = new Set(["daily_limit", "pro_required", "trial_used", "trial_signup"]);
+
+/** "in 2 days" / "tomorrow" / "in 5 hours", in the chat's language. */
+function formatRetry(retryAt: number | null, lang: Lang): string {
+  const locale = { EN: "en", PL: "pl", ES: "es", FR: "fr", DE: "de", PT: "pt" }[lang];
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+  const hours = Math.max(1, Math.ceil(((retryAt ?? Date.now()) - Date.now()) / 3_600_000));
+  return hours < 24 ? rtf.format(hours, "hour") : rtf.format(Math.ceil(hours / 24), "day");
+}
 const PRO_MODES: ResponseMode[] = ["detailed"];
 
 function deriveTitle(text: string): string {
@@ -56,8 +72,26 @@ export default function ChatInterface({
   const [isStreaming, setIsStreaming] = useState(false);
   const [mode, setMode] = useState<ResponseMode>("simple");
   const [showProPrompt, setShowProPrompt] = useState(false);
+  // Why Detailed is locked, which decides what the prompt offers.
+  const [lockReason, setLockReason] = useState<LockReason>("pro");
   const [listening, setListening] = useState(false);
   const [showSources, setShowSources] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+
+  // Free accounts get one Detailed answer every few days. null until known,
+  // and for Pro or signed-out users, where it doesn't apply.
+  const [trial, setTrial] = useState<TrialStatus | null>(null);
+  const refreshTrial = useCallback(() => {
+    fetch("/api/trial")
+      .then((r) => r.json())
+      .then((d) => setTrial({ available: !!d.available, retryAt: d.retryAt ?? null }))
+      .catch(() => {});
+  }, []);
+  useEffect(() => {
+    if (isSignedIn && !isPro) refreshTrial();
+    else setTrial(null);
+  }, [isSignedIn, isPro, refreshTrial]);
+  const trialAvailable = !isPro && !!trial?.available;
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -196,6 +230,7 @@ export default function ChatInterface({
       setMessages(newMessages);
       setInput("");
       setLoading(true);
+      setShowSupport(false);
       scrollToBottom();
 
       try {
@@ -210,9 +245,18 @@ export default function ChatInterface({
           if (res.status === 429 || res.status === 403) {
             const data = await res.json().catch(() => ({}));
             if (data?.error === "daily_limit" || data?.error === "pro_required") {
-              setMessages((prev) => [...prev, { role: "assistant", content: data.error }]);
+              // A refused Detailed request is one of three cases, each with its own card.
+              let notice: string = data.error;
+              if (data.error === "pro_required") {
+                const reason: LockReason = data.signupForTrial ? "signup" : data.retryAt ? "used" : "pro";
+                if (reason === "used") setTrial({ available: false, retryAt: data.retryAt });
+                notice = reason === "signup" ? "trial_signup" : reason === "used" ? "trial_used" : "pro_required";
+                setLockReason(reason);
+                setShowProPrompt(true);
+                setMode("simple");
+              }
+              setMessages((prev) => [...prev, { role: "assistant", content: notice }]);
               setLoading(false);
-              if (data?.error === "pro_required") setShowProPrompt(true);
               return;
             }
           }
@@ -241,6 +285,21 @@ export default function ChatInterface({
 
         setIsStreaming(false);
 
+        // That was the free Detailed answer: lock it again and step back to Simple.
+        if (mode === "detailed" && !isPro) {
+          refreshTrial();
+          setMode("simple");
+        }
+
+        // Every SUPPORT_EVERY answers, gently suggest Pro to non-Pro users.
+        if (!isPro) {
+          try {
+            const count = (parseInt(localStorage.getItem(SUPPORT_COUNT_KEY) ?? "0", 10) || 0) + 1;
+            localStorage.setItem(SUPPORT_COUNT_KEY, String(count));
+            if (count % SUPPORT_EVERY === 0) setShowSupport(true);
+          } catch {}
+        }
+
         if (isSignedIn) {
           setMessages((prev) => {
             const id = conversationIdRef.current ?? crypto.randomUUID();
@@ -265,6 +324,8 @@ export default function ChatInterface({
         setLoading(false);
         setIsStreaming(false);
         if ((err as Error).name === "AbortError") {
+          // A stopped trial answer may still have been counted server-side.
+          if (mode === "detailed" && !isPro) refreshTrial();
           setMessages((prev) => {
             const last = prev[prev.length - 1];
             if (last?.role === "assistant" && !last.content.trim()) return prev.slice(0, -1);
@@ -275,7 +336,7 @@ export default function ChatInterface({
         setMessages((prev) => [...prev, { role: "assistant", content: t(lang, "errorMsg") }]);
       }
     },
-    [messages, sources, mode, lang]
+    [messages, sources, mode, lang, isPro, isSignedIn, refreshTrial]
   );
 
   // Grow the composer with its content, up to a cap where it starts scrolling.
@@ -335,13 +396,18 @@ export default function ChatInterface({
     return (
       <div className="inline-flex items-center gap-0.5 p-1 rounded-full border border-[var(--border)] text-xs">
         {(["simple", "detailed", "challenge"] as ResponseMode[]).map((m) => {
-          const isLocked = PRO_MODES.includes(m) && !isPro;
+          const isTrial = PRO_MODES.includes(m) && trialAvailable;
+          const isLocked = PRO_MODES.includes(m) && !isPro && !isTrial;
           const isActive = mode === m && !isLocked;
           return (
             <button
               key={m}
               onClick={() => {
-                if (isLocked) { setShowProPrompt(true); return; }
+                if (isLocked) {
+                  setLockReason(!isSignedIn ? "signup" : trial && !trial.available ? "used" : "pro");
+                  setShowProPrompt(true);
+                  return;
+                }
                 setShowProPrompt(false);
                 setMode(m);
               }}
@@ -369,6 +435,11 @@ export default function ChatInterface({
                 {m === "simple" ? t(lang, "modeSimple") : m === "detailed" ? t(lang, "modeDetailed") : t(lang, "modeChallenge")}
                 {isLocked && (
                   <span className="text-[9px] font-medium tracking-wide text-amber-600 dark:text-[#cbb994]">PRO</span>
+                )}
+                {isTrial && (
+                  <span className="text-[9px] font-medium tracking-wide px-1.5 py-px rounded-full bg-amber-500/15 dark:bg-[#cbb994]/20 text-amber-700 dark:text-[#e3d2ad]">
+                    {t(lang, "trialBadge")}
+                  </span>
                 )}
               </span>
             </button>
@@ -465,7 +536,11 @@ export default function ChatInterface({
             transition={{ duration: 0.18 }}
             className={`text-xs ${mode === "challenge" ? "text-red-500 dark:text-[#f0726a]" : "text-[var(--text-muted)]"}`}
           >
-            {mode === "simple" ? t(lang, "modeSimpleDesc") : mode === "detailed" ? t(lang, "modeDetailedDesc") : t(lang, "modeChallengeDesc")}
+            {mode === "simple"
+              ? t(lang, "modeSimpleDesc")
+              : mode === "detailed"
+              ? isPro ? t(lang, "modeDetailedDesc") : t(lang, "trialHint")
+              : t(lang, "modeChallengeDesc")}
           </motion.span>
         </AnimatePresence>
       </div>
@@ -484,13 +559,76 @@ export default function ChatInterface({
             className="relative flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-amber-50 dark:bg-[#1a160e] border border-amber-200 dark:border-[#cbb994]/20"
           >
             <p className="text-xs text-amber-800 dark:text-[#d8cfc0]">
-              <span className="font-medium">Detailed mode is Pro only.</span> Unlock more messages + deep research.
+              {lockReason === "signup" ? (
+                <><span className="font-medium">{t(lang, "trialSignupTitle")}.</span> {t(lang, "trialSignupBody")}</>
+              ) : lockReason === "used" ? (
+                <><span className="font-medium">{t(lang, "trialUsedTitle")}</span> {t(lang, "trialUsedBody").replace("{when}", formatRetry(trial?.retryAt ?? null, lang))}</>
+              ) : (
+                <><span className="font-medium">Detailed mode is Pro only.</span> Unlock more messages + deep research.</>
+              )}
             </p>
             <div className="flex items-center gap-3 shrink-0">
-              <a href="/#pricing" onClick={() => setShowProPrompt(false)} className="text-xs font-medium text-amber-600 dark:text-[#e3d2ad] hover:underline underline-offset-2">
-                See pricing →
-              </a>
+              {lockReason === "signup" ? (
+                <SignUpButton mode="modal">
+                  <button onClick={() => setShowProPrompt(false)} className="text-xs font-medium text-amber-600 dark:text-[#e3d2ad] hover:underline underline-offset-2">
+                    {t(lang, "signUpFree")} →
+                  </button>
+                </SignUpButton>
+              ) : (
+                <a href="/#pricing" onClick={() => setShowProPrompt(false)} className="text-xs font-medium text-amber-600 dark:text-[#e3d2ad] hover:underline underline-offset-2">
+                  See pricing →
+                </a>
+              )}
               <button onClick={() => setShowProPrompt(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm leading-none">✕</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
+
+  /* Small "support me" card that floats above the composer every few answers. */
+  function renderSupport() {
+    return (
+      <AnimatePresence>
+        {showSupport && !isPro && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            role="dialog"
+            aria-label={t(lang, "supportTitle")}
+            className="absolute bottom-full right-0 mb-3 z-20 w-full sm:w-[340px] glass-card p-4 shadow-[0_12px_32px_rgb(0_0_0/0.12)] dark:shadow-[0_12px_32px_rgb(0_0_0/0.45)]"
+          >
+            <button
+              onClick={() => setShowSupport(false)}
+              aria-label="Close"
+              className="absolute top-2.5 right-3 text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm leading-none"
+            >
+              ✕
+            </button>
+            <div className="flex items-start gap-3 pr-4">
+              <span className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center bg-amber-100 dark:bg-[#2b2519] text-amber-600 dark:text-[#e3d2ad] text-sm">✦</span>
+              <div>
+                <p className="font-serif text-[17px] font-medium text-[var(--text-primary)] leading-snug">{t(lang, "supportTitle")}</p>
+                <p className="mt-1 text-xs leading-relaxed text-[var(--text-muted)]">{t(lang, "supportBody")}</p>
+              </div>
+            </div>
+            <div className="mt-3.5 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setShowSupport(false)}
+                className="px-3 py-1.5 rounded-full text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)] transition-colors"
+              >
+                {t(lang, "supportDismiss")}
+              </button>
+              <a
+                href="/#pricing"
+                onClick={() => setShowSupport(false)}
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium bg-amber-500 hover:bg-amber-600 dark:bg-[#cbb994] dark:hover:bg-[#e3d2ad] text-white dark:text-[#1c1813] transition-colors"
+              >
+                ✦ {t(lang, "supportCta")}
+              </a>
             </div>
           </motion.div>
         )}
@@ -624,7 +762,7 @@ export default function ChatInterface({
               <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 pt-16 lg:pt-10 pb-8 space-y-7">
                 <AnimatePresence initial={false}>
                   {messages.map((msg, i) =>
-                    msg.role === "assistant" && (msg.content === "daily_limit" || msg.content === "pro_required") ? (
+                    msg.role === "assistant" && NOTICES.has(msg.content) ? (
                       <motion.div
                         key={i}
                         initial={{ opacity: 0, y: 10 }}
@@ -635,7 +773,11 @@ export default function ChatInterface({
                           <span className="text-amber-500 dark:text-[#cbb994] text-base leading-none mt-0.5">✦</span>
                           <div>
                             <p className="text-sm font-medium text-[var(--text-primary)] mb-0.5">
-                              {msg.content === "pro_required"
+                              {msg.content === "trial_used"
+                                ? t(lang, "trialUsedTitle")
+                                : msg.content === "trial_signup"
+                                ? t(lang, "trialSignupTitle")
+                                : msg.content === "pro_required"
                                 ? "Detailed mode requires a Pro subscription."
                                 : !isSignedIn
                                 ? "You've used your 3 free trial messages."
@@ -644,7 +786,11 @@ export default function ChatInterface({
                                 : "You've used your 12 free messages for today."}
                             </p>
                             <p className="text-xs text-[var(--text-muted)]">
-                              {msg.content === "pro_required"
+                              {msg.content === "trial_used"
+                                ? t(lang, "trialUsedBody").replace("{when}", formatRetry(trial?.retryAt ?? null, lang))
+                                : msg.content === "trial_signup"
+                                ? t(lang, "trialSignupBody")
+                                : msg.content === "pro_required"
                                 ? "Upgrade to Pro to unlock in-depth answers with deep source research."
                                 : !isSignedIn
                                 ? "Create a free account to get 12 messages per day, then upgrade to Pro for more."
@@ -709,7 +855,8 @@ export default function ChatInterface({
 
             {/* Input area */}
             <div className="shrink-0 px-4 sm:px-6 pb-4 pt-2">
-              <div className="mx-auto w-full max-w-3xl space-y-2.5">
+              <div className="relative mx-auto w-full max-w-3xl space-y-2.5">
+                {renderSupport()}
                 {renderProPrompt()}
                 {renderSources()}
                 {renderComposer()}

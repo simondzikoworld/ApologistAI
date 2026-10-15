@@ -6,7 +6,10 @@ import { isSupported, lookupVerse, LOOKUP_TOOL } from "@/lib/scripture";
 import { checkQuotes } from "@/lib/quoteCheck";
 import { readIsPro } from "@/lib/pro";
 import { fetchAndParseSources } from "@/lib/sources";
-import { incrementUsage, getLimit, userUsageKey, ipUsageKey, type Tier } from "@/lib/usage";
+import {
+  incrementUsage, getLimit, userUsageKey, ipUsageKey, type Tier,
+  claimDetailedTrial, refundDetailedTrial, detailedTrialRetryAt,
+} from "@/lib/usage";
 import type { ChatRequest, ResponseMode } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -62,14 +65,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No messages provided" }, { status: 400 });
   }
 
-  // Gate Detailed mode — Pro only
+  // Gate Detailed mode — Pro, or a free account's periodic trial answer.
+  // Refusals keep the `pro_required` code older clients (the mobile app)
+  // already handle; `retryAt` / `signupForTrial` are extras for the web.
+  let usingTrial = false;
   if (mode === "detailed" && !isPro) {
-    return NextResponse.json({ error: "pro_required" }, { status: 403 });
+    if (!userId) {
+      return NextResponse.json({ error: "pro_required", signupForTrial: true }, { status: 403 });
+    }
+    if (!(await claimDetailedTrial(userId))) {
+      const retryAt = await detailedTrialRetryAt(userId);
+      return NextResponse.json({ error: "pro_required", retryAt }, { status: 403 });
+    }
+    usingTrial = true;
   }
 
-  // Daily limit check via Redis
+  // Daily limit check via Redis (the trial answer is its own allowance)
   const limit = getLimit(tier, mode);
-  if (limit !== Infinity) {
+  if (limit !== Infinity && !usingTrial) {
     const key = userId ? userUsageKey(userId, mode) : ipUsageKey(ip);
     const newCount = await incrementUsage(key);
     if (newCount > limit) {
@@ -168,6 +181,8 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("Chat API error:", msg);
+    // Nothing was answered, so don't spend the user's trial on it.
+    if (usingTrial && userId) await refundDetailedTrial(userId).catch(() => {});
     return NextResponse.json({ error: "Internal server error", detail: msg }, { status: 500 });
   }
 }

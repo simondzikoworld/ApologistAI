@@ -958,7 +958,7 @@ export default function Home() {
               </div>
               <ul className="space-y-2.5 flex-1 mb-6">
                 {tArr(lang, "pricingFreeFeatures").map((text, i) => {
-                  const ok = i < 3;
+                  const ok = i < 4;
                   return (
                     <li key={i} className="flex items-start gap-2.5">
                       <span className={`mt-0.5 shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${ok ? "bg-amber-100 dark:bg-[#2b2519] text-amber-600 dark:text-[#cbb994]" : "bg-slate-200 dark:bg-[#2c2722] text-slate-400 dark:text-[#7c7468]"}`}>
