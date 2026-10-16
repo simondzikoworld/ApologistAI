@@ -105,6 +105,8 @@ export interface StreamOptions {
   runTool?: (name: string, input: unknown) => Promise<string>;
   /** Safety valve so a confused model can't loop forever. */
   maxToolRounds?: number;
+  /** Called with the final stop reason, e.g. "max_tokens" when the answer was cut off. */
+  onStop?: (reason: string | null) => void;
 }
 
 export async function* streamText(
@@ -144,7 +146,10 @@ export async function* streamText(
         const toolUses = final.content.filter(
           (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
         );
-        if (!toolUses.length || !opts.runTool || round >= maxRounds) return;
+        if (!toolUses.length || !opts.runTool || round >= maxRounds) {
+          opts.onStop?.(final.stop_reason);
+          return;
+        }
 
         const results: Anthropic.ToolResultBlockParam[] = await Promise.all(
           toolUses.map(async (t) => ({

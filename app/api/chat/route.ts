@@ -26,6 +26,16 @@ const SOURCE_LIMIT: Record<ResponseMode, number> = {
   detailed: 6,
 };
 
+// Appended when an answer hits its token limit and stops mid-sentence.
+const TRUNCATED_NOTE: Record<string, string> = {
+  EN: "…\n\n*This answer reached its length limit. Ask me to continue and I'll pick up where I left off.*",
+  PL: "…\n\n*Ta odpowiedź osiągnęła limit długości. Poproś, żebym kontynuował, a dokończę.*",
+  ES: "…\n\n*Esta respuesta alcanzó su límite de longitud. Pídeme que continúe y seguiré donde lo dejé.*",
+  FR: "…\n\n*Cette réponse a atteint sa limite de longueur. Demandez-moi de continuer et je reprendrai là où je me suis arrêté.*",
+  DE: "…\n\n*Diese Antwort hat ihre Längengrenze erreicht. Bitte mich weiterzumachen, dann setze ich dort fort.*",
+  PT: "…\n\n*Esta resposta atingiu o limite de tamanho. Peça para eu continuar e retomo de onde parei.*",
+};
+
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
   const now = Date.now();
@@ -107,6 +117,10 @@ export async function POST(req: NextRequest) {
     const canQuote = isSupported(lang);
     // Verse texts the tool returned this turn, used to validate quotes below.
     const verifiedTexts: string[] = [];
+    // Set when the model ran out of room, so the answer can end with a note
+    // instead of stopping mid-sentence without explanation.
+    let truncated = false;
+    const onStop = (reason: string | null) => { truncated = reason === "max_tokens"; };
 
     const generator = streamText(
       (provider) => ({
@@ -129,8 +143,9 @@ export async function POST(req: NextRequest) {
               verifiedTexts.push(found.text);
               return `${found.reference} (${found.translation}): ${found.text}`;
             },
+            onStop,
           }
-        : {},
+        : { onStop },
     );
 
     // Pull the first chunk before returning a Response so that a total failure
@@ -149,6 +164,10 @@ export async function POST(req: NextRequest) {
           for await (const text of generator) {
             answer += text;
             controller.enqueue(encoder.encode(text));
+          }
+          if (truncated) {
+            console.warn(`[chat] answer hit max_tokens (${lang}/${mode}, ${answer.length} chars)`);
+            controller.enqueue(encoder.encode(TRUNCATED_NOTE[lang] ?? TRUNCATED_NOTE.EN));
           }
           controller.close();
         } catch (err) {
