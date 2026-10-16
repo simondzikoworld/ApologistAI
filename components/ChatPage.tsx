@@ -29,6 +29,15 @@ export default function ChatPage({ initialConversations, activeConversation }: P
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // Narrower sidebar on laptop widths, so the chat keeps room to breathe.
+  const [wideScreen, setWideScreen] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1280px)");
+    const update = () => setWideScreen(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
   const [chatKey, setChatKey] = useState(0);
   const [localActiveId, setLocalActiveId] = useState<string | null>(activeConversation?.id ?? null);
 
@@ -119,7 +128,7 @@ export default function ChatPage({ initialConversations, activeConversation }: P
 
       {/* Desktop sidebar — animated width */}
       <motion.div
-        animate={{ width: sidebarCollapsed ? 68 : 280 }}
+        animate={{ width: sidebarCollapsed ? 68 : wideScreen ? 280 : 248 }}
         initial={false}
         transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
         className="hidden lg:block h-full shrink-0 overflow-hidden"

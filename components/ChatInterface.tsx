@@ -103,8 +103,21 @@ export default function ChatInterface({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
 
-  const speechSupported = typeof window !== "undefined" &&
-    ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+  // Checked after mount: the server can't know, and guessing differently from
+  // the browser made React throw away and rebuild the whole chat on load.
+  const [speechSupported, setSpeechSupported] = useState(false);
+  // Phones get a shorter placeholder; the full one wraps and makes the box tall.
+  const [isPhone, setIsPhone] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const update = () => setIsPhone(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    setSpeechSupported("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+  }, []);
 
   function toggleListening() {
     if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
@@ -345,7 +358,7 @@ export default function ChatInterface({
     if (!el) return;
     el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
-  }, [input, messages.length]);
+  }, [input, messages.length, isPhone]);
 
   // Greeting and daily cards depend on the reader's clock, so they're only
   // worked out after mount — the server's time zone would give the wrong answer.
@@ -378,6 +391,8 @@ export default function ChatInterface({
   const verse = verses[dayOfYear % verses.length];
   const starters = tArr(lang, "starterQuestions");
   const suggestion = starters[dayOfYear % starters.length];
+  const suggestion2 = starters[(dayOfYear + 1) % starters.length];
+  const [cardIndex, setCardIndex] = useState(0);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -470,7 +485,7 @@ export default function ChatInterface({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={t(lang, "chatPlaceholder")}
+          placeholder={t(lang, isPhone ? "chatPlaceholderShort" : "chatPlaceholder")}
           rows={1}
           className="flex-1 min-w-0 resize-none bg-transparent py-2.5 px-1 text-base sm:text-[15px] leading-6 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none"
         />
@@ -668,16 +683,18 @@ export default function ChatInterface({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.12 } }}
-            className="absolute inset-0 overflow-y-auto"
+            className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-thin"
           >
-            <div className="min-h-full flex flex-col items-center justify-center px-4 pt-16 pb-10 lg:py-12">
+            {/* Phones: greeting fills the space, cards swipe sideways, composer sits at
+                the bottom within thumb reach. sm and up: the centred stack. */}
+            <div className="min-h-full flex flex-col px-4 pt-16 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:items-center sm:justify-center sm:pb-8 lg:py-[clamp(1.25rem,5vh,3rem)]">
               {/* Greeting */}
-              <div className="text-center">
+              <div className="order-1 sm:order-none flex-1 sm:flex-none flex flex-col items-center justify-center text-center py-6 sm:py-0">
                 <motion.span
                   initial={{ scale: 0.7, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 280, damping: 18, delay: 0.05 }}
-                  className="block text-4xl leading-none text-amber-500 dark:text-[#e3d2ad] greeting-glow select-none"
+                  className="block text-4xl short:text-3xl tiny:hidden leading-none text-amber-500 dark:text-[#f1dfb8] icon-glow select-none"
                   aria-hidden="true"
                 >
                   ✝
@@ -686,7 +703,8 @@ export default function ChatInterface({
                   initial={{ opacity: 0, y: 12 }}
                   animate={now ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
                   transition={{ duration: 0.45, ease: "easeOut" }}
-                  className="mt-5 font-serif text-[2.6rem] sm:text-6xl font-medium tracking-[-0.02em] leading-[1.05] text-[var(--text-primary)] greeting-glow"
+                  data-text={greeting}
+                  className="glow-text mt-[clamp(0.75rem,2vh,1.25rem)] font-serif text-[clamp(2.3rem,min(7.5vh,10vw),3.75rem)] font-medium tracking-[-0.02em] leading-[1.08] text-balance"
                 >
                   {greeting}
                 </motion.h1>
@@ -694,7 +712,7 @@ export default function ChatInterface({
                   initial={{ opacity: 0, y: 8 }}
                   animate={now ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
                   transition={{ duration: 0.4, ease: "easeOut", delay: 0.12 }}
-                  className="mt-4 text-lg sm:text-xl font-light text-[var(--text-muted)]"
+                  className="mt-[clamp(0.5rem,1.6vh,1rem)] text-[17px] sm:text-xl short:text-lg font-light text-[var(--text-muted)] text-balance"
                 >
                   {helpPrompt}
                 </motion.p>
@@ -705,42 +723,71 @@ export default function ChatInterface({
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut", delay: 0.18 }}
-                className="relative w-full max-w-2xl mt-10 space-y-3"
+                className="order-3 sm:order-none relative w-full max-w-2xl mt-4 sm:mt-[clamp(1.25rem,4.5vh,2.5rem)] space-y-3"
               >
                 <div aria-hidden="true" className="glow-haze absolute -inset-x-24 -inset-y-20" />
                 {renderSources()}
                 {renderComposer()}
-                <div className="relative pt-1">{renderModeRow("hero", true)}</div>
+                <div className="relative pt-0.5 sm:pt-1">{renderModeRow("hero", true)}</div>
                 {renderProPrompt()}
               </motion.div>
 
-              {/* Daily cards */}
+              {/* Daily cards: a swipeable row on phones, a two-up grid from sm */}
               {now && (
-                <motion.div
-                  initial="hidden"
-                  animate="visible"
-                  variants={{ visible: { transition: { staggerChildren: 0.08, delayChildren: 0.28 } }, hidden: {} }}
-                  className="grid sm:grid-cols-2 gap-4 w-full max-w-3xl mt-12"
-                >
-                  <WelcomeCard
-                    icon={<BookIcon />}
-                    label={t(lang, "verseOfDay")}
-                    action={t(lang, "reflectDeeper")}
-                    onAction={() => sendMessage(`${t(lang, "reflectPrompt")} "${verse.text}" (${verse.ref})`)}
+                <div className="order-2 sm:order-none w-full max-w-3xl sm:mt-[clamp(1.25rem,5vh,3rem)]">
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={{ visible: { transition: { staggerChildren: 0.08, delayChildren: 0.28 } }, hidden: {} }}
+                    onScroll={(e) => {
+                      const el = e.currentTarget;
+                      const card = el.firstElementChild as HTMLElement | null;
+                      if (card) setCardIndex(Math.round(el.scrollLeft / (card.offsetWidth + 12)));
+                    }}
+                    className="no-scrollbar -mx-4 px-4 scroll-px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 short:sm:gap-3 sm:overflow-visible"
                   >
-                    <p className="font-serif italic text-[17px] leading-relaxed text-[var(--text-body)]">&ldquo;{verse.text}&rdquo;</p>
-                    <p className="mt-2 text-xs text-[var(--text-muted)]">— {verse.ref}</p>
-                  </WelcomeCard>
-                  <WelcomeCard
-                    icon={<LightbulbIcon />}
-                    label={t(lang, "tryAsking")}
-                    accent
-                    action={t(lang, "askThis")}
-                    onAction={() => sendMessage(suggestion)}
-                  >
-                    <p className="text-[17px] leading-relaxed text-[var(--text-body)]">{suggestion}</p>
-                  </WelcomeCard>
-                </motion.div>
+                    <WelcomeCard
+                      icon={<BookIcon />}
+                      label={t(lang, "verseOfDay")}
+                      action={t(lang, "reflectDeeper")}
+                      onAction={() => sendMessage(`${t(lang, "reflectPrompt")} "${verse.text}" (${verse.ref})`)}
+                    >
+                      <p className="font-serif italic text-[15px] sm:text-[17px] short:sm:text-[15px] line-clamp-3 sm:line-clamp-none tiny:line-clamp-2 leading-relaxed text-[var(--text-body)]">&ldquo;{verse.text}&rdquo;</p>
+                      <p className="mt-2 text-xs text-[var(--text-muted)]">— {verse.ref}</p>
+                    </WelcomeCard>
+                    <WelcomeCard
+                      icon={<LightbulbIcon />}
+                      label={t(lang, "tryAsking")}
+                      accent
+                      action={t(lang, "askThis")}
+                      onAction={() => sendMessage(suggestion)}
+                    >
+                      <p className="text-[15px] sm:text-[17px] short:sm:text-[15px] leading-relaxed text-[var(--text-body)]">{suggestion}</p>
+                    </WelcomeCard>
+                    {/* A third card only on phones, where swiping makes room for it */}
+                    <WelcomeCard
+                      icon={<LightbulbIcon />}
+                      label={t(lang, "tryAsking")}
+                      accent
+                      phoneOnly
+                      action={t(lang, "askThis")}
+                      onAction={() => sendMessage(suggestion2)}
+                    >
+                      <p className="text-[15px] leading-relaxed text-[var(--text-body)]">{suggestion2}</p>
+                    </WelcomeCard>
+                  </motion.div>
+                  {/* Position dots, phones only */}
+                  <div className="sm:hidden flex justify-center gap-1.5 mt-3" aria-hidden="true">
+                    {[0, 1, 2].map((i) => (
+                      <span
+                        key={i}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                          cardIndex === i ? "w-5 bg-amber-500 dark:bg-[#cbb994]" : "w-1.5 bg-[var(--border)]"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </motion.div>
@@ -758,8 +805,8 @@ export default function ChatInterface({
             className="absolute inset-0 flex flex-col"
           >
             {/* Messages */}
-            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
-              <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 pt-16 lg:pt-10 pb-8 space-y-7">
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden scroll-thin">
+              <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 pt-16 lg:pt-10 short:lg:pt-6 pb-8 space-y-7">
                 <AnimatePresence initial={false}>
                   {messages.map((msg, i) =>
                     msg.role === "assistant" && NOTICES.has(msg.content) ? (
@@ -893,11 +940,12 @@ export default function ChatInterface({
 }
 
 function WelcomeCard({
-  icon, label, accent = false, action, onAction, children,
+  icon, label, accent = false, phoneOnly = false, action, onAction, children,
 }: {
   icon: React.ReactNode;
   label: string;
   accent?: boolean;
+  phoneOnly?: boolean;
   action: string;
   onAction: () => void;
   children: React.ReactNode;
@@ -908,24 +956,28 @@ function WelcomeCard({
         hidden: { opacity: 0, y: 16 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.38, ease: "easeOut" } },
       }}
-      className="flex flex-col items-center text-center px-6 pt-6 pb-5 rounded-3xl border border-[var(--border)] bg-[var(--surface)]"
+      className={`snap-start shrink-0 w-[82%] sm:w-auto flex flex-col items-start text-left sm:items-center sm:text-center px-5 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-5 short:sm:px-5 short:sm:pt-4 short:sm:pb-4 rounded-3xl border border-[var(--border)] bg-[var(--surface)] ${
+        phoneOnly ? "sm:hidden" : ""
+      }`}
     >
-      <span
-        className={`w-11 h-11 rounded-full flex items-center justify-center ${
-          accent
-            ? "bg-amber-100 dark:bg-[#2b2519] text-amber-600 dark:text-[#e3d2ad]"
-            : "bg-[var(--surface-2)] text-[var(--text-body)]"
-        }`}
-      >
-        {icon}
-      </span>
-      <p className={`mt-4 text-xs font-medium uppercase tracking-[0.08em] ${accent ? "text-amber-600 dark:text-[#cbb994]" : "text-[var(--text-body)]"}`}>
-        {label}
-      </p>
-      <div className="mt-3 flex-1">{children}</div>
+      <div className="flex items-center gap-2.5 sm:flex-col sm:gap-0">
+        <span
+          className={`w-8 h-8 sm:w-11 sm:h-11 short:sm:w-9 short:sm:h-9 tiny:hidden shrink-0 rounded-full flex items-center justify-center ${
+            accent
+              ? "bg-amber-100 dark:bg-[#2b2519] text-amber-600 dark:text-[#e3d2ad]"
+              : "bg-[var(--surface-2)] text-[var(--text-body)]"
+          }`}
+        >
+          {icon}
+        </span>
+        <p className={`sm:mt-4 short:sm:mt-3 tiny:mt-0 text-[11px] sm:text-xs font-medium uppercase tracking-[0.08em] ${accent ? "text-amber-600 dark:text-[#cbb994]" : "text-[var(--text-body)]"}`}>
+          {label}
+        </p>
+      </div>
+      <div className="mt-2.5 sm:mt-3 short:sm:mt-2 flex-1">{children}</div>
       <button
         onClick={onAction}
-        className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-primary)] hover:text-amber-600 dark:hover:text-[#e3d2ad] transition-colors group"
+        className="mt-3 sm:mt-5 short:sm:mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-primary)] hover:text-amber-600 dark:hover:text-[#e3d2ad] transition-colors group"
       >
         {action}
         <span className="transition-transform group-hover:translate-x-0.5">→</span>

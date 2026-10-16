@@ -94,7 +94,7 @@ export default function ConversationSidebar({
       </nav>
 
       {/* ── Recent conversations ── */}
-      <div className="flex-1 min-h-0 overflow-y-auto mt-6">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scroll-thin mt-6 short:mt-4">
         {!collapsed && (
           <div className="px-3 pb-3">
             <SectionLabel>{t(lang, "sidebarRecent")}</SectionLabel>
@@ -209,7 +209,7 @@ function NavRow({
   onClick?: () => void;
 }) {
   const className = `flex items-center gap-3 w-full rounded-xl text-[15px] transition-colors ${
-    collapsed ? "justify-center p-2.5" : "px-3 py-2.5"
+    collapsed ? "justify-center p-2.5 short:p-2" : "px-3 py-2.5 short:py-2"
   } ${
     active
       ? "bg-[var(--active-bg)] text-[var(--text-primary)]"

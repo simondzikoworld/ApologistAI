@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @custom-variant dark (.dark &);
+/* Laptop-height screens (e.g. 1366×768, or 1080p at 125% scaling) and shorter. */
+@custom-variant short (@media (max-height: 820px));
+@custom-variant tiny (@media (max-height: 600px));
 
 @theme {
   --color-navy: #1a1a2e;
@@ -44,6 +47,8 @@
   --active-bg:    rgb(15 23 42 / 0.07);
   --glow:         rgb(245 158 11 / 0.22);
   --glow-soft:    rgb(245 158 11 / 0.08);
+  --glow-core:    rgb(232 200 140 / 0.85);
+  --glow-bloom:   rgb(225 190 120 / 0.55);
 }
 
 /* ─── Dark theme: warm black + beige (overrides :root) ───────────────── */
@@ -65,6 +70,8 @@
   --active-bg:    rgb(245 239 227 / 0.07);
   --glow:         rgb(227 210 173 / 0.28);
   --glow-soft:    rgb(203 185 148 / 0.07);
+  --glow-core:    rgb(241 223 184 / 0.75);
+  --glow-bloom:   rgb(203 185 148 / 0.65);
 }
 
 /* ─── Glass utilities ────────────────────────────────────────────────── */
@@ -99,19 +106,66 @@
     text-shadow: 0 0 28px var(--glow), 0 0 64px var(--glow-soft);
   }
 
-  /* Beige/cream halo on the chat greeting: a tight cream core, then wider beige rings. */
-  .greeting-glow {
-    text-shadow:
-      0 0 10px rgb(203 185 148 / 0.35),
-      0 0 30px rgb(203 185 148 / 0.30),
-      0 0 70px rgb(203 185 148 / 0.20);
+  /* Glowing display text, e.g. the chat greeting. The letters stay crisp; the
+     light comes from blurred copies behind them (::before close bloom, ::after
+     wide halo), taken from data-text, so it reads as light, not a thicker stroke.
+     Needs data-text set to the same text as the element. */
+  .glow-text {
+    position: relative;
+    isolation: isolate;
+    color: var(--text-primary);
   }
-  .dark .greeting-glow {
-    text-shadow:
-      0 0 8px rgb(245 239 227 / 0.35),
-      0 0 24px rgb(227 210 173 / 0.45),
-      0 0 60px rgb(203 185 148 / 0.35),
-      0 0 120px rgb(203 185 148 / 0.20);
+  .glow-text::before,
+  .glow-text::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: none;
+    animation: glow-breathe 5s ease-in-out infinite;
+  }
+  .glow-text::before {
+    color: var(--glow-core);
+    -webkit-text-fill-color: var(--glow-core);
+    filter: blur(10px);
+    opacity: 0.9;
+  }
+  .glow-text::after {
+    color: var(--glow-bloom);
+    -webkit-text-fill-color: var(--glow-bloom);
+    filter: blur(28px);
+    opacity: 0.8;
+  }
+  /* Dark theme: the letters themselves fade cream to beige, like lit metal. */
+  .dark .glow-text {
+    background-image: linear-gradient(180deg, #fffaf0 0%, #f5efe3 40%, #e3d2ad 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Glow for small symbols such as the greeting's cross. */
+  .icon-glow {
+    filter: drop-shadow(0 0 6px var(--glow-core)) drop-shadow(0 0 18px var(--glow-bloom));
+  }
+
+  /* Hide a scrollbar but keep the area scrollable (swipe rows). */
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  /* Slim, quiet scrollbars for the chat's scroll areas. */
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .scroll-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scroll-thin::-webkit-scrollbar-track { background: transparent; }
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
   }
 
   /* Warm haze behind the hero input. Decorative only. */
@@ -119,6 +173,15 @@
     pointer-events: none;
     background: radial-gradient(ellipse at center, var(--glow-soft) 0%, transparent 65%);
   }
+}
+
+/* Slow "breathing" of the greeting glow. */
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glow-text::before, .glow-text::after { animation: none; }
 }
 
 @keyframes wordIn {

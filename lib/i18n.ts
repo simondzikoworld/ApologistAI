@@ -24,6 +24,7 @@ interface Dict {
   // chat
   chatHint: string;
   chatPlaceholder: string;
+  chatPlaceholderShort: string;
   responseMode: string;
   modeSimple: string;
   modeDetailed: string;
@@ -119,6 +120,7 @@ interface Dict {
 }
 
 const EN: Dict = {
+  chatPlaceholderShort: "Ask anything…",
   trialBadge: "1 free",
   trialHint: "Your free Detailed answer: 1 every 3 days",
   trialSignupTitle: "Try Detailed mode free",
@@ -263,6 +265,7 @@ const EN: Dict = {
 };
 
 const PL: Dict = {
+  chatPlaceholderShort: "Zapytaj o cokolwiek…",
   trialBadge: "1 gratis",
   trialHint: "Twoja darmowa szczegółowa odpowiedź: 1 co 3 dni",
   trialSignupTitle: "Wypróbuj tryb Szczegółowy za darmo",
@@ -407,6 +410,7 @@ const PL: Dict = {
 };
 
 const ES: Dict = {
+  chatPlaceholderShort: "Pregunta lo que quieras…",
   trialBadge: "1 gratis",
   trialHint: "Tu respuesta detallada gratuita: 1 cada 3 días",
   trialSignupTitle: "Prueba el modo Detallado gratis",
@@ -551,6 +555,7 @@ const ES: Dict = {
 };
 
 const FR: Dict = {
+  chatPlaceholderShort: "Posez votre question…",
   trialBadge: "1 offert",
   trialHint: "Votre réponse détaillée gratuite : 1 tous les 3 jours",
   trialSignupTitle: "Essayez le mode Détaillé gratuitement",
@@ -695,6 +700,7 @@ const FR: Dict = {
 };
 
 const DE: Dict = {
+  chatPlaceholderShort: "Frag mich etwas…",
   trialBadge: "1 gratis",
   trialHint: "Deine kostenlose ausführliche Antwort: 1 alle 3 Tage",
   trialSignupTitle: "Ausführlich-Modus gratis testen",
@@ -839,6 +845,7 @@ const DE: Dict = {
 };
 
 const PT: Dict = {
+  chatPlaceholderShort: "Pergunte qualquer coisa…",
   trialBadge: "1 grátis",
   trialHint: "Sua resposta detalhada gratuita: 1 a cada 3 dias",
   trialSignupTitle: "Experimente o modo Detalhado grátis",

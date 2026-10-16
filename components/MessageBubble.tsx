@@ -105,6 +105,9 @@ export default function MessageBubble({ message, streaming = false, lang = "EN" 
                 return <code className="bg-[var(--surface-2)] text-[var(--text-primary)] px-1 py-0.5 rounded text-xs font-mono">{children}</code>;
               },
               hr: () => <hr className="border-[var(--border)] my-5" />,
+              table: ({ children }) => (
+                <div className="my-3 overflow-x-auto scroll-thin"><table className="my-0">{children}</table></div>
+              ),
             }}
           >
             {processedContent}
