@@ -1,17 +1,19 @@
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { stripe } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const { userId } = await auth();
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  // Send the customer back to the address they paid from. NEXT_PUBLIC_APP_URL
+  // pointed at the vercel.app alias, where production Clerk keys don't work.
+  const appUrl = req.nextUrl.origin;
 
   // Create a Stripe customer with clerkUserId in metadata so we can look them
   // up later when a subscription is cancelled or payment fails

@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Source_Serif_4 } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import { SITE_URL as APP_URL } from "@/lib/site";
 
 // Plus Jakarta Sans for all UI text; Source Serif 4 for display headings (greeting, brand).
 const sans = Plus_Jakarta_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-jakarta" });
 const serif = Source_Serif_4({ subsets: ["latin", "latin-ext"], style: ["normal", "italic"], variable: "--font-source-serif" });
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://apologistai.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
@@ -43,7 +43,6 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    alternateLocale: ["pl_PL"],
     url: APP_URL,
     siteName: "Apologist AI",
     title: "Apologist AI — Defend Your Faith with AI",
@@ -72,12 +71,10 @@ export const metadata: Metadata = {
     },
   },
 
+  // Language is picked in the browser, so there are no separate per-language
+  // URLs to advertise — only the one canonical address.
   alternates: {
-    canonical: APP_URL,
-    languages: {
-      "en-US": APP_URL,
-      "pl-PL": `${APP_URL}?lang=PL`,
-    },
+    canonical: "/",
   },
 
   verification: {
@@ -119,11 +116,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     name: "Apologist AI",
                     description: "AI-powered Christian and Catholic apologetics assistant",
                     inLanguage: ["en-US", "pl-PL"],
-                    potentialAction: {
-                      "@type": "SearchAction",
-                      target: { "@type": "EntryPoint", urlTemplate: `${APP_URL}/?q={search_term_string}` },
-                      "query-input": "required name=search_term_string",
-                    },
                   },
                   {
                     "@type": "Organization",
@@ -132,7 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     url: APP_URL,
                     logo: {
                       "@type": "ImageObject",
-                      url: `${APP_URL}/og-image.png`,
+                      url: `${APP_URL}/icon-512.png`,
                     },
                     sameAs: [],
                   },
