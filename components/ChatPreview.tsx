@@ -18,10 +18,11 @@ const itemVariants = {
 
 interface ChatPreviewProps {
   onExpand: () => void;
+  onAsk: (question: string) => void;
   lang: Lang;
 }
 
-export default function ChatPreview({ onExpand, lang }: ChatPreviewProps) {
+export default function ChatPreview({ onExpand, onAsk, lang }: ChatPreviewProps) {
   const questions = tArr(lang, "starterQuestions");
 
   return (
@@ -60,13 +61,15 @@ export default function ChatPreview({ onExpand, lang }: ChatPreviewProps) {
           animate="visible"
         >
           {questions.map((q) => (
-            <motion.div
+            <motion.button
               key={q}
+              type="button"
               variants={itemVariants}
-              className="text-left text-[11px] text-slate-600 dark:text-[#d8cfc0] bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-xl px-3 py-2.5 hover:bg-amber-50 dark:hover:bg-[#2b2519] hover:border-amber-200 dark:hover:border-[#cbb994]/30 transition-colors leading-snug backdrop-blur-sm"
+              onClick={(e) => { e.stopPropagation(); onAsk(q); }}
+              className="cursor-pointer text-left text-[11px] text-slate-600 dark:text-[#d8cfc0] bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-xl px-3 py-2.5 hover:bg-amber-50 dark:hover:bg-[#2b2519] hover:border-amber-200 dark:hover:border-[#cbb994]/30 transition-colors leading-snug backdrop-blur-sm"
             >
               {q}
-            </motion.div>
+            </motion.button>
           ))}
         </motion.div>
 
