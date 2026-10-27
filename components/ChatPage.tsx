@@ -16,9 +16,11 @@ const MIGRATED_KEY = "cd-history-migrated";
 interface Props {
   initialConversations: Conversation[];
   activeConversation?: Conversation | null;
+  /** Asked automatically once the chat opens (from the homepage's sample questions). */
+  initialQuestion?: string;
 }
 
-export default function ChatPage({ initialConversations, activeConversation }: Props) {
+export default function ChatPage({ initialConversations, activeConversation, initialQuestion }: Props) {
   const router = useRouter();
   const { isSignedIn } = useUser();
   const isPro = useIsPro();
@@ -40,6 +42,11 @@ export default function ChatPage({ initialConversations, activeConversation }: P
   }, []);
   const [chatKey, setChatKey] = useState(0);
   const [localActiveId, setLocalActiveId] = useState<string | null>(activeConversation?.id ?? null);
+
+  // Drop ?q= once it's been handed to the chat, so a refresh doesn't ask it twice.
+  useEffect(() => {
+    if (initialQuestion) window.history.replaceState(null, "", "/chat");
+  }, [initialQuestion]);
 
   const activeId = localActiveId;
 
@@ -170,7 +177,7 @@ export default function ChatPage({ initialConversations, activeConversation }: P
           <ChatInterface
             key={chatKey}
             startFresh={!activeConversation}
-            initialQuestion={undefined}
+            initialQuestion={chatKey === 0 ? initialQuestion : undefined}
             lang={lang}
             isPro={isPro}
             conversationId={activeConversation?.id}

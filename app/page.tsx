@@ -234,7 +234,8 @@ export default function Home() {
 
   function openWithQuestion(q: string) {
     if (isSignedIn) {
-      router.push("/chat");
+      // The chat page asks it straight away (see app/chat/page.tsx).
+      router.push(`/chat?q=${encodeURIComponent(q)}`);
       return;
     }
     setChatKey(k => k + 1);
