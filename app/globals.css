@@ -49,6 +49,11 @@
   --glow-soft:    rgb(245 158 11 / 0.08);
   --glow-core:    rgb(232 200 140 / 0.85);
   --glow-bloom:   rgb(225 190 120 / 0.55);
+  /* Warm yellow: the third colour, for small accents only. */
+  --gold:            #c98a0b;
+  --gold-glow-core:  rgb(240 190 80 / 0.55);
+  --gold-glow-bloom: rgb(240 180 60 / 0.35);
+  --gold-light:      rgb(245 190 70 / 0.16);
 }
 
 /* ─── Dark theme: warm black + beige (overrides :root) ───────────────── */
@@ -72,6 +77,10 @@
   --glow-soft:    rgb(203 185 148 / 0.07);
   --glow-core:    rgb(241 223 184 / 0.75);
   --glow-bloom:   rgb(203 185 148 / 0.65);
+  --gold:            #f2c14e;
+  --gold-glow-core:  rgb(246 205 110 / 0.62);
+  --gold-glow-bloom: rgb(242 193 78 / 0.42);
+  --gold-light:      rgb(242 193 78 / 0.13);
 }
 
 /* ─── Glass utilities ────────────────────────────────────────────────── */
@@ -145,6 +154,18 @@
     -webkit-text-fill-color: transparent;
   }
 
+  /* Warm light falling from above onto the landing page. Decorative only. */
+  .hero-light {
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 55% at 50% -6%, var(--gold-light), transparent 72%),
+      radial-gradient(ellipse 26% 34% at 50% -4%, rgb(255 240 205 / 0.07), transparent 70%);
+    animation: hero-breathe 9s ease-in-out infinite;
+  }
+  .icon-glow-gold {
+    filter: drop-shadow(0 0 6px var(--gold-glow-core)) drop-shadow(0 0 20px var(--gold-glow-bloom));
+  }
+
   /* Glow for small symbols such as the greeting's cross. */
   .icon-glow {
     filter: drop-shadow(0 0 6px var(--glow-core)) drop-shadow(0 0 18px var(--glow-bloom));
@@ -176,12 +197,17 @@
 }
 
 /* Slow "breathing" of the greeting glow. */
+@keyframes hero-breathe {
+  0%, 100% { opacity: 0.85; }
+  50%      { opacity: 1; }
+}
+
 @keyframes glow-breathe {
   0%, 100% { opacity: 0.55; }
   50%      { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .glow-text::before, .glow-text::after { animation: none; }
+  .glow-text::before, .glow-text::after, .hero-light { animation: none; }
 }
 
 @keyframes wordIn {

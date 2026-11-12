@@ -111,6 +111,15 @@ interface Dict {
   supportBody: string;
   supportCta: string;
   supportDismiss: string;
+  heroInvite1: string;
+  heroInvite2: string;
+  heroInviteSub: string;
+  readingAsk: string;
+  readingAskPrompt: string;
+  heroDemoAnswer: string;
+  heroDemoRef: string;
+  storeAppleLine: string;
+  storeGoogleLine: string;
   // arrays
   bullets: string[];
   objections: string[];
@@ -120,6 +129,15 @@ interface Dict {
 }
 
 const EN: Dict = {
+  storeAppleLine: "Download on the",
+  storeGoogleLine: "Get it on",
+  heroDemoAnswer: "Yes. The Gospels, St Paul, and Roman and Jewish historians all record His death under Pontius Pilate. The Quran's denial (4:157) came some 600 years later.",
+  heroDemoRef: "John 19:18",
+  readingAsk: "Ask about this reading",
+  readingAskPrompt: "Help me understand today's {title}: {ref}.",
+  heroInvite1: "Come and ask.",
+  heroInvite2: "Every question is welcome here.",
+  heroInviteSub: "Bring the questions you carry about God, the Bible and the Church. Each one gets a patient answer from Scripture, reason and Catholic tradition.",
   chatPlaceholderShort: "Ask anything…",
   trialBadge: "1 free",
   trialHint: "Your free Detailed answer: 1 every 3 days",
@@ -265,6 +283,15 @@ const EN: Dict = {
 };
 
 const PL: Dict = {
+  storeAppleLine: "Pobierz z",
+  storeGoogleLine: "Pobierz z",
+  heroDemoAnswer: "Tak. Ewangelie, św. Paweł oraz historycy rzymscy i żydowscy potwierdzają Jego śmierć za Poncjusza Piłata. Zaprzeczenie Koranu (4:157) pojawiło się około 600 lat później.",
+  heroDemoRef: "J 19,18",
+  readingAsk: "Zapytaj o to czytanie",
+  readingAskPrompt: "Pomóż mi zrozumieć dzisiejsze czytanie ({title}): {ref}.",
+  heroInvite1: "Przyjdź i zapytaj.",
+  heroInvite2: "Każde pytanie jest tu mile widziane.",
+  heroInviteSub: "Przynieś pytania, które nosisz w sobie, o Boga, Biblię i Kościół. Na każde dostaniesz cierpliwą odpowiedź opartą na Piśmie Świętym, rozumie i tradycji katolickiej.",
   chatPlaceholderShort: "Zapytaj o cokolwiek…",
   trialBadge: "1 gratis",
   trialHint: "Twoja darmowa szczegółowa odpowiedź: 1 co 3 dni",
@@ -410,6 +437,15 @@ const PL: Dict = {
 };
 
 const ES: Dict = {
+  storeAppleLine: "Descárgalo en el",
+  storeGoogleLine: "Disponible en",
+  heroDemoAnswer: "Sí. Los Evangelios, san Pablo e historiadores romanos y judíos registran su muerte bajo Poncio Pilato. La negación del Corán (4:157) llegó unos 600 años después.",
+  heroDemoRef: "Jn 19,18",
+  readingAsk: "Preguntar sobre esta lectura",
+  readingAskPrompt: "Ayúdame a entender la lectura de hoy ({title}): {ref}.",
+  heroInvite1: "Ven y pregunta.",
+  heroInvite2: "Aquí toda pregunta es bienvenida.",
+  heroInviteSub: "Trae las preguntas que llevas sobre Dios, la Biblia y la Iglesia. Cada una recibe una respuesta paciente desde la Escritura, la razón y la tradición católica.",
   chatPlaceholderShort: "Pregunta lo que quieras…",
   trialBadge: "1 gratis",
   trialHint: "Tu respuesta detallada gratuita: 1 cada 3 días",
@@ -555,6 +591,15 @@ const ES: Dict = {
 };
 
 const FR: Dict = {
+  storeAppleLine: "Télécharger dans l’",
+  storeGoogleLine: "Disponible sur",
+  heroDemoAnswer: "Oui. Les Évangiles, saint Paul et des historiens romains et juifs rapportent sa mort sous Ponce Pilate. La négation du Coran (4:157) est venue quelque 600 ans plus tard.",
+  heroDemoRef: "Jn 19,18",
+  readingAsk: "Poser une question sur cette lecture",
+  readingAskPrompt: "Aidez-moi à comprendre la lecture du jour ({title}) : {ref}.",
+  heroInvite1: "Venez, et demandez.",
+  heroInvite2: "Ici, chaque question est la bienvenue.",
+  heroInviteSub: "Apportez les questions que vous portez sur Dieu, la Bible et l’Église. Chacune reçoit une réponse patiente, fondée sur l’Écriture, la raison et la tradition catholique.",
   chatPlaceholderShort: "Posez votre question…",
   trialBadge: "1 offert",
   trialHint: "Votre réponse détaillée gratuite : 1 tous les 3 jours",
@@ -700,6 +745,15 @@ const FR: Dict = {
 };
 
 const DE: Dict = {
+  storeAppleLine: "Laden im",
+  storeGoogleLine: "Jetzt bei",
+  heroDemoAnswer: "Ja. Die Evangelien, der heilige Paulus sowie römische und jüdische Historiker bezeugen seinen Tod unter Pontius Pilatus. Die Leugnung im Koran (4:157) kam rund 600 Jahre später.",
+  heroDemoRef: "Joh 19,18",
+  readingAsk: "Zu dieser Lesung fragen",
+  readingAskPrompt: "Hilf mir, die heutige Lesung zu verstehen ({title}): {ref}.",
+  heroInvite1: "Komm und frag.",
+  heroInvite2: "Hier ist jede Frage willkommen.",
+  heroInviteSub: "Bring die Fragen mit, die du über Gott, die Bibel und die Kirche hast. Jede bekommt eine geduldige Antwort aus der Schrift, der Vernunft und der katholischen Tradition.",
   chatPlaceholderShort: "Frag mich etwas…",
   trialBadge: "1 gratis",
   trialHint: "Deine kostenlose ausführliche Antwort: 1 alle 3 Tage",
@@ -845,6 +899,15 @@ const DE: Dict = {
 };
 
 const PT: Dict = {
+  storeAppleLine: "Baixar na",
+  storeGoogleLine: "Disponível no",
+  heroDemoAnswer: "Sim. Os Evangelhos, São Paulo e historiadores romanos e judeus registram sua morte sob Pôncio Pilatos. A negação do Alcorão (4:157) veio cerca de 600 anos depois.",
+  heroDemoRef: "Jo 19,18",
+  readingAsk: "Perguntar sobre esta leitura",
+  readingAskPrompt: "Ajude-me a entender a leitura de hoje ({title}): {ref}.",
+  heroInvite1: "Venha e pergunte.",
+  heroInvite2: "Aqui, toda pergunta é bem-vinda.",
+  heroInviteSub: "Traga as perguntas que você carrega sobre Deus, a Bíblia e a Igreja. Cada uma recebe uma resposta paciente, com a Escritura, a razão e a tradição católica.",
   chatPlaceholderShort: "Pergunte qualquer coisa…",
   trialBadge: "1 grátis",
   trialHint: "Sua resposta detalhada gratuita: 1 a cada 3 dias",

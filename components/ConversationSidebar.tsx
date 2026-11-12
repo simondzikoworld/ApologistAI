@@ -24,18 +24,21 @@ interface Props {
   onNavigate?: () => void;
   /** Hides the collapse button (the mobile drawer has no collapsed state). */
   canCollapse?: boolean;
+  /** Which main view is showing, so the right row is highlighted. */
+  view: "chat" | "reading";
+  /** Shows today's readings in place of the chat. */
+  onOpenReading: () => void;
 }
 
 export default function ConversationSidebar({
   conversations, activeId, onNew, onDelete, isPro, collapsed, onToggleCollapse,
-  lang, onLangChange, onNavigate, canCollapse = true,
+  lang, onLangChange, onNavigate, canCollapse = true, view, onOpenReading,
 }: Props) {
   const router = useRouter();
   const { user } = useUser();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const navItems = [
-    { href: "/#daily-reading", label: t(lang, "navDailyReading"), icon: <BookIcon /> },
     { href: "/#common-questions", label: t(lang, "navCommonQuestions"), icon: <QuestionIcon /> },
     { href: "/#mission", label: t(lang, "navMission"), icon: <CrossIcon /> },
   ];
@@ -51,7 +54,7 @@ export default function ConversationSidebar({
     }
   }
 
-  const isChatActive = activeId === null;
+  const isChatActive = view === "chat" && activeId === null;
 
   return (
     <aside className="flex flex-col h-full w-full overflow-hidden bg-[var(--sidebar-bg)] border-r border-[var(--border)]">
@@ -87,6 +90,13 @@ export default function ConversationSidebar({
             label={t(lang, "newChat")}
             onClick={() => { onNew(); onNavigate?.(); }}
           />
+          <NavRow
+            collapsed={collapsed}
+            active={view === "reading"}
+            icon={<BookIcon />}
+            label={t(lang, "navDailyReading")}
+            onClick={() => { onOpenReading(); onNavigate?.(); }}
+          />
           {navItems.map((item) => (
             <NavRow key={item.href} collapsed={collapsed} icon={item.icon} label={item.label} href={item.href} />
           ))}
@@ -118,7 +128,7 @@ export default function ConversationSidebar({
                       <button
                         onClick={() => { router.push(`/chat/${conv.id}`); onNavigate?.(); }}
                         className={`w-full text-left pl-3 pr-9 py-2 rounded-lg text-sm truncate transition-colors ${
-                          activeId === conv.id
+                          view === "chat" && activeId === conv.id
                             ? "bg-[var(--active-bg)] text-[var(--text-primary)]"
                             : "text-[var(--text-muted)] hover:text-[var(--text-body)] hover:bg-[var(--hover-bg)]"
                         }`}

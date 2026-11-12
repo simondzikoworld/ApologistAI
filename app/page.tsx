@@ -7,7 +7,7 @@ import { motion, AnimatePresence, LayoutGroup, type Variants } from "framer-moti
 import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { useIsPro } from "@/lib/useIsPro";
 import ChatInterface from "@/components/ChatInterface";
-import ChatPreview from "@/components/ChatPreview";
+import HomeHero from "@/components/HomeHero";
 import AnimatedThemeToggler from "@/components/AnimatedThemeToggler";
 import { t, tArr, type Lang } from "@/lib/i18n";
 import { DAILY_VERSES_BY_LANG } from "@/data/dailyVerses";
@@ -35,112 +35,11 @@ function getDayOfYear(): number {
 // Animation variants
 // ---------------------------------------------------------------------------
 
-const heroWordmarkVariants: Variants = {
-  hidden: { opacity: 0, y: -12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: OUT } },
-  exit:    { opacity: 0, y: -8, transition: { duration: 0.25, ease: IN } },
-};
-
-const heroHeadlineVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: OUT, delay: 0.1 } },
-  exit:    { opacity: 0, y: 10, transition: { duration: 0.22, ease: IN } },
-};
-
-const heroSubtextVariants: Variants = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: OUT, delay: 0.2 } },
-  exit:    { opacity: 0, y: 8, transition: { duration: 0.2, ease: IN } },
-};
-
-const heroBulletsVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.4, delay: 0.32, staggerChildren: 0.08 } },
-  exit:    { opacity: 0, transition: { duration: 0.18 } },
-};
-
-const bulletItemVariants: Variants = {
-  hidden: { opacity: 0, x: -14 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.35, ease: OUT } },
-};
-
-const heroBadgesVariants: Variants = {
-  hidden: { opacity: 0, y: 14 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: OUT, delay: 0.52 } },
-  exit:    { opacity: 0, y: 8, transition: { duration: 0.18 } },
-};
-
-const heroVerseVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.5, delay: 0.65 } },
-  exit:    { opacity: 0, transition: { duration: 0.15 } },
-};
-
-const tryLabelVariants: Variants = {
-  hidden:  { opacity: 0, y: 6 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.7 } },
-  exit:    { opacity: 0, y: -4, transition: { duration: 0.2 } },
-};
-
 const backButtonVariants: Variants = {
   hidden:  { opacity: 0, x: -24 },
   visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 380, damping: 28 } },
   exit:    { opacity: 0, x: -16, transition: { duration: 0.2 } },
 };
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-function HeroBullets({ lang }: { lang: Lang }) {
-  return (
-    <motion.ul
-      variants={heroBulletsVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="space-y-2.5"
-    >
-      {tArr(lang, "bullets").map((b) => (
-        <motion.li key={b} variants={bulletItemVariants} className="flex items-start gap-3">
-          <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 text-[11px] font-bold">
-            ✓
-          </span>
-          <span className="text-sm text-slate-600 dark:text-[#d8cfc0] leading-snug">{b}</span>
-        </motion.li>
-      ))}
-    </motion.ul>
-  );
-}
-
-function AppStoreBadges({ lang }: { lang: Lang }) {
-  return (
-    <div className="space-y-2">
-      <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">{t(lang, "comingToMobile")}</p>
-      <div className="flex gap-3">
-        {[
-          { icon: "🍎", line1: "App Store", line2: "Download on the" },
-          { icon: "▶", line1: "Google Play", line2: "Get it on" },
-        ].map(({ icon, line1, line2 }) => (
-          <div
-            key={line1}
-            title={t(lang, "comingSoon")}
-            className="group relative flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-900 opacity-50 cursor-not-allowed select-none"
-          >
-            <span className="text-white text-lg leading-none">{icon}</span>
-            <div>
-              <p className="text-[9px] text-slate-400 leading-none mb-0.5">{line2}</p>
-              <p className="text-white text-sm font-semibold leading-none">{line1}</p>
-            </div>
-            <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-slate-900/80 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-[10px] text-amber-400 font-semibold tracking-wide">{t(lang, "comingSoon")}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Main page
@@ -169,18 +68,24 @@ export default function Home() {
   }, [langDropdownOpen]);
   const [pendingQuestion, setPendingQuestion] = useState<string | undefined>();
   const [chatKey, setChatKey] = useState(0);
-  const [lang, setLang] = useState<Lang>(() => {
-    if (typeof window === "undefined") return "EN";
-    return (localStorage.getItem("cd-lang") as Lang) ?? "EN";
-  });
+  // Starts as English on both server and browser, then switches to the saved
+  // language after mount; reading it during render broke hydration for everyone else.
+  const [lang, setLang] = useState<Lang>("EN");
+  const langLoaded = useRef(false);
   const [readings, setReadings] = useState<{ date: string; readings: Array<{ title: string; reference: string; subtitle: string; text: string }> } | null>(null);
   const [readingsLoading, setReadingsLoading] = useState(true);
   const [readingsError, setReadingsError] = useState(false);
   const [expandedReading, setExpandedReading] = useState<number | null>(null);
 
-  // Persist selected language
   useEffect(() => {
-    localStorage.setItem("cd-lang", lang);
+    const saved = localStorage.getItem("cd-lang") as Lang | null;
+    if (saved) setLang(saved);
+    langLoaded.current = true;
+  }, []);
+
+  // Persist selected language (not the English placeholder used before loading).
+  useEffect(() => {
+    if (langLoaded.current) localStorage.setItem("cd-lang", lang);
   }, [lang]);
 
   // Lock page scroll when chat is fullscreen; clear pending question when chat closes
@@ -233,37 +138,25 @@ export default function Home() {
   }, [user]);
 
   function openWithQuestion(q: string) {
+    if (isSignedIn && !q) {
+      router.push("/chat");
+      return;
+    }
     if (isSignedIn) {
       // The chat page asks it straight away (see app/chat/page.tsx).
       router.push(`/chat?q=${encodeURIComponent(q)}`);
       return;
     }
     setChatKey(k => k + 1);
-    setPendingQuestion(q);
+    setPendingQuestion(q || undefined);
     setExpanded(true);
   }
 
   return (
     <LayoutGroup>
-      {/* Full-viewport background */}
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-amber-50/30 to-slate-50 dark:from-[#0a0908] dark:via-[#141210] dark:to-[#0a0908]">
-
-        {/* Decorative background crucifix */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 flex items-center justify-center"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/crucifix.png"
-            alt=""
-            className="select-none w-[78vw] h-auto lg:w-auto lg:h-[90vh] [mix-blend-mode:multiply] opacity-[0.13] dark:[mix-blend-mode:screen] dark:opacity-[0.07]"
-            style={{
-              maskImage: 'radial-gradient(ellipse at center, black 35%, transparent 72%)',
-              WebkitMaskImage: 'radial-gradient(ellipse at center, black 35%, transparent 72%)',
-            }}
-          />
-        </div>
+      {/* First screen: page colour, with warm light falling from above */}
+      <div className="relative min-h-[100svh] overflow-hidden bg-[var(--page-bg)]">
+        <div aria-hidden="true" className="hero-light absolute inset-0" />
 
         {/* Top nav — only when not expanded */}
         <AnimatePresence>
@@ -273,25 +166,69 @@ export default function Home() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: OUT } }}
               exit={{ opacity: 0, y: -10, transition: { duration: 0.2, ease: IN } }}
-              className="fixed top-0 left-0 right-0 z-[55] flex items-center py-2.5 px-4 sm:px-6 bg-white/95 dark:bg-[#0e0c0a] backdrop-blur-xl border-b border-slate-200/60 dark:border-white/[0.07]"
+              className="absolute top-0 left-0 right-0 z-[55] flex items-center py-4 px-4 sm:px-8"
             >
               {/* Left — hamburger (mobile) / language selector (desktop) */}
               <div className="flex items-center gap-1">
                 {/* Hamburger — mobile only */}
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#2c2722] transition-colors"
+                  className="lg:hidden flex flex-col justify-center items-center w-9 h-9 gap-1.5 rounded-lg hover:bg-[var(--hover-bg)] transition-colors"
                   aria-label="Open menu"
                 >
                   <span className="w-5 h-0.5 bg-slate-600 dark:bg-[#d8cfc0] rounded-full" />
                   <span className="w-5 h-0.5 bg-slate-600 dark:bg-[#d8cfc0] rounded-full" />
                   <span className="w-5 h-0.5 bg-slate-600 dark:bg-[#d8cfc0] rounded-full" />
                 </button>
+                <a href="/" className="flex items-center gap-2.5 ml-1 md:ml-0">
+                  <span className="w-8 h-8 rounded-full flex items-center justify-center bg-amber-100 dark:bg-[#2b2519] text-amber-600 dark:text-[var(--gold)] text-sm leading-none">✝</span>
+                  <span className="font-serif text-xl font-semibold tracking-tight text-[var(--text-primary)]">Apologist AI</span>
+                </a>
+              </div>
+
+              {/* Centre — nav links (desktop only) */}
+              <div
+                className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-0.5"
+                onMouseLeave={() => setHoveredNav(null)}
+              >
+                {([
+                  { href: "#", label: t(lang, "navHome"), accent: false },
+                  { href: "#mission", label: t(lang, "navMission"), accent: false },
+                  { href: "#common-questions", label: t(lang, "navCommonQuestions"), accent: false },
+                  { href: "#daily-reading", label: t(lang, "navDailyReading"), accent: false },
+                  { href: "#pricing", label: t(lang, "navPricing"), accent: true },
+                ] as const).map(({ href, label, accent }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    onMouseEnter={() => setHoveredNav(href)}
+                    className={`relative px-3 py-1.5 rounded-full text-sm transition-colors duration-100 ${
+                      accent
+                        ? "text-amber-600 dark:text-[var(--gold)]"
+                        : hoveredNav === href
+                          ? "text-[var(--text-primary)]"
+                          : "text-[var(--text-muted)]"
+                    }`}
+                  >
+                    {hoveredNav === href && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-full bg-amber-100/80 dark:bg-white/[0.07] border border-amber-200/60 dark:border-white/[0.10] backdrop-blur-sm"
+                        transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.5 }}
+                      />
+                    )}
+                    <span className="relative z-10">{label}</span>
+                  </a>
+                ))}
+              </div>
+
+              {/* Right — auth + dark mode toggle */}
+              <div className="ml-auto flex items-center gap-2">
                 {/* Language selector — dropdown (all screen sizes) */}
                 <div className="relative" ref={langDropdownRef}>
                   <button
                     onClick={() => setLangDropdownOpen((o) => !o)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-[#2c2722] bg-white dark:bg-[#1e1a16] text-xs font-semibold text-slate-700 dark:text-[#d8cfc0] hover:border-amber-300 dark:hover:border-[#cbb994]/60 hover:bg-amber-50 dark:hover:bg-[#2c2722] transition-colors shadow-sm"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)] transition-colors"
                   >
                     <span>{lang === "EN" ? "🇬🇧" : lang === "PL" ? "🇵🇱" : lang === "ES" ? "🇪🇸" : lang === "FR" ? "🇫🇷" : lang === "DE" ? "🇩🇪" : "🇧🇷"}</span>
                     <span>{lang}</span>
@@ -307,7 +244,7 @@ export default function Home() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -6, scale: 0.95 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute left-0 top-full mt-1 z-50 bg-white dark:bg-[#1e1a16] border border-slate-200 dark:border-[#2c2722] rounded-xl shadow-lg overflow-hidden min-w-[140px]"
+                          className="absolute right-0 top-full mt-1 z-50 bg-white dark:bg-[#1e1a16] border border-slate-200 dark:border-[#2c2722] rounded-xl shadow-lg overflow-hidden min-w-[140px]"
                         >
                           {(["EN", "PL", "ES", "FR", "DE", "PT"] as const).map((l) => (
                             <button
@@ -328,46 +265,7 @@ export default function Home() {
                     )}
                   </AnimatePresence>
                 </div>
-              </div>
 
-              {/* Centre — nav links (desktop only) */}
-              <div
-                className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-0.5"
-                onMouseLeave={() => setHoveredNav(null)}
-              >
-                {([
-                  { href: "#", label: t(lang, "navHome"), accent: false },
-                  { href: "#mission", label: t(lang, "navMission"), accent: false },
-                  { href: "#common-questions", label: t(lang, "navCommonQuestions"), accent: false },
-                  { href: "#daily-reading", label: t(lang, "navDailyReading"), accent: false },
-                  { href: "#pricing", label: t(lang, "navPricing"), accent: true },
-                ] as const).map(({ href, label, accent }) => (
-                  <a
-                    key={href}
-                    href={href}
-                    onMouseEnter={() => setHoveredNav(href)}
-                    className={`relative px-3 py-1.5 rounded-full text-sm font-semibold transition-colors duration-100 ${
-                      accent
-                        ? "text-amber-600 dark:text-[#cbb994]"
-                        : hoveredNav === href
-                          ? "text-amber-700 dark:text-[#f5efe3]"
-                          : "text-slate-700 dark:text-[#d8cfc0]"
-                    }`}
-                  >
-                    {hoveredNav === href && (
-                      <motion.span
-                        layoutId="nav-pill"
-                        className="absolute inset-0 rounded-full bg-amber-100/80 dark:bg-white/[0.07] border border-amber-200/60 dark:border-white/[0.10] backdrop-blur-sm"
-                        transition={{ type: "spring", stiffness: 500, damping: 35, mass: 0.5 }}
-                      />
-                    )}
-                    <span className="relative z-10">{label}</span>
-                  </a>
-                ))}
-              </div>
-
-              {/* Right — auth + dark mode toggle */}
-              <div className="ml-auto flex items-center gap-2">
                 {isSignedIn ? (
                   <div className="relative">
                     <UserButton />
@@ -380,13 +278,13 @@ export default function Home() {
                 ) : (
                   <>
                     <SignInButton mode="modal">
-                      <button className="hidden sm:inline-flex px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 dark:text-[#d8cfc0] hover:bg-slate-100 dark:hover:bg-[#2c2722] border border-slate-200 dark:border-[#2c2722] transition-colors">
+                      <button className="hidden sm:inline-flex px-3 py-1.5 rounded-full text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
                         Sign in
                       </button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <button className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500 dark:bg-[#cbb994] hover:bg-amber-600 dark:hover:bg-[#e3d2ad] text-white dark:text-[#1c1813] text-xs font-bold shadow-sm transition-colors">
-                        ✦ Get Pro
+                      <button className="hidden sm:inline-flex items-center px-4 py-1.5 rounded-full bg-amber-500 dark:bg-[#e3d2ad] hover:bg-amber-600 dark:hover:bg-[#f5efe3] text-white dark:text-[#1c1813] text-xs font-medium transition-colors">
+                        {t(lang, "signUpFree")}
                       </button>
                     </SignUpButton>
                   </>
@@ -538,197 +436,27 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {/* Two-column layout */}
-        <div className="relative z-10 flex flex-col lg:flex-row min-h-screen">
+        <section className="relative z-10 min-h-[100svh] flex flex-col px-5 sm:px-8 lg:px-12 pt-20">
+          <AnimatePresence>
+            {!expanded && <HomeHero key="hero" lang={lang} verse={dailyVerse} onAsk={openWithQuestion} />}
+          </AnimatePresence>
+        </section>
 
-          {/* ----------------------------------------------------------------
-              LEFT — Hero content
-          ---------------------------------------------------------------- */}
-          <div className="flex flex-col justify-center px-6 sm:px-10 lg:px-12 xl:px-20 2xl:px-32 pt-24 pb-10 lg:py-16 w-full lg:w-[55%]">
-            <AnimatePresence>
-              {!expanded && (
-                <>
-                  {/* Logo */}
-                  <motion.div
-                    key="wordmark"
-                    variants={heroWordmarkVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="mb-6 lg:mb-12"
-                  >
-                    <Image
-                      src="/apologist.png"
-                      alt="Apologist AI"
-                      width={220}
-                      height={80}
-                      priority
-                      className="h-48 w-auto dark:brightness-0 dark:invert"
-                    />
-                  </motion.div>
-
-                  {/* Headline */}
-                  <motion.h1
-                    key="headline"
-                    variants={heroHeadlineVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-slate-900 dark:text-[#f5efe3] leading-[1.08] tracking-tight mb-5"
-                  >
-                    {t(lang, "heroLine1")}
-                    <br />
-                    <span className="text-amber-500 dark:text-[#cbb994]">{t(lang, "heroLine2")}</span>
-                  </motion.h1>
-
-                  {/* Sub-text */}
-                  <motion.p
-                    key="subtext"
-                    variants={heroSubtextVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="text-slate-500 dark:text-[#9d9484] text-base xl:text-lg leading-relaxed max-w-md xl:max-w-xl mb-6"
-                  >
-                    {t(lang, "heroSub")}
-                  </motion.p>
-
-                  {/* Try Now CTA */}
-                  <motion.div
-                    key="try-now-cta"
-                    variants={heroSubtextVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="mb-9"
-                  >
-                    <motion.button
-                      onClick={() => { if (isSignedIn) { router.push("/chat"); } else { setChatKey(k => k + 1); setExpanded(true); } }}
-                      whileHover={{ scale: 1.04 }}
-                      whileTap={{ scale: 0.97 }}
-                      className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 dark:bg-[#cbb994] dark:hover:bg-[#e3d2ad] text-white dark:text-[#1c1813] font-bold text-sm shadow-lg shadow-amber-200 dark:shadow-black/40 transition-colors"
-                    >
-                      <span>✝</span>
-                      {t(lang, "tryItNow")}
-                    </motion.button>
-                  </motion.div>
-
-                  {/* Bullets */}
-                  <div key="bullets" className="mb-8">
-                    <HeroBullets lang={lang} />
-                  </div>
-
-                  {/* App store badges */}
-                  <motion.div
-                    key="badges"
-                    variants={heroBadgesVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="mb-10"
-                  >
-                    <AppStoreBadges lang={lang} />
-                  </motion.div>
-
-                  {/* Daily Bible verse */}
-                  <motion.blockquote
-                    key="verse"
-                    variants={heroVerseVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="border-l-2 border-amber-300 dark:border-[#cbb994]/40 pl-4 max-w-sm"
-                  >
-                    <p className="text-[10px] text-amber-500 dark:text-[#cbb994] font-semibold uppercase tracking-widest mb-1.5">
-                      {t(lang, "verseOfDay")}
-                    </p>
-                    <p className="text-xs text-slate-400 dark:text-[#9d9484] italic leading-relaxed">
-                      &ldquo;{dailyVerse.text}&rdquo;
-                    </p>
-                    <footer className="mt-1.5 text-[11px] text-amber-500 dark:text-[#cbb994] font-semibold">
-                      — {dailyVerse.ref}
-                    </footer>
-                  </motion.blockquote>
-                </>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* ----------------------------------------------------------------
-              RIGHT — Chat card
-          ---------------------------------------------------------------- */}
-          <div className="flex flex-col items-center justify-center py-8 px-6 lg:py-16 lg:pr-8 xl:pr-16 2xl:pr-24 w-full lg:w-[45%]">
-            {/* "Try it now" label */}
-            <AnimatePresence>
-              {!expanded && (
-                <motion.div
-                  key="try-label"
-                  variants={tryLabelVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  className="mb-4 flex items-center gap-2"
-                >
-                  <motion.span
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
-                    className="text-amber-500 text-base leading-none"
-                  >
-                    ✦
-                  </motion.span>
-                  {/* Light theme keeps the amber: the hero gradient there runs
-                      white → amber-50 → slate-50, so white text would vanish. */}
-                  <span className="text-sm font-semibold text-amber-500 dark:text-white tracking-wide">
-                    {t(lang, "tryItNow")}
-                  </span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* ----------------------------------------------------------------
-                THE CARD — uses `layout` for the expand/collapse animation
-            ---------------------------------------------------------------- */}
+        {/* The full chat, grown out of the hero's input (shared layoutId). */}
+        <AnimatePresence>
+          {expanded && (
             <motion.div
-              layout
+              key="chat"
               layoutId="chat-card"
-              transition={{
-                layout: { type: "spring", stiffness: 260, damping: 30 },
-              }}
-              className={
-                expanded
-                  ? "fixed inset-0 z-50 overflow-hidden"
-                  : "relative w-full max-w-[420px] xl:max-w-[480px] 2xl:max-w-[520px] h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[640px] 2xl:h-[700px] rounded-2xl overflow-hidden bg-white/90 dark:bg-[#141210]/80 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.10)] dark:shadow-[0_28px_70px_rgba(0,0,0,0.55)] border border-white/60 dark:border-white/[0.08]"
-              }
+              transition={{ layout: { type: "spring", stiffness: 260, damping: 30 } }}
+              className="fixed inset-0 z-50 overflow-hidden bg-[var(--page-bg)] flex justify-center"
             >
-              <AnimatePresence mode="popLayout" initial={false}>
-                {!expanded ? (
-                  <motion.div
-                    key="preview"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1, transition: { duration: 0.3 } }}
-                    exit={{ opacity: 0, transition: { duration: 0.18 } }}
-                    className="absolute inset-0"
-                  >
-                    <ChatPreview lang={lang} onAsk={openWithQuestion} onExpand={() => { if (isSignedIn) { router.push("/chat"); } else { setChatKey(k => k + 1); setExpanded(true); } }} />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="chat"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1, transition: { duration: 0.35, delay: 0.15 } }}
-                    exit={{ opacity: 0, transition: { duration: 0.2 } }}
-                    className="absolute inset-0 bg-slate-100 dark:bg-[#0a0908] flex justify-center"
-                  >
-                    <div className="w-full max-w-2xl h-full bg-white dark:bg-[#141210] shadow-2xl">
-                      <ChatInterface key={chatKey} initialQuestion={pendingQuestion} startFresh={true} lang={lang} isPro={isPro} />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <div className="w-full max-w-3xl h-full">
+                <ChatInterface key={chatKey} initialQuestion={pendingQuestion} startFresh={true} lang={lang} isPro={isPro} />
+              </div>
             </motion.div>
-          </div>
-        </div>
-
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ----------------------------------------------------------------

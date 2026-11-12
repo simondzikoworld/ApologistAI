@@ -6,3 +6,8 @@
 // the vercel.app alias), which is right for redirects but wrong for SEO.
 // apologistai.net redirects to www, so www is the canonical form.
 export const SITE_URL = "https://www.apologistai.net";
+
+// Store pages for the mobile app. Leave empty until it is live: the landing
+// page shows "coming soon" badges, and turns them into download links once set.
+export const APP_STORE_URL = "";
+export const PLAY_STORE_URL = "";

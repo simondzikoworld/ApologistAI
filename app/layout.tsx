@@ -99,8 +99,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider>
       <html lang="en" className={`${sans.variable} ${serif.variable}`} suppressHydrationWarning>
         <head>
-          {/* Apply saved dark-mode class before first paint to avoid flash */}
-          <script dangerouslySetInnerHTML={{ __html: `(function(){try{if(localStorage.getItem('cd-theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}})();` }} />
+          {/* Dark is the default theme; light only if chosen. Set before first paint to avoid a flash. */}
+          <script dangerouslySetInnerHTML={{ __html: `(function(){try{if(localStorage.getItem('cd-theme')!=='light')document.documentElement.classList.add('dark')}catch(e){document.documentElement.classList.add('dark')}})();` }} />
         </head>
         <body className="font-sans antialiased" style={{ backgroundColor: 'var(--page-bg)', color: 'var(--text-primary)' }}>
           <script

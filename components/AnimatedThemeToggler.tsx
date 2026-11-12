@@ -64,9 +64,9 @@ export function AnimatedThemeToggler({ sound = true }: AnimatedThemeTogglerProps
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    // Apply saved preference on mount
+    // Dark is the default; only an explicit "light" choice turns it off.
     const saved = localStorage.getItem("cd-theme");
-    if (saved === "dark") {
+    if (saved !== "light") {
       document.documentElement.classList.add("dark");
       setIsDark(true);
     } else {
@@ -93,7 +93,7 @@ export function AnimatedThemeToggler({ sound = true }: AnimatedThemeTogglerProps
         .dark .att-btn,[data-theme="dark"] .att-btn{--at-ink:rgba(255,255,255,0.82)}
       `}</style>
       <motion.button
-        className="att-btn w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:border-amber-300 transition-colors"
+        className="att-btn w-9 h-9 flex items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--text-body)] hover:border-[var(--gold)]/50 transition-colors"
         onClick={toggle}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.86 }}

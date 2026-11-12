@@ -7,6 +7,7 @@ import { useIsPro } from "@/lib/useIsPro";
 import { motion } from "framer-motion";
 import ConversationSidebar from "./ConversationSidebar";
 import ChatInterface from "./ChatInterface";
+import DailyReadings from "./DailyReadings";
 import type { Lang } from "@/lib/i18n";
 import type { Conversation, Message } from "@/lib/types";
 
@@ -42,6 +43,14 @@ export default function ChatPage({ initialConversations, activeConversation, ini
   }, []);
   const [chatKey, setChatKey] = useState(0);
   const [localActiveId, setLocalActiveId] = useState<string | null>(activeConversation?.id ?? null);
+  // The main area shows the chat or today's readings; the chat stays mounted
+  // underneath, so going to the readings and back keeps the conversation.
+  const [view, setView] = useState<"chat" | "reading">("chat");
+  // A question to send when a new chat starts here, e.g. from a reading.
+  const [askQuestion, setAskQuestion] = useState<string | undefined>();
+
+  // Opening a conversation from the sidebar always shows the chat.
+  useEffect(() => { setView("chat"); }, [activeConversation?.id]);
 
   // Drop ?q= once it's been handed to the chat, so a refresh doesn't ask it twice.
   useEffect(() => {
@@ -93,6 +102,8 @@ export default function ChatPage({ initialConversations, activeConversation, ini
   }, [localActiveId]);
 
   function handleNew() {
+    setView("chat");
+    setAskQuestion(undefined);
     setChatKey((k) => k + 1);
     setLocalActiveId(null);
     router.push("/chat");
@@ -105,6 +116,15 @@ export default function ChatPage({ initialConversations, activeConversation, ini
       setLocalActiveId(null);
       router.push("/chat");
     }
+  }
+
+  // Starts a new chat about a reading, in place: no navigation, so nothing reloads.
+  function askAboutReading(question: string) {
+    setAskQuestion(question);
+    setLocalActiveId(null);
+    setChatKey((k) => k + 1);
+    setView("chat");
+    window.history.replaceState(null, "", "/chat");
   }
 
   function handleLangChange(l: Lang) {
@@ -120,6 +140,8 @@ export default function ChatPage({ initialConversations, activeConversation, ini
     isPro,
     lang,
     onLangChange: handleLangChange,
+    view,
+    onOpenReading: () => setView("reading"),
   };
 
   return (
@@ -174,15 +196,19 @@ export default function ChatPage({ initialConversations, activeConversation, ini
         </button>
 
         <div className="flex-1 overflow-hidden">
-          <ChatInterface
-            key={chatKey}
-            startFresh={!activeConversation}
-            initialQuestion={chatKey === 0 ? initialQuestion : undefined}
-            lang={lang}
-            isPro={isPro}
-            conversationId={activeConversation?.id}
-            onConversationSaved={handleConversationSaved}
-          />
+          {/* After the first chat, every new one (chatKey > 0) starts empty and unsaved. */}
+          <div className={view === "chat" ? "h-full" : "hidden"}>
+            <ChatInterface
+              key={chatKey}
+              startFresh={chatKey > 0 || !activeConversation}
+              initialQuestion={chatKey === 0 ? initialQuestion : askQuestion}
+              lang={lang}
+              isPro={isPro}
+              conversationId={chatKey > 0 ? undefined : activeConversation?.id}
+              onConversationSaved={handleConversationSaved}
+            />
+          </div>
+          {view === "reading" && <DailyReadings lang={lang} onAsk={askAboutReading} />}
         </div>
       </main>
     </div>
