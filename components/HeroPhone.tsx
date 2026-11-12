@@ -16,6 +16,8 @@ interface Props {
 // It plays a short conversation, and mirrors whatever is typed on the page, so
 // the page and the app read as one thing. Its frame carries layoutId
 // "chat-card", so sending a question grows the phone into the full chat.
+// The phone is also a quiet way in: hovering lifts it and shows "Try it now",
+// and clicking opens the chat (asking whatever has been typed so far).
 export default function HeroPhone({ lang, verse, draft, onAsk }: Props) {
   const starters = tArr(lang, "starterQuestions");
 
@@ -41,15 +43,24 @@ export default function HeroPhone({ lang, verse, draft, onAsk }: Props) {
 
       {/* The phone, cropped by the bottom of the screen and fading into it. */}
       <div className="-mx-28 -mt-28 px-28 pt-28 h-[calc(clamp(250px,40vh,400px)+7rem)] overflow-hidden [mask-image:linear-gradient(to_bottom,black_75%,transparent)]">
-        <motion.div
+        <motion.button
+          type="button"
           layoutId="chat-card"
+          onClick={() => onAsk(draft.trim())}
+          aria-label={t(lang, "tryItNow")}
+          whileHover={{ y: -10 }}
+          whileTap={{ scale: 0.985 }}
           initial={{ opacity: 0, y: 80 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 40, transition: { duration: 0.2 } }}
           transition={{ duration: 1.1, delay: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
-          aria-hidden="true"
-          className="relative aspect-[9/18] rounded-[2.6rem] p-[8px] bg-[#1b1814] shadow-[0_-10px_80px_var(--gold-light),0_30px_80px_rgb(0_0_0/0.5),inset_0_0_0_1px_rgb(255_255_255/0.09)] select-none"
+          className="group relative block w-full text-left cursor-pointer aspect-[9/18] rounded-[2.6rem] p-[8px] bg-[#1b1814] shadow-[0_-10px_80px_var(--gold-light),0_30px_80px_rgb(0_0_0/0.5),inset_0_0_0_1px_rgb(255_255_255/0.09)] hover:shadow-[0_-14px_110px_var(--gold-glow-bloom),0_30px_80px_rgb(0_0_0/0.5),inset_0_0_0_1px_rgb(242_193_78/0.35)] focus-visible:outline-none focus-visible:shadow-[0_-14px_110px_var(--gold-glow-bloom),0_30px_80px_rgb(0_0_0/0.5),inset_0_0_0_1px_rgb(242_193_78/0.6)] transition-shadow duration-500 select-none"
         >
+          {/* Revealed on hover or keyboard focus only: the screen dims and the label rises. */}
+          <span className="pointer-events-none absolute inset-[8px] z-10 rounded-[2.1rem] bg-black/55 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300" />
+          <span className="pointer-events-none absolute z-10 left-1/2 top-[clamp(120px,20vh,200px)] -translate-x-1/2 translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 group-focus-visible:translate-y-0 transition-all duration-300 whitespace-nowrap rounded-full bg-[#0d0b09]/85 backdrop-blur-md border border-[#f2c14e]/40 px-4 py-2 text-[13px] font-medium text-[var(--gold)] shadow-[0_0_30px_rgb(242_193_78/0.25)]">
+            {t(lang, "tryItNow")}
+          </span>
           <div className="h-full w-full rounded-[2.1rem] overflow-hidden bg-[#0d0b09] flex flex-col">
             <div className="relative h-8 shrink-0 flex items-center justify-between px-6 text-[10px] font-medium text-[#f5efe3]/80">
               <span>9:41</span>
@@ -107,7 +118,7 @@ export default function HeroPhone({ lang, verse, draft, onAsk }: Props) {
               </motion.div>
             </div>
           </div>
-        </motion.div>
+        </motion.button>
       </div>
     </div>
   );
