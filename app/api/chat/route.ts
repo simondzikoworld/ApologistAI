@@ -9,6 +9,7 @@ import { fetchAndParseSources } from "@/lib/sources";
 import {
   incrementUsage, getLimit, userUsageKey, ipUsageKey, type Tier,
   claimDetailedTrial, refundDetailedTrial, detailedTrialRetryAt,
+  bonusQuestions, bonusSubject,
 } from "@/lib/usage";
 import type { ChatRequest, ResponseMode } from "@/lib/types";
 
@@ -91,7 +92,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Daily limit check via Redis (the trial answer is its own allowance)
-  const limit = getLimit(tier, mode);
+  // Simple questions earned by watching rewarded ads in the app add to the cap.
+  const bonus = mode === "simple" && tier !== "pro" ? await bonusQuestions(bonusSubject(userId, ip)) : 0;
+  const limit = getLimit(tier, mode) + bonus;
   if (limit !== Infinity && !usingTrial) {
     const key = userId ? userUsageKey(userId, mode) : ipUsageKey(ip);
     const newCount = await incrementUsage(key);

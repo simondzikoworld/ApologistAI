@@ -37,7 +37,7 @@ You agree **not** to:
 
 - use the Service for anything unlawful, or to harass, threaten, defame or incite hatred against anyone;
 - try to make the Service produce harmful, hateful or illegal content, or bypass its safeguards (including "prompt injection");
-- create multiple accounts, use automated tools, VPNs or other tricks to **get around usage limits**;
+- create multiple accounts, use automated tools, VPNs or other tricks to **get around usage limits**, or fake ad views or ad rewards;
 - copy, scrape, resell, sublicense or offer the Service (or its answers in bulk) as part of another product;
 - reverse-engineer, overload, probe or interfere with the Service or its security, or access other users' data;
 - include other people's personal information in your questions without a lawful reason.
@@ -47,6 +47,8 @@ We may limit, suspend or close accounts that break these rules, in proportion to
 ## 5. Free use and limits
 
 The free version includes a daily number of questions and some features, as described on the Pricing page. We may change free limits and features over time. Limits reset roughly every 24 hours. Free accounts may occasionally be offered extras (such as a free Detailed answer every few days); these are promotional and may change or end at any time.
+
+**Rewarded ads.** In the free Android app, when you reach your daily limit you may choose to watch a short ad to earn **one extra question, up to twice a day**. Watching is always optional, the reward is credited only after the ad finishes, and unused extras expire at the daily reset. Ads are provided by Google AdMob, and we may change the reward, the daily cap or end the offer at any time. Pro subscribers do not see ads.
 
 ## 6. Pro subscription
 

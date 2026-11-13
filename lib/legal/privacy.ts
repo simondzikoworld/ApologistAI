@@ -20,7 +20,7 @@ Contact for anything in this policy: **${CONTACT_EMAIL}**
 
 - We collect only what we need to run the Service: your account details, the questions you ask, your saved conversations, and whether you have a Pro subscription.
 - Your questions are sent to **AI providers** to generate answers. Some of these providers are located **outside the UK, including in China** (see section 6). **Please do not include names, contact details or other private information about yourself or anyone else in your questions.**
-- We do **not** sell your data, show advertising, or use tracking or analytics tools.
+- We do **not** sell your data or use analytics tools. The free Android app offers **optional rewarded ads** — you choose to watch one to earn an extra question. These ads are provided by **Google AdMob** (see section 3). There are no ads on the website and none for Pro subscribers.
 - We never see your full card details — payments are handled by **Google Play** and **Stripe**.
 - You can **delete your account and data at any time**, in the app or at ${SITE_URL}/delete-account.
 
@@ -36,11 +36,13 @@ Contact for anything in this policy: **${CONTACT_EMAIL}**
 
 **Technical information** — our hosting provider automatically records standard request logs (such as IP address, time, and the page or service requested) for security and to keep the Service running.
 
+**Rewarded ads (Android app, free version)** — if you choose to watch an ad to earn an extra question, we record that you did (per account, or per IP address for guests) so we can apply the daily cap. The ad itself is served by **Google AdMob**, which collects data from your device to show the ad, measure it and prevent fraud — such as your device's **advertising ID**, IP address, approximate location derived from it, and how you interact with the ad. Google acts as an independent controller for this data under its own privacy policy (policies.google.com/privacy). In the UK and EEA, Google shows **personalised ads only if you consent** in the consent message the app displays; otherwise it shows non-personalised ads. You can change your choice at any time in the app's settings, and reset or delete your advertising ID in your Android settings.
+
 **Data stored on your device** — the app stores your language, theme and a few preferences on your device, and keeps your sign-in session in your device's secure storage. This stays on your device.
 
 **Special category data** — questions about faith may reveal your **religious or philosophical beliefs**, which UK law treats as sensitive. We do not ask for your beliefs. If what you choose to write reveals them, we process it only to answer you and, if you are signed in, to keep your conversation history for you (see section 4).
 
-We do **not** knowingly collect anything else: no location, no contacts, no advertising identifiers.
+We do **not** knowingly collect anything else: no precise location and no contacts. Apart from the optional rewarded ads described above, we do not use advertising identifiers.
 
 ## 4. Why we use it, and our legal basis
 
@@ -51,8 +53,10 @@ We do **not** knowingly collect anything else: no location, no contacts, no adve
 | Providing Pro and handling subscriptions | **Contract** (Art. 6(1)(b)) |
 | Daily limits, preventing abuse, keeping the Service secure | Our **legitimate interests** in a fair, reliable and secure service (Art. 6(1)(f)) |
 | Keeping payment and tax records | **Legal obligation** (Art. 6(1)(c)) — held mainly by our payment partners |
+| Showing a rewarded ad you choose to watch, and crediting the extra question | **Contract** — the reward you asked for (Art. 6(1)(b)) |
+| Personalised ads (UK/EEA) | Your **consent**, given in the in-app consent message and changeable at any time (Art. 6(1)(a)) |
 
-We do not use your data for advertising, we do not sell it, and we do not make decisions about you that have legal or similarly significant effects based solely on automated processing.
+We do not sell your data, we never show ads beside or based on the content of your conversations, and we do not make decisions about you that have legal or similarly significant effects based solely on automated processing.
 
 ## 5. Who we share it with
 
@@ -66,6 +70,7 @@ We use the following service providers ("processors") to run the Service. They m
 | **AI providers** (see section 6) | Generating answers to your questions | China, USA |
 | **Google Play** and **RevenueCat** | In-app subscriptions on Android | USA |
 | **Stripe** | Subscriptions bought on the website | USA / Ireland |
+| **Google AdMob** | Optional rewarded ads in the free Android app (independent controller for ad data) | USA / global |
 
 We may also disclose information if required by law, to protect the rights and safety of users or others, or as part of a transfer of the Service to a new owner (who would remain bound by this policy).
 
@@ -85,6 +90,8 @@ AI providers may keep the text they receive for a period set by their own polici
 | Saved conversations | Up to **90 days** after the conversation was last updated, or until you delete it or your account |
 | Daily usage counters (including guests' IP addresses) | About **25 hours** |
 | Free Detailed-answer marker | **3 days** |
+| Rewarded-ad counter | About **25 hours** |
+| Data collected by Google AdMob | Under Google's own retention policy |
 | Subscription status | Until you delete your account |
 | Payment records | As required by tax law (held by Google Play / Stripe) |
 | Hosting logs | Short periods, typically up to **30 days** |
