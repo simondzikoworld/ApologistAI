@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { LegalFooter } from "@/components/LegalPage";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, LayoutGroup, type Variants } from "framer-motion";
 import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
@@ -753,9 +755,18 @@ export default function Home() {
               )}
             </div>
           </div>
+          <p className="max-w-2xl mx-auto mt-6 text-center text-xs leading-relaxed text-slate-400 dark:text-[#7c7468]">
+            Pro renews automatically every month until cancelled. Cancel anytime; you keep Pro until the end of the paid period.
+            By subscribing you agree to the <Link href="/terms" className="underline">Terms of Use</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>.
+          </p>
         </div>
       </section>
 
+      <footer className="px-6 sm:px-10 lg:px-12 xl:px-20 pb-10">
+        <div className="max-w-3xl mx-auto">
+          <LegalFooter />
+        </div>
+      </footer>
     </LayoutGroup>
   );
 }
